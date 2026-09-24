@@ -24,6 +24,24 @@
 
 شرکت نمونه منطقهٔ زمانی `Asia/Tehran` دارد. حضور، پروژه، منابع انسانی، پیام، تقویم، فروش، بازاریابی، تبلیغ، مالی، پشتیبانی، تأیید، اسناد و سنجه در دادهٔ نمونه روشن‌اند.
 
+## XAMPP با PHP 8.2
+
+اگر این خطا را دیدید:
+
+`Your Composer dependencies require a PHP version ">= 8.4.1". You are running 8.2.12.`
+
+نسخهٔ PHP شما کافی است. قفل قدیمی وابستگی‌ها Symfony 8 را آورده بود و آن فقط روی PHP 8.4 اجرا می‌شود. پروژه اکنون روی Laravel 12 و Symfony 7 است و حداقل PHP آن 8.2.0 است. PHP 7.4 با این فریمورک سازگار نیست و نباید پایین‌تر از 8.2 بروید.
+
+در `C:\xampp8\htdocs\laravel_company\backend` پوشهٔ `vendor` را پاک کنید، بعد با همان PHP ایکس‌امپ این را بزنید:
+
+```bat
+C:\xampp8\php\php.exe C:\ProgramData\ComposerSetup\bin\composer.phar update
+```
+
+اگر Composer جای دیگری است، مسیر همان فایل را بگذارید. بعد از آن `vendor\composer\platform_check.php` باید `>= 8.2.0` بخواهد، نه `8.4.1`. ریشهٔ سایت باید `backend\public` باشد، نه خود پوشهٔ `backend`.
+
+در `php.ini` همین ایکس‌امپ این‌ها باید روشن باشند: `openssl`، `pdo_mysql`، `mbstring`، `tokenizer`، `xml`، `ctype`، `fileinfo`، `bcmath`.
+
 ## راه ۱ — Laravel
 
 برای SQLite محلی، PostgreSQL یا MySQL.

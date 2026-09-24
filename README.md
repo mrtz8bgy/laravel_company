@@ -30,7 +30,7 @@
 
 ## نیازمندی‌ها
 
-- PHP 8.3 یا بالاتر (توسعه روی 8.4)
+- PHP 8.2.12 یا بالاتر، از جمله XAMPP 8. PHP 7.4 کافی نیست.
 - Composer 2
 - Node.js 20+
 - برای Docker: PostgreSQL 16، Redis 7، Nginx، Mailpit، MinIO

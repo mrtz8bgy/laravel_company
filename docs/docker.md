@@ -2,7 +2,7 @@
 
 `docker-compose.yml` این سرویس‌ها را دارد:
 
-- `app` — PHP 8.4-FPM
+- `app` — PHP 8.4-FPM در Docker. خود برنامه از PHP 8.2.12 به بالا اجرا می‌شود، از جمله XAMPP 8.
 - `nginx` — پورت 8080
 - `database` — PostgreSQL 16
 - `redis` — صف و کش
