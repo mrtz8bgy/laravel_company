@@ -1,0 +1,105 @@
+# سامانه شرکت مجازی
+
+**Virtual Company OS** یک سیستم‌عامل شرکتی ماژولار است: دفتر مجازی، ERP، مدیریت پروژه، منابع انسانی، فروش و اتوماسیون — از یک هستهٔ چندمستأجری.
+
+این مخزن از صفر ساخته شده و به هیچ پروژه یا پیام‌رسان قبلی وابسته نیست.
+
+فاز فعلی: **سامانه کامل نسخهٔ ۱**. حضور، پروژه، منابع انسانی، پیام، تقویم، فروش، بازاریابی، مالی، پشتیبانی، تأیید، اسناد و سنجه پیاده شده‌اند.
+
+## حساب نمونه
+
+پس از `php artisan migrate --seed`:
+
+| نقش | ایمیل | رمز |
+| --- | --- | --- |
+| مدیرعامل / مالک | `ceo@ideban.test` | `ChangeMe!2026` |
+| توسعه‌دهنده | `developer@ideban.test` | `ChangeMe!2026` |
+| مهندس دوآپس | `devops@ideban.test` | `ChangeMe!2026` |
+| پشتیبانی | `support@ideban.test` | `ChangeMe!2026` |
+| مدیر فروش | `sales@ideban.test` | `ChangeMe!2026` |
+| بازاریابی | `marketing@ideban.test` | `ChangeMe!2026` |
+| مالی | `finance@ideban.test` | `ChangeMe!2026` |
+| منابع انسانی | `hr@ideban.test` | `ChangeMe!2026` |
+| ادمین پلتفرم | `platform@virtual-company.test` | `ChangeMe!2026` |
+
+شرکت نمونه: **شبکه پردازان ایده‌بان الماس**، منطقهٔ زمانی `Asia/Tehran`.
+
+رمز نمونه فقط برای محیط توسعه است. در production عوض شود.
+
+راهنمای کامل نصب، بارگذاری SQL و همین حساب‌ها: [docs/install.md](docs/install.md).
+
+## نیازمندی‌ها
+
+- PHP 8.3 یا بالاتر (توسعه روی 8.4)
+- Composer 2
+- Node.js 20+
+- برای Docker: PostgreSQL 16، Redis 7، Nginx، Mailpit، MinIO
+
+اجرای سریع محلی از SQLite استفاده می‌کند تا بدون Docker بالا بیاید. محیط Docker از PostgreSQL و Redis استفاده می‌کند.
+
+## نصب محلی
+
+```bash
+cd backend
+composer install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate --seed
+php artisan serve --host=0.0.0.0 --port=8000
+
+cd ../frontend
+npm install
+npm run dev
+```
+
+رابط کاربری: `http://localhost:5173`  
+API: `http://localhost:8000/api/v1`
+
+Vite درخواست‌های `/api` را به Laravel پروکسی می‌کند. مرورگر نباید مستقیم `localhost` بک‌اند را صدا بزند.
+
+## تست
+
+```bash
+cd backend
+php artisan test
+```
+
+تست‌ها روی SQLite در حافظه اجرا می‌شوند. این انتخاب سرعت CI را بالا می‌برد و رفتار tenant را پوشش می‌دهد. قبل از انتشار، همان مهاجرت‌ها باید روی PostgreSQL هم یک‌بار اجرا شوند.
+
+## Docker
+
+```bash
+cp docker/env/app.env backend/.env
+# APP_KEY را تولید کنید و در backend/.env بگذارید
+docker compose up --build
+docker compose exec app php artisan migrate --seed
+```
+
+سرویس‌ها: `app`، `nginx`، `database`، `redis`، `queue`، `scheduler`، `mailpit`، `minio`.
+
+جزئیات در [docs/docker.md](docs/docker.md).
+
+## مستندات
+
+- [معماری](docs/architecture.md)
+- [نقشه ماژول](docs/module-map.md)
+- [ERD](docs/erd.md)
+- [ماتریس دسترسی](docs/permission-matrix.md)
+- [API](docs/api.md)
+- [ساختار پوشه](docs/folder-structure.md)
+- [امنیت](docs/security.md)
+- [نقشه راه](docs/roadmap.md)
+- [گزارش فاز ۱](docs/phase-1.md)
+- [گزارش فاز ۲](docs/phase-2.md)
+- [گزارش فاز ۳](docs/phase-3.md)
+- [گزارش فاز ۴](docs/phase-4.md)
+- [گزارش فاز ۵ تا ۱۳](docs/phase-5-13.md)
+
+## اصول
+
+1. امنیت در بک‌اند اعمال می‌شود، نه با مخفی کردن دکمه.
+2. دادهٔ شرکت‌ها با `company_id` و scope سراسری جدا می‌شود.
+3. API مستقل از رابط وب است تا اپ موبایل بعداً همان قرارداد را مصرف کند.
+4. منطق تجاری در Controller انباشته نمی‌شود.
+5. متن رابط کاربری hard-code نیست؛ فارسی پیش‌فرض و انگلیسی زبان دوم است.
