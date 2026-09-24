@@ -78,6 +78,40 @@ DB_PASSWORD=vcos
 
 فایل سوم حضور نمونهٔ امروز را به وقت تهران می‌سازد. اگر نخواهید، ردش کنید؛ ورود و سازمان بدون آن کار می‌کند.
 
+## راه ۳ — بارگذاری یک فایل روی MySQL یا MariaDB
+
+اگر هاست شما MySQL است و با phpMyAdmin یا mysqli کار می‌کنید، فقط همین فایل را ایمپورت کنید:
+
+`virtual-company-os-mysql.sql`
+
+نسخهٔ داخل پروژه: `backend/database/sql/mysql/virtual-company-os.sql`
+
+این فایل اسکیما، شرکت نمونه، نقش‌ها و حساب‌های ورود را با هم دارد. رمز همه `ChangeMe!2026` است. فایل‌های پوشهٔ `postgresql` را روی MySQL نزنید.
+
+1. در پنل هاست یک دیتابیس خالی با یونیکد `utf8mb4` بسازید.
+2. همان دیتابیس را در phpMyAdmin انتخاب کنید.
+3. از زبانهٔ Import فایل را بارگذاری کنید.
+4. در `backend/.env` اتصال را روی همان دیتابیس بگذارید و کلید برنامه را بسازید. بعد از این ایمپورت، `migrate --seed` نزنید.
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=نام_دیتابیس_شما
+DB_USERNAME=کاربر_دیتابیس
+DB_PASSWORD=رمز_دیتابیس
+```
+
+```bash
+php artisan key:generate
+```
+
+برای ساخت دوبارهٔ فایل بعد از تغییر seeder:
+
+```bash
+python3 backend/database/sql/export-mysql.py
+```
+
 برای ساخت دوبارهٔ SQL بعد از تغییر seeder:
 
 ```bash
