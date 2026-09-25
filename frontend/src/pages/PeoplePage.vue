@@ -15,7 +15,7 @@ const open = ref(false)
 const form = reactive({
   name: '',
   email: '',
-  password: 'ChangeMe!2026',
+  password: '123456',
   job_title: '',
   employee_code: '',
   department_uuid: '',

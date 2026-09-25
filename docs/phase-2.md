@@ -47,7 +47,7 @@
 - `backend/database/sql/postgresql/02_seed.sql`
 - `backend/database/sql/postgresql/03_demo_attendance.sql`
 
-حساب‌ها و رمز در [install.md](install.md). رمز همه: `ChangeMe!2026`.
+حساب‌ها و رمز در [install.md](install.md). رمز همه: `123456`.
 
 ## باقی‌مانده
 

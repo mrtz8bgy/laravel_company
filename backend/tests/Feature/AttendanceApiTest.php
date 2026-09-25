@@ -13,7 +13,7 @@ class AttendanceApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    private const PASSWORD = 'ChangeMe!2026';
+    private const PASSWORD = '123456';
 
     protected function tearDown(): void
     {

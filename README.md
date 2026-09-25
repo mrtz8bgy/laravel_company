@@ -12,15 +12,15 @@
 
 | نقش | ایمیل | رمز |
 | --- | --- | --- |
-| مدیرعامل / مالک | `ceo@ideban.test` | `ChangeMe!2026` |
-| توسعه‌دهنده | `developer@ideban.test` | `ChangeMe!2026` |
-| مهندس دوآپس | `devops@ideban.test` | `ChangeMe!2026` |
-| پشتیبانی | `support@ideban.test` | `ChangeMe!2026` |
-| مدیر فروش | `sales@ideban.test` | `ChangeMe!2026` |
-| بازاریابی | `marketing@ideban.test` | `ChangeMe!2026` |
-| مالی | `finance@ideban.test` | `ChangeMe!2026` |
-| منابع انسانی | `hr@ideban.test` | `ChangeMe!2026` |
-| ادمین پلتفرم | `platform@virtual-company.test` | `ChangeMe!2026` |
+| مدیرعامل / مالک | `ceo@ideban.test` | `123456` |
+| توسعه‌دهنده | `developer@ideban.test` | `123456` |
+| مهندس دوآپس | `devops@ideban.test` | `123456` |
+| پشتیبانی | `support@ideban.test` | `123456` |
+| مدیر فروش | `sales@ideban.test` | `123456` |
+| بازاریابی | `marketing@ideban.test` | `123456` |
+| مالی | `finance@ideban.test` | `123456` |
+| منابع انسانی | `hr@ideban.test` | `123456` |
+| ادمین پلتفرم | `platform@virtual-company.test` | `123456` |
 
 شرکت نمونه: **شبکه پردازان ایده‌بان الماس**، منطقهٔ زمانی `Asia/Tehran`.
 

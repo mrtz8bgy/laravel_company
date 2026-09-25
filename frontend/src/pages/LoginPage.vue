@@ -20,7 +20,7 @@ const error = ref('')
 
 function fillDemo() {
   email.value = 'ceo@ideban.test'
-  password.value = 'ChangeMe!2026'
+  password.value = '123456'
 }
 
 async function submit() {

@@ -113,7 +113,7 @@ file_put_contents($outDir.'/01_schema.sql', implode("\n", $schema));
 
 $seed = [];
 $seed[] = '-- Virtual Company OS — default company, roles, login accounts, sample projects, and HR.';
-$seed[] = '-- Password for every account: ChangeMe!2026';
+$seed[] = '-- Password for every account: 123456';
 $seed[] = '-- Change it before any shared or production use.';
 $seed[] = '-- hr_profiles in this file contains a fake national id and salary. Treat the file as sensitive.';
 $seed[] = 'BEGIN;';

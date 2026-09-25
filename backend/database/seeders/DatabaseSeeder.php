@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
             User::query()->create([
                 'name' => 'Platform Admin',
                 'email' => 'platform@virtual-company.test',
-                'password' => 'ChangeMe!2026',
+                'password' => '123456',
                 'locale' => 'fa',
                 'timezone' => 'Asia/Tehran',
                 'status' => 'active',
@@ -55,7 +55,7 @@ class DatabaseSeeder extends Seeder
             'locale' => 'fa',
             'admin_name' => 'سارا محمدی',
             'email' => 'ceo@ideban.test',
-            'password' => 'ChangeMe!2026',
+            'password' => '123456',
             'phone' => '02191000000',
         ]);
 
@@ -154,7 +154,7 @@ class DatabaseSeeder extends Seeder
             $users[$person['email']] = $creator->handle($company, [
                 'name' => $person['name'],
                 'email' => $person['email'],
-                'password' => 'ChangeMe!2026',
+                'password' => '123456',
                 'job_title' => $person['job_title'],
                 'employee_code' => $person['employee_code'],
                 'department_uuid' => $departments[$person['department']]->uuid,

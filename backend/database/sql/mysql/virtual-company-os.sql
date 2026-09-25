@@ -7,7 +7,7 @@
 -- MySQL 5.7+ or MariaDB 10.2+. Not for PostgreSQL.
 --
 -- Company: شبکه پردازان ایده‌بان الماس  |  slug: ideban-almas
--- Password for every account: ChangeMe!2026
+-- Password for every account: 123456
 -- Change that password before any shared or production use.
 --
 -- Accounts:
@@ -834,15 +834,15 @@ ALTER TABLE `migrations` AUTO_INCREMENT = 12;
 
 -- users (9)
 INSERT INTO `users` (`id`, `uuid`, `name`, `email`, `phone`, `avatar_path`, `locale`, `timezone`, `status`, `is_platform_admin`, `email_verified_at`, `password`, `last_login_at`, `last_login_ip`, `two_factor_secret`, `two_factor_recovery_codes`, `two_factor_confirmed_at`, `remember_token`, `created_at`, `updated_at`) VALUES
-    (1, 'ef3bf85d-6ca0-4e9a-afd4-01fdb5072d69', 'Platform Admin', 'platform@virtual-company.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 1, '2026-09-24 22:19:10', '$2y$12$y7xwfSkcD3HgY6chymbMOubf5J86w7AkYCsZdjZDsCL0aqDH16T9q', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-24 22:19:10', '2026-09-24 22:19:10'),
-    (2, '6b3e9445-2e1a-4bf2-ae51-eeb0b1118d46', 'سارا محمدی', 'ceo@ideban.test', '02191000000', NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-24 22:19:10', '$2y$12$BrW8VdGtxtmPR0oqnndTceAn/l2tGzY4Oqv5nlL6CrvHWLUa7M5OS', '2026-09-24 22:19:44', '127.0.0.1', NULL, NULL, NULL, NULL, '2026-09-24 22:19:11', '2026-09-24 22:19:44'),
-    (3, 'ea36ecf0-6bbf-4946-b42a-d3e1982bcd79', 'آرمان کاظمی', 'developer@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-24 22:19:11', '$2y$12$/qkVQByClbtrWOeACHgIMOjEodXW.caaYIM8n.zO2ryfpntyiqftK', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-24 22:19:11', '2026-09-24 22:19:11'),
-    (4, '9eb27c7c-b99d-483c-88d7-421a05d89822', 'نیلوفر رضایی', 'devops@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-24 22:19:11', '$2y$12$AqhcUjtsc5I4gcPQpyvwd.r8YQsloiXdLakX5Lf/bGaXpYSCBq0Xy', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-24 22:19:11', '2026-09-24 22:19:11'),
-    (5, '6a888cf6-a755-4a74-ada3-d92785ae5675', 'حسین مرادی', 'support@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-24 22:19:11', '$2y$12$6uIeHlhfngDkXtqg5GYvC.dFVfPq.k7yHncEGH8ksSR9W99OuzI9i', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-24 22:19:12', '2026-09-24 22:19:12'),
-    (6, 'cb83e5fc-b175-42f3-b825-c33678ce9276', 'مریم حسینی', 'sales@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-24 22:19:12', '$2y$12$OIp6jfxPPDLCdmnFmuKIT.s2q7HPyUaw2Dh6WLJd0SSS3WiMb0P16', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-24 22:19:12', '2026-09-24 22:19:12'),
-    (7, '21c11167-7fda-482a-967d-ddafc9da7f79', 'کیان نادری', 'marketing@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-24 22:19:12', '$2y$12$1OsMplC/X3stsi0pDbGfqui9Uoo2MDjo3.J4sxKY9cVxgZLRWJEkW', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-24 22:19:12', '2026-09-24 22:19:12'),
-    (8, 'aafe04b1-cdaa-4402-a8e5-d91bcf21ebc4', 'لیلا اکبری', 'finance@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-24 22:19:12', '$2y$12$Zchmvg.ZWbKcC5LmJpqAp.VmXxWi/YxNggCFLoS23azX1UnbZzjaa', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-24 22:19:13', '2026-09-24 22:19:13'),
-    (9, '46e30c25-6ca2-42f5-b1db-a80031f2aa4e', 'رضا شریفی', 'hr@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-24 22:19:13', '$2y$12$4XAfDeE9lRFVQagecc1AOesOl4YOUYClyd1PS7HJiSL6DbrG0CkPy', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-24 22:19:13', '2026-09-24 22:19:13');
+    (1, 'ef3bf85d-6ca0-4e9a-afd4-01fdb5072d69', 'Platform Admin', 'platform@virtual-company.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 1, '2026-09-24 22:19:10', '$2y$12$1GlRys45h0fzAOtpVFEGtOc./bD0RwNUPsK7oiNPu0GNVO1zUGtoK', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-24 22:19:10', '2026-09-24 22:19:10'),
+    (2, '6b3e9445-2e1a-4bf2-ae51-eeb0b1118d46', 'سارا محمدی', 'ceo@ideban.test', '02191000000', NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-24 22:19:10', '$2y$12$1GlRys45h0fzAOtpVFEGtOc./bD0RwNUPsK7oiNPu0GNVO1zUGtoK', '2026-09-24 22:19:44', '127.0.0.1', NULL, NULL, NULL, NULL, '2026-09-24 22:19:11', '2026-09-24 22:19:44'),
+    (3, 'ea36ecf0-6bbf-4946-b42a-d3e1982bcd79', 'آرمان کاظمی', 'developer@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-24 22:19:11', '$2y$12$1GlRys45h0fzAOtpVFEGtOc./bD0RwNUPsK7oiNPu0GNVO1zUGtoK', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-24 22:19:11', '2026-09-24 22:19:11'),
+    (4, '9eb27c7c-b99d-483c-88d7-421a05d89822', 'نیلوفر رضایی', 'devops@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-24 22:19:11', '$2y$12$1GlRys45h0fzAOtpVFEGtOc./bD0RwNUPsK7oiNPu0GNVO1zUGtoK', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-24 22:19:11', '2026-09-24 22:19:11'),
+    (5, '6a888cf6-a755-4a74-ada3-d92785ae5675', 'حسین مرادی', 'support@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-24 22:19:11', '$2y$12$1GlRys45h0fzAOtpVFEGtOc./bD0RwNUPsK7oiNPu0GNVO1zUGtoK', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-24 22:19:12', '2026-09-24 22:19:12'),
+    (6, 'cb83e5fc-b175-42f3-b825-c33678ce9276', 'مریم حسینی', 'sales@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-24 22:19:12', '$2y$12$1GlRys45h0fzAOtpVFEGtOc./bD0RwNUPsK7oiNPu0GNVO1zUGtoK', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-24 22:19:12', '2026-09-24 22:19:12'),
+    (7, '21c11167-7fda-482a-967d-ddafc9da7f79', 'کیان نادری', 'marketing@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-24 22:19:12', '$2y$12$1GlRys45h0fzAOtpVFEGtOc./bD0RwNUPsK7oiNPu0GNVO1zUGtoK', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-24 22:19:12', '2026-09-24 22:19:12'),
+    (8, 'aafe04b1-cdaa-4402-a8e5-d91bcf21ebc4', 'لیلا اکبری', 'finance@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-24 22:19:12', '$2y$12$1GlRys45h0fzAOtpVFEGtOc./bD0RwNUPsK7oiNPu0GNVO1zUGtoK', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-24 22:19:13', '2026-09-24 22:19:13'),
+    (9, '46e30c25-6ca2-42f5-b1db-a80031f2aa4e', 'رضا شریفی', 'hr@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-24 22:19:13', '$2y$12$1GlRys45h0fzAOtpVFEGtOc./bD0RwNUPsK7oiNPu0GNVO1zUGtoK', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-24 22:19:13', '2026-09-24 22:19:13');
 
 ALTER TABLE `users` AUTO_INCREMENT = 10;
 
@@ -1771,5 +1771,5 @@ ALTER TABLE `work_schedules` ADD CONSTRAINT `work_schedules_company_id_fk` FOREI
 SET FOREIGN_KEY_CHECKS = 1;
 SET UNIQUE_CHECKS = 1;
 
--- Login check. Password for every row is ChangeMe!2026
+-- Login check. Password for every row is 123456
 SELECT `email`, `name`, `is_platform_admin` FROM `users` ORDER BY `id`;
