@@ -5,6 +5,10 @@
 
     RewriteEngine On
 
+    # The raw Vite shell has no install path. Send visitors to the Laravel entry.
+    RewriteCond %{REQUEST_URI} ^(.*/)app/(?:index\.html)?$
+    RewriteRule ^app/(?:index\.html)?$ %1 [R=302,L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

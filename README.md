@@ -39,6 +39,16 @@
 
 ## نصب محلی
 
+### XAMPP
+
+پروژه را در `htdocs/laravel_company` بگذارید. رابط ساخته‌شده از Apache سرو می‌شود و `npm run dev` لازم نیست.
+
+`http://127.0.0.1/laravel_company/`
+
+در `backend/.env` مقدار `APP_URL` و `FRONTEND_URL` را برابر `http://127.0.0.1/laravel_company/backend/public` بگذارید. جزئیات، از جمله ساخت دوبارهٔ فرانت بعد از تغییر Vue، در [docs/install.md](docs/install.md) است.
+
+### سرور توسعه
+
 ```bash
 cd backend
 composer install
@@ -53,10 +63,11 @@ npm install
 npm run dev
 ```
 
-رابط کاربری: `http://localhost:5173`  
+رابط توسعه: `http://localhost:5173`  
+رابط ساخته‌شده، بدون Vite: `http://localhost:8000`  
 API: `http://localhost:8000/api/v1`
 
-Vite درخواست‌های `/api` را به Laravel پروکسی می‌کند. مرورگر نباید مستقیم `localhost` بک‌اند را صدا بزند.
+Vite درخواست‌های `/api` را به Laravel پروکسی می‌کند. مرورگر نباید مستقیم `localhost` بک‌اند را از صفحهٔ توسعه صدا بزند.
 
 ## تست
 

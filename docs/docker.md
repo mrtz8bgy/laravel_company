@@ -18,6 +18,6 @@ docker compose up --build
 docker compose exec app php artisan migrate --seed
 ```
 
-فرانت در این compose نیست. در توسعه `npm run dev` جدا اجرا می‌شود. در production خروجی `npm run build` می‌تواند توسط Nginx کنار API سرو شود؛ این مرحله مربوط به استقرار فاز ۱۴ است.
+خروجی `npm run build` داخل `backend/public/app` است و Nginx همان را کنار API سرو می‌کند. برای تغییر رابط در توسعه، `npm run dev` جدا اجرا می‌شود.
 
 بکاپ روزانهٔ دیتابیس و فایل، نگهداری، و بازیابی در فاز ۱۴ پیاده می‌شود. تا آن زمان استراتژی این است: dump روزانهٔ PostgreSQL، کپی bucket مین‌آیو، نگهداری ۱۴ روز، و آزمون restore ماهانه. health check فعلی `GET /api/v1/health` و `/up` است و برای اتصال بعدی Prometheus کافی است که همین مسیر را scrape کند.

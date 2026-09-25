@@ -1,8 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { appBasePath } from '../api/client'
 import { useAuthStore } from '../stores/auth'
 
+const base = appBasePath()
+
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(base ? `${base}/` : '/'),
   routes: [
     { path: '/login', component: () => import('../pages/LoginPage.vue'), meta: { guest: true } },
     { path: '/forgot-password', component: () => import('../pages/ForgotPasswordPage.vue'), meta: { guest: true } },

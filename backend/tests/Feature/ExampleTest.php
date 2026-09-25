@@ -14,6 +14,14 @@ class ExampleTest extends TestCase
     {
         $response = $this->get('/');
 
-        $response->assertStatus(200);
+        $response->assertOk();
+        $response->assertSee('id="app"', false);
+        $response->assertSee('window.__VCOS_BASE__', false);
+    }
+
+    public function test_client_routes_return_the_frontend_and_api_misses_do_not(): void
+    {
+        $this->get('/login')->assertOk()->assertSee('id="app"', false);
+        $this->get('/api/v1/missing-route')->assertNotFound();
     }
 }

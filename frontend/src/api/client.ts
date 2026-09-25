@@ -26,10 +26,52 @@ export class ApiError extends Error {
 
 const TOKEN_KEY = 'vcos.token'
 
+declare global {
+  interface Window {
+    __VCOS_BASE__?: string
+  }
+}
+
+/**
+ * Directory that contains backend/public, without a trailing slash.
+ * Empty when the app is served from the host root or from the Vite dev server.
+ */
+export function appBasePath(): string {
+  if (typeof window === 'undefined') return ''
+  const injected = window.__VCOS_BASE__
+  if (typeof injected === 'string' && injected !== '') return injected.replace(/\/$/, '')
+  if (import.meta.env.DEV) return ''
+  try {
+    const path = new URL(import.meta.url).pathname
+    const marker = '/app/assets/'
+    const index = path.indexOf(marker)
+    if (index > 0) return path.slice(0, index)
+  } catch {
+    /* The dev server and tests have no built asset URL. */
+  }
+  return ''
+}
+
+export function appHref(path: string): string {
+  const suffix = path.startsWith('/') ? path : `/${path}`
+  const root = appBasePath()
+  return root ? `${root}${suffix}` : suffix
+}
+
 /** XAMPP serves Laravel from htdocs, not from Vite's port. */
 export function apiOrigin(): string {
-  const configured = String(import.meta.env.VITE_API_BASE ?? '').trim()
-  if (configured) return configured.replace(/\/$/, '')
+  const configured = String(import.meta.env.VITE_API_BASE ?? '').trim().replace(/\/$/, '')
+  if (import.meta.env.DEV) {
+    if (configured) return configured
+    return xamppFallback()
+  }
+  const base = appBasePath()
+  if (base) return base
+  if (configured) return configured
+  return xamppFallback()
+}
+
+function xamppFallback(): string {
   if (typeof window !== 'undefined' && ['5173', '4173'].includes(window.location.port)) {
     const host = window.location.hostname || '127.0.0.1'
     return `${window.location.protocol}//${host}/laravel_company/backend/public`
@@ -76,8 +118,9 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<E
 
   if (response.status === 401 && !path.startsWith('/auth/login') && !path.startsWith('/onboarding/company')) {
     setToken(null)
-    if (!window.location.pathname.startsWith('/login')) {
-      window.location.assign('/login')
+    const loginPath = appHref('/login')
+    if (window.location.pathname !== loginPath) {
+      window.location.assign(loginPath)
     }
   }
 

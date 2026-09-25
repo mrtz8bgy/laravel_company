@@ -26,14 +26,42 @@
 
 ## XAMPP با PHP 8.2
 
-اگر صفحهٔ ورود باز می‌شود ولی پیام `Unexpected response` می‌دهد، فرانت به پورت ۵۱۷۳ وصل است و API را اشتباهی از همان پورت می‌خواهد. در XAMPP بک‌اند این آدرس است:
+رابط کاربری از خود Apache سرو می‌شود. برای کار روزمره `npm run dev` لازم نیست.
 
-`http://127.0.0.1/laravel_company/backend/public/api/v1`
+بعد از گرفتن آخرین نسخه، اگر پنجرهٔ `npm run dev` باز است آن را ببندید و این آدرس را باز کنید:
 
-بعد از گرفتن آخرین نسخه، سرور فرانت را یک بار ببندید و دوباره `npm run dev` بزنید. در `backend\.env` هم این را بگذارید تا مرورگر اجازهٔ اتصال داشته باشد:
+`http://127.0.0.1/laravel_company/`
+
+همان صفحه از این آدرس هم باز می‌شود:
+
+`http://127.0.0.1/laravel_company/backend/public/`
+
+ورود: `ceo@ideban.test` / `123456`
+
+در `backend\.env` این دو مقدار را برابر همان آدرسی بگذارید که در مرورگر باز می‌شود. اگر `FRONTEND_URL` هنوز پورت ۵۱۷۳ باشد، لینک دعوت و بازیابی رمز به سرور Vite می‌رود و روی زمپ باز نمی‌شود.
 
 ```env
 APP_URL=http://127.0.0.1/laravel_company/backend/public
+FRONTEND_URL=http://127.0.0.1/laravel_company/backend/public
+```
+
+اگر نام پوشه در `htdocs` چیز دیگری است، همان نام را در آدرس بگذارید. برنامه مسیر نصب را از درخواست می‌خواند و لازم نیست در کد ثابت شود.
+
+سلامت API:
+
+`http://127.0.0.1/laravel_company/backend/public/api/v1/health`
+
+اگر صفحه نوشت فرانت ساخته نشده، یا پوشهٔ `backend\public\app` در پروژه نیست، یک بار خروجی را بسازید و صفحه را تازه کنید:
+
+```bat
+cd C:\xampp8\htdocs\laravel_company\frontend
+npm install
+npm run build
+```
+
+`npm run dev` فقط وقتی لازم است که خود فایل‌های Vue را تغییر می‌دهید. در آن حالت مبدأ مجاز این است:
+
+```env
 CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 ```
 
@@ -108,7 +136,8 @@ npm install
 npm run dev
 ```
 
-رابط: `http://localhost:5173`  
+رابط توسعه: `http://localhost:5173`  
+رابط بدون Vite، بعد از `npm run build`: `http://localhost:8000`  
 API: `http://localhost:8000/api/v1`
 
 اگر شرکت از قبل ساخته شده و فقط مجوزهای جدید را می‌خواهید:

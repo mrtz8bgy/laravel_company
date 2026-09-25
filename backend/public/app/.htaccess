@@ -1,0 +1,4 @@
+Options -Indexes
+<Files "index.html">
+    Require all denied
+</Files>

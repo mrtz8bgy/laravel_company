@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { api, ApiError } from '../api/client'
+import { api, ApiError, appHref } from '../api/client'
 import { useUiStore } from '../stores/ui'
 
 const ui = useUiStore()
@@ -44,7 +44,7 @@ async function revoke(uuid: string) {
 
 async function revokeAll() {
   await api('/auth/logout-all', { method: 'POST' })
-  window.location.assign('/login')
+  window.location.assign(appHref('/login'))
 }
 
 onMounted(load)

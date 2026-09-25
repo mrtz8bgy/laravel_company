@@ -1,0 +1,12 @@
+# XAMPP serves this repository from htdocs. The browser entry is backend/public.
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteRule (^|/)\.git(/|$) - [F,L]
+    RewriteRule (^|/)\.env - [F,L]
+    RewriteRule ^backend/(?:vendor|storage|bootstrap)(/|$) - [F,L]
+
+    RewriteRule ^$ backend/public/ [R=302,L]
+</IfModule>
