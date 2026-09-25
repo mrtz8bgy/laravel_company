@@ -26,6 +26,16 @@
 
 ## XAMPP با PHP 8.2
 
+اگر این خطا را دیدید:
+
+`No application encryption key has been specified.`
+
+یعنی `APP_KEY` در `backend\.env` خالی است. نسخهٔ جدید با اولین باز شدن سایت آن را می‌سازد و در همان فایل ذخیره می‌کند. صفحه را یک بار تازه کنید. اگر هنوز ماند، این را بزنید:
+
+```bat
+C:\xampp8\php\php.exe artisan key:generate
+```
+
 اگر صفحهٔ خطا خودش این را نشان داد:
 
 `file_get_contents(.../exceptions/renderer/dist/styles.css): Failed to open stream`
