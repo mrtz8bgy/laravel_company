@@ -26,6 +26,16 @@
 
 ## XAMPP با PHP 8.2
 
+اگر صفحهٔ خطا خودش این را نشان داد:
+
+`file_get_contents(.../exceptions/renderer/dist/styles.css): Failed to open stream`
+
+پوشهٔ `dist` صفحهٔ خطای لاراول در کپی پروژه نبوده است. فایل‌های جایگزین داخل `backend/resources/exceptions-renderer` هستند و با اولین درخواست، یا با این دستور، سر جایشان کپی می‌شوند:
+
+```bat
+C:\xampp8\php\php.exe scripts\install-exception-renderer.php
+```
+
 اگر این خطا را دیدید:
 
 `Your Composer dependencies require a PHP version ">= 8.4.1". You are running 8.2.12.`

@@ -27,6 +27,7 @@ use App\Modules\Hr\Models\MissionRequest;
 use App\Modules\Projects\Models\Project;
 use App\Modules\Projects\Models\Task;
 use App\Modules\Projects\Policies\ProjectPolicy;
+use App\Core\Support\ExceptionRendererAssets;
 use App\Core\Support\TenantContext;
 use App\Models\PersonalAccessToken;
 use App\Modules\Access\Models\Permission;
@@ -60,6 +61,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        ExceptionRendererAssets::ensure();
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
         JsonResource::withoutWrapping();
 
