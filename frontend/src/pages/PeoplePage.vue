@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { api, ApiError } from '../api/client'
 import { useAuthStore } from '../stores/auth'
@@ -23,7 +24,7 @@ const form = reactive({
 })
 
 async function load() {
-  const response = await api<any[]>('/users')
+  const response = await api<any[]>('/users?per_page=100')
   rows.value = response.data
   if (auth.can('roles.view')) roles.value = (await api<any[]>('/roles')).data
   if (auth.can('departments.view')) departments.value = (await api<any[]>('/departments')).data
@@ -87,7 +88,10 @@ onMounted(load)
             </td>
             <td>{{ row.job_title || '—' }}</td>
             <td class="text-muted">{{ row.roles?.map((role: any) => role.name).join('، ') }}</td>
-            <td><button v-if="auth.can('users.delete') && !row.is_owner" class="btn btn-danger" @click="remove(row.uuid)">{{ t('delete') }}</button></td>
+            <td class="flex justify-end gap-2">
+              <RouterLink class="btn btn-ghost" :to="`/people/${row.uuid}`">{{ auth.can('users.update') ? t('edit') : t('view') }}</RouterLink>
+              <button v-if="auth.can('users.delete') && !row.is_owner" class="btn btn-danger" @click="remove(row.uuid)">{{ t('delete') }}</button>
+            </td>
           </tr>
         </tbody>
       </table>

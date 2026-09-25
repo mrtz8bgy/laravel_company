@@ -32,7 +32,7 @@ class UpdateUserRequest extends FormRequest
             'role_slugs.*' => ['string', 'max:80'],
             'direct_permissions' => ['sometimes', 'array'],
             'direct_permissions.*' => ['string', 'max:120'],
-            'password' => ['sometimes', Password::min(8)->mixedCase()->numbers()->symbols()],
+            'password' => ['sometimes', 'confirmed', Password::min(8)->mixedCase()->numbers()->symbols()],
         ];
     }
 }

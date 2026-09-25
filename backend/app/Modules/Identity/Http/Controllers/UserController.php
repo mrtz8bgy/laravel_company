@@ -121,6 +121,7 @@ class UserController extends Controller
 
         if ($request->filled('password')) {
             $member->forceFill(['password' => $request->string('password')->toString()])->save();
+            $member->tokens()->delete();
             $this->activity->log('UPDATE', $member, null, ['password' => '[redacted]'], 'Password reset by admin');
         }
 
