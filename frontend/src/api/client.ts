@@ -36,20 +36,28 @@ declare global {
  * Directory that contains backend/public, without a trailing slash.
  * Empty when the app is served from the host root or from the Vite dev server.
  */
-export function appBasePath(): string {
-  if (typeof window === 'undefined') return ''
-  const injected = window.__VCOS_BASE__
-  if (typeof injected === 'string' && injected !== '') return injected.replace(/\/$/, '')
-  if (import.meta.env.DEV) return ''
-  try {
-    const path = new URL(import.meta.url).pathname
-    const marker = '/app/assets/'
-    const index = path.indexOf(marker)
-    if (index > 0) return path.slice(0, index)
-  } catch {
-    /* The dev server and tests have no built asset URL. */
-  }
+function installBase(path: string): string {
+  const normalized = path.replace(/\\/g, '/')
+  const marker = '/backend/public'
+  const at = normalized.indexOf(marker)
+  if (at >= 0) return normalized.slice(0, at + marker.length)
+  const asset = '/app/assets/'
+  const assetAt = normalized.indexOf(asset)
+  if (assetAt > 0) return normalized.slice(0, assetAt)
   return ''
+}
+
+export function appBasePath(): string {
+  if (typeof window === 'undefined' || import.meta.env.DEV) return ''
+  const fromPage = installBase(window.location.pathname)
+  if (fromPage) return fromPage
+  const injected = String(window.__VCOS_BASE__ ?? '').replace(/\/$/, '')
+  if (injected) return injected
+  try {
+    return installBase(new URL(import.meta.url).pathname)
+  } catch {
+    return ''
+  }
 }
 
 export function appHref(path: string): string {

@@ -10,7 +10,7 @@ function shouldLeaveShellUrl(): boolean {
   if (import.meta.env.DEV) return false
   const root = appBasePath()
   const here = window.location.pathname.replace(/\/+$/, '') || '/'
-  const messy = [`${root}/index.php`, `${root}/app`, `${root}/app/index.html`]
+  const messy = [`${root}/index.php`, `${root}/index.html`, `${root}/app`, `${root}/app/index.html`]
   if (!messy.includes(here)) return false
   const next = `${root}/` || '/'
   window.location.replace(next + window.location.search + window.location.hash)

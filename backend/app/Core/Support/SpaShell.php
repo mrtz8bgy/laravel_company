@@ -5,38 +5,37 @@ declare(strict_types=1);
 namespace App\Core\Support;
 
 /**
- * Turns the Vite production shell into HTML that works from any install path.
- * XAMPP serves this project from a subdirectory, so asset URLs cannot be root-absolute.
+ * Makes the Vite shell safe to open from an XAMPP subdirectory.
+ * Asset URLs stay relative to backend/public. The browser computes the install path.
  */
 final class SpaShell
 {
-    public function render(string $html, string $basePath): string
+    public function render(string $html): string
     {
-        $basePath = rtrim($basePath, '/');
-        $assetPrefix = ($basePath === '' ? '' : $basePath).'/app/';
-        $html = $this->absolutizeAssets($html, $assetPrefix);
-
-        return $this->injectBase($html, $basePath);
-    }
-
-    private function absolutizeAssets(string $html, string $assetPrefix): string
-    {
-        $rewritten = preg_replace_callback(
+        $html = preg_replace('/\s+crossorigin(?:="[^"]*")?/i', '', $html) ?? $html;
+        $html = preg_replace(
             '/\b(src|href)=(["\'])(?:\.\/)?assets\//',
-            static fn (array $match): string => $match[1].'='.$match[2].$assetPrefix.'assets/',
+            '$1=$2app/assets/',
             $html,
-        );
+        ) ?? $html;
+        $html = str_replace('app/app/assets/', 'app/assets/', $html);
 
-        return is_string($rewritten) ? $rewritten : $html;
+        if (! str_contains($html, 'window.__VCOS_BASE__')) {
+            $html = $this->injectBoot($html);
+        }
+
+        if (! str_contains($html, 'id="app"')) {
+            return $html;
+        }
+
+        return $html;
     }
 
-    private function injectBase(string $html, string $basePath): string
+    private function injectBoot(string $html): string
     {
-        $boot = '<script>window.__VCOS_BASE__='.json_encode(
-            $basePath,
-            JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
-        ).';</script>';
-
+        $boot = <<<'HTML'
+<script>(function(){var path=location.pathname.replace(/\\/g,'/');var marker='/backend/public';var at=path.indexOf(marker);var basePath=at>=0?path.slice(0,at+marker.length):'';window.__VCOS_BASE__=basePath;if(!document.querySelector('base')){var el=document.createElement('base');el.href=location.origin+(basePath||'')+'/';document.head.appendChild(el);}})();</script>
+HTML;
         $injected = preg_replace('/<head([^>]*)>/i', '<head$1>'.$boot, $html, 1);
 
         return is_string($injected) ? $injected : $boot.$html;

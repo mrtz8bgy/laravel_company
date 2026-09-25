@@ -7,45 +7,24 @@ use PHPUnit\Framework\TestCase;
 
 class SpaShellTest extends TestCase
 {
-    public function test_subdirectory_install_gets_absolute_assets_and_router_base(): void
+    public function test_relative_asset_urls_stay_under_the_public_directory(): void
     {
-        $shell = new SpaShell;
-        $html = <<<'HTML'
-            <!doctype html>
-            <html lang="fa" dir="rtl">
-              <head>
-                <meta charset="UTF-8" />
-                <title>سامانه شرکت مجازی</title>
-                <script type="module" crossorigin src="./assets/index-abc.js"></script>
-                <link rel="stylesheet" crossorigin href="./assets/index-abc.css">
-              </head>
-              <body><div id="app"></div></body>
-            </html>
-            HTML;
+        $html = '<head><script type="module" crossorigin src="./assets/index-abc.js"></script></head><body><div id="app"></div></body>';
+        $rendered = (new SpaShell)->render($html);
 
-        $rendered = $shell->render($html, '/laravel_company/backend/public');
-
-        $this->assertStringContainsString(
-            'src="/laravel_company/backend/public/app/assets/index-abc.js"',
-            $rendered,
-        );
-        $this->assertStringContainsString(
-            'href="/laravel_company/backend/public/app/assets/index-abc.css"',
-            $rendered,
-        );
-        $this->assertStringContainsString(
-            'window.__VCOS_BASE__="/laravel_company/backend/public"',
-            $rendered,
-        );
-        $this->assertStringNotContainsString('src="./assets/', $rendered);
+        $this->assertStringContainsString('src="app/assets/index-abc.js"', $rendered);
+        $this->assertStringNotContainsString('crossorigin', $rendered);
+        $this->assertStringContainsString('window.__VCOS_BASE__', $rendered);
+        $this->assertStringNotContainsString('src="/app/assets/', $rendered);
+        $this->assertStringNotContainsString('src="/laravel_company/', $rendered);
     }
 
-    public function test_root_install_keeps_an_empty_base(): void
+    public function test_existing_boot_script_is_not_duplicated(): void
     {
-        $shell = new SpaShell;
-        $rendered = $shell->render('<head><script src="./assets/app.js"></script></head>', '');
+        $html = '<head><script>window.__VCOS_BASE__="";</script><script src="app/assets/app.js"></script></head>';
+        $rendered = (new SpaShell)->render($html);
 
-        $this->assertStringContainsString('src="/app/assets/app.js"', $rendered);
-        $this->assertStringContainsString('window.__VCOS_BASE__=""', $rendered);
+        $this->assertSame(1, substr_count($rendered, 'window.__VCOS_BASE__'));
+        $this->assertStringContainsString('src="app/assets/app.js"', $rendered);
     }
 }

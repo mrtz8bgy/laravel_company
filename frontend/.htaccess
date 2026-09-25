@@ -1,0 +1,6 @@
+# Opening the Vue source folder on Apache is a blank page. Send it to the built panel.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} ^(.*/)frontend(?:/.*)?$
+    RewriteRule ^ %1backend/public/ [R=302,L]
+</IfModule>

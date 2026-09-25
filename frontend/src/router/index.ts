@@ -34,6 +34,7 @@ const router = createRouter({
     { path: '/activity', component: () => import('../pages/ActivityPage.vue'), meta: { auth: true } },
     { path: '/settings', component: () => import('../pages/SettingsPage.vue'), meta: { auth: true } },
     { path: '/profile', component: () => import('../pages/ProfilePage.vue'), meta: { auth: true } },
+    { path: '/:pathMatch(.*)*', redirect: '/login' },
   ],
 })
 
