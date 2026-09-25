@@ -8,7 +8,7 @@ import { useUiStore } from './stores/ui'
 const route = useRoute()
 const ui = useUiStore()
 const { t } = useI18n()
-const bare = computed(() => ['/login', '/forgot-password', '/reset-password', '/accept-invite', '/onboarding'].includes(route.path))
+const bare = computed(() => route.path.startsWith('/portal') || ['/login', '/forgot-password', '/reset-password', '/accept-invite', '/onboarding'].includes(route.path))
 </script>
 
 <template>

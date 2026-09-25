@@ -22,8 +22,8 @@ class AuthPayload
     {
         $user->loadMissing([
             'memberships' => fn ($query) => $company
-                ? $query->where('company_id', $company->id)
-                : $query,
+                ? $query->where('company_id', $company->id)->with('department:id,uuid,name,slug')
+                : $query->with('department:id,uuid,name,slug'),
             'roles' => fn ($query) => $query->withoutGlobalScope('company')->when(
                 $company,
                 fn ($roles) => $roles->where('roles.company_id', $company->id)->where('user_roles.company_id', $company->id),

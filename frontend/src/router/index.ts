@@ -8,6 +8,18 @@ const router = createRouter({
   history: createWebHistory(base ? `${base}/` : '/'),
   routes: [
     { path: '/login', component: () => import('../pages/LoginPage.vue'), meta: { guest: true } },
+    {
+      path: '/portal',
+      component: () => import('../layouts/PortalShell.vue'),
+      children: [
+        { path: '', component: () => import('../pages/PortalHomePage.vue'), meta: { auth: true, portal: true } },
+        { path: 'profile', component: () => import('../pages/PortalProfilePage.vue'), meta: { auth: true, portal: true } },
+        { path: 'orders', component: () => import('../pages/PortalOrdersPage.vue'), meta: { auth: true, portal: true } },
+        { path: 'messages', component: () => import('../pages/PortalMessagesPage.vue'), meta: { auth: true, portal: true } },
+        { path: 'tickets', component: () => import('../pages/PortalTicketsPage.vue'), meta: { auth: true, portal: true } },
+        { path: 'register', component: () => import('../pages/PortalRegisterPage.vue'), meta: { guest: true, portal: true } },
+      ],
+    },
     { path: '/forgot-password', component: () => import('../pages/ForgotPasswordPage.vue'), meta: { guest: true } },
     { path: '/reset-password', component: () => import('../pages/ResetPasswordPage.vue'), meta: { guest: true } },
     { path: '/accept-invite', component: () => import('../pages/AcceptInvitePage.vue'), meta: { guest: true } },
@@ -30,6 +42,7 @@ const router = createRouter({
     { path: '/departments', component: () => import('../pages/DepartmentsPage.vue'), meta: { auth: true } },
     { path: '/teams', component: () => import('../pages/TeamsPage.vue'), meta: { auth: true } },
     { path: '/people', component: () => import('../pages/PeoplePage.vue'), meta: { auth: true } },
+    { path: '/customers', component: () => import('../pages/CustomersPage.vue'), meta: { auth: true } },
     { path: '/people/:uuid', component: () => import('../pages/PersonPage.vue'), meta: { auth: true } },
     { path: '/people/:uuid/work', component: () => import('../pages/PersonWorkPage.vue'), meta: { auth: true } },
     { path: '/roles', component: () => import('../pages/RolesPage.vue'), meta: { auth: true } },
@@ -44,9 +57,11 @@ router.beforeEach(async (to) => {
   const auth = useAuthStore()
   if (!auth.ready) await auth.fetchMe()
   if (to.meta.auth && !auth.token) return '/login'
-  if (to.meta.guest && auth.token && to.path === '/login') return '/'
+  if (to.meta.guest && auth.token && to.path === '/login') return auth.isCustomer ? '/portal' : '/'
+  if (to.path === '/portal/register' && auth.token && auth.isCustomer) return '/portal'
   if (to.path === '/onboarding' && auth.token && auth.onboarded) return '/'
-  if (to.meta.auth && auth.token && !auth.onboarded && to.path !== '/profile') return '/onboarding'
+  if (to.meta.auth && auth.token && !auth.onboarded && to.path !== '/profile' && !to.path.startsWith('/portal')) return '/onboarding'
+  if (auth.token && auth.isCustomer && to.meta.auth && !to.path.startsWith('/portal')) return '/portal'
   return true
 })
 

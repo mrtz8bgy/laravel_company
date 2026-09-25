@@ -20,6 +20,8 @@
 -- marketing@ideban.test  |  کیان نادری  |  کارشناس بازاریابی  |  بازاریابی
 -- finance@ideban.test  |  لیلا اکبری  |  مدیر مالی  |  مدیر واحد + مالی
 -- hr@ideban.test  |  رضا شریفی  |  کارشناس منابع انسانی  |  منابع انسانی
+-- customer@ideban.test  |  نگار احمدی  |  مشتری  |  مشتری
+-- pending@ideban.test  |  پارسا نعمتی  |  مشتری  |  مشتری
 --
 -- After import, point Laravel at this database and generate APP_KEY:
 -- DB_CONNECTION=mysql
@@ -54,6 +56,13 @@ DROP TABLE IF EXISTS `company_user`;
 DROP TABLE IF EXISTS `crm_accounts`;
 DROP TABLE IF EXISTS `crm_contacts`;
 DROP TABLE IF EXISTS `crm_deals`;
+DROP TABLE IF EXISTS `customer_order_items`;
+DROP TABLE IF EXISTS `customer_orders`;
+DROP TABLE IF EXISTS `customer_thread_messages`;
+DROP TABLE IF EXISTS `customer_threads`;
+DROP TABLE IF EXISTS `customer_ticket_messages`;
+DROP TABLE IF EXISTS `customer_tickets`;
+DROP TABLE IF EXISTS `customers`;
 DROP TABLE IF EXISTS `daily_reports`;
 DROP TABLE IF EXISTS `departments`;
 DROP TABLE IF EXISTS `documents`;
@@ -75,6 +84,7 @@ DROP TABLE IF EXISTS `mission_requests`;
 DROP TABLE IF EXISTS `password_reset_tokens`;
 DROP TABLE IF EXISTS `permissions`;
 DROP TABLE IF EXISTS `personal_access_tokens`;
+DROP TABLE IF EXISTS `products`;
 DROP TABLE IF EXISTS `project_members`;
 DROP TABLE IF EXISTS `projects`;
 DROP TABLE IF EXISTS `role_permissions`;
@@ -299,6 +309,107 @@ CREATE TABLE `crm_deals` (
     `amount` DECIMAL(14,0) NOT NULL DEFAULT 0,
     `currency` VARCHAR(191) NOT NULL DEFAULT 'IRR',
     `owner_id` BIGINT UNSIGNED,
+    `created_at` DATETIME,
+    `updated_at` DATETIME,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `customer_order_items` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `company_id` BIGINT UNSIGNED NOT NULL,
+    `order_id` BIGINT UNSIGNED NOT NULL,
+    `product_id` BIGINT UNSIGNED,
+    `name` VARCHAR(191) NOT NULL,
+    `quantity` BIGINT UNSIGNED NOT NULL,
+    `unit_price` DECIMAL(14,0) NOT NULL,
+    `line_total` DECIMAL(14,0) NOT NULL,
+    `created_at` DATETIME,
+    `updated_at` DATETIME,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `customer_orders` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `company_id` BIGINT UNSIGNED NOT NULL,
+    `uuid` VARCHAR(191) NOT NULL,
+    `customer_id` BIGINT UNSIGNED NOT NULL,
+    `number` VARCHAR(191) NOT NULL,
+    `status` VARCHAR(191) NOT NULL DEFAULT 'submitted',
+    `note` LONGTEXT,
+    `staff_note` LONGTEXT,
+    `total_amount` DECIMAL(14,0) NOT NULL DEFAULT 0,
+    `currency` VARCHAR(191) NOT NULL DEFAULT 'IRR',
+    `reviewer_id` BIGINT UNSIGNED,
+    `reviewed_at` DATETIME,
+    `created_at` DATETIME,
+    `updated_at` DATETIME,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `customer_thread_messages` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `company_id` BIGINT UNSIGNED NOT NULL,
+    `thread_id` BIGINT UNSIGNED NOT NULL,
+    `user_id` BIGINT UNSIGNED NOT NULL,
+    `body` LONGTEXT NOT NULL,
+    `is_staff` TINYINT(1) NOT NULL DEFAULT 0,
+    `created_at` DATETIME,
+    `updated_at` DATETIME,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `customer_threads` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `company_id` BIGINT UNSIGNED NOT NULL,
+    `uuid` VARCHAR(191) NOT NULL,
+    `customer_id` BIGINT UNSIGNED NOT NULL,
+    `desk` VARCHAR(191) NOT NULL,
+    `subject` VARCHAR(191) NOT NULL,
+    `status` VARCHAR(191) NOT NULL DEFAULT 'open',
+    `created_at` DATETIME,
+    `updated_at` DATETIME,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `customer_ticket_messages` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `company_id` BIGINT UNSIGNED NOT NULL,
+    `ticket_id` BIGINT UNSIGNED NOT NULL,
+    `user_id` BIGINT UNSIGNED NOT NULL,
+    `body` LONGTEXT NOT NULL,
+    `is_staff` TINYINT(1) NOT NULL DEFAULT 0,
+    `created_at` DATETIME,
+    `updated_at` DATETIME,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `customer_tickets` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `company_id` BIGINT UNSIGNED NOT NULL,
+    `uuid` VARCHAR(191) NOT NULL,
+    `customer_id` BIGINT UNSIGNED NOT NULL,
+    `number` VARCHAR(191) NOT NULL,
+    `desk` VARCHAR(191) NOT NULL,
+    `subject` VARCHAR(191) NOT NULL,
+    `priority` VARCHAR(191) NOT NULL DEFAULT 'normal',
+    `status` VARCHAR(191) NOT NULL DEFAULT 'open',
+    `created_at` DATETIME,
+    `updated_at` DATETIME,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `customers` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `company_id` BIGINT UNSIGNED NOT NULL,
+    `uuid` VARCHAR(191) NOT NULL,
+    `user_id` BIGINT UNSIGNED NOT NULL,
+    `status` VARCHAR(191) NOT NULL DEFAULT 'pending',
+    `organization_name` VARCHAR(191),
+    `phone` VARCHAR(191),
+    `note` LONGTEXT,
+    `review_note` LONGTEXT,
+    `reviewer_id` BIGINT UNSIGNED,
+    `reviewed_at` DATETIME,
     `created_at` DATETIME,
     `updated_at` DATETIME,
     PRIMARY KEY (`id`)
@@ -593,6 +704,22 @@ CREATE TABLE `personal_access_tokens` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
+CREATE TABLE `products` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `company_id` BIGINT UNSIGNED NOT NULL,
+    `uuid` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `sku` VARCHAR(191),
+    `description` LONGTEXT,
+    `unit_price` DECIMAL(14,0) NOT NULL DEFAULT 0,
+    `currency` VARCHAR(191) NOT NULL DEFAULT 'IRR',
+    `stock` BIGINT UNSIGNED,
+    `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+    `created_at` DATETIME,
+    `updated_at` DATETIME,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
 CREATE TABLE `project_members` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `company_id` BIGINT UNSIGNED NOT NULL,
@@ -816,7 +943,7 @@ CREATE TABLE `work_schedules` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
--- migrations (11)
+-- migrations (13)
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
     (1, '0001_01_01_000000_create_users_table', 1),
     (2, '0001_01_01_000001_create_cache_table', 1),
@@ -828,166 +955,180 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
     (8, '2026_09_25_120000_create_attendance_tables', 1),
     (9, '2026_09_25_130000_create_project_tables', 1),
     (10, '2026_09_25_140000_create_hr_tables', 1),
-    (11, '2026_09_25_150000_create_suite_tables', 1);
+    (11, '2026_09_25_150000_create_suite_tables', 1),
+    (12, '2026_09_25_160000_create_portal_tables', 1),
+    (13, '2026_09_25_160100_create_customer_ticket_tables', 1);
 
-ALTER TABLE `migrations` AUTO_INCREMENT = 12;
+ALTER TABLE `migrations` AUTO_INCREMENT = 14;
 
--- users (9)
+-- users (11)
 INSERT INTO `users` (`id`, `uuid`, `name`, `email`, `phone`, `avatar_path`, `locale`, `timezone`, `status`, `is_platform_admin`, `email_verified_at`, `password`, `last_login_at`, `last_login_ip`, `two_factor_secret`, `two_factor_recovery_codes`, `two_factor_confirmed_at`, `remember_token`, `created_at`, `updated_at`) VALUES
-    (1, 'dc9af4b8-b4aa-43d5-a5d7-ca10c506588a', 'Platform Admin', 'platform@virtual-company.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 1, '2026-09-25 14:37:27', '$2y$12$fESPyuAb9RmcGjH7YMpJtuBrCXDFfVAD4p/7.m1QExfH95CtMCeNq', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (2, '9d5a1ffb-a9ee-4a69-9c41-abafd89fdbc5', 'سارا محمدی', 'ceo@ideban.test', '02191000000', NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 14:37:27', '$2y$12$OLVuclUM9y921TKdl8imiensQEaXeoHuZWsZcWPQJpDVuR29BSQMy', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (3, 'c80b8248-d9d2-4aab-9508-1ac90d7e57ff', 'آرمان کاظمی', 'developer@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 14:37:27', '$2y$12$1iZo0lE.2SlB3..5nr4wd.cvfDvP9aR2XTIiKKQPuJfAoriOBwbJe', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 14:37:28', '2026-09-25 14:37:28'),
-    (4, 'fc49c722-527d-4a95-8601-4ff5849867f3', 'نیلوفر رضایی', 'devops@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 14:37:28', '$2y$12$Z.anko0pRzyUa6ofsF2LueR1yFhLgRiARNeV9sJqjyyqAOVt9uhZu', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 14:37:28', '2026-09-25 14:37:28'),
-    (5, '417fdbbf-1bff-4946-b006-36f60ffbc0d2', 'حسین مرادی', 'support@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 14:37:28', '$2y$12$HnMKVFWz2lM9X8bsF0zDyuCB77TZkHdSe4bhzLMbuMO169Bh8ntOS', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 14:37:28', '2026-09-25 14:37:28'),
-    (6, 'f7765985-3eab-4ed7-b9ca-e43f99ed84b2', 'مریم حسینی', 'sales@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 14:37:28', '$2y$12$9/oPsNHcEYostGDttetQae9IxUNcY5JPP76UumqPEGNzDN18xS1C6', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 14:37:28', '2026-09-25 14:37:28'),
-    (7, '2ca5e606-62d3-47ed-a6d9-8dd27960902a', 'کیان نادری', 'marketing@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 14:37:28', '$2y$12$wGNGedAM1E4MV4LvlzYRc.zRfOqw99hpzwoDskPBsZWrOpWZX7ar6', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (8, '820e5858-4af0-4fbd-9074-59a7a061146b', 'لیلا اکبری', 'finance@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 14:37:29', '$2y$12$p61D/j0lkRd00qwySSEWZuOSEmJ06.FdVmPGlwtlISMVoqCDHyreq', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (9, 'a54b1677-2a9e-4426-b280-91f3fb467565', 'رضا شریفی', 'hr@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 14:37:29', '$2y$12$KiZfcC3wFQL.pzPLBviJiu0R80RrnfSqzXZlbo4AacMPPaw/VNh6y', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 'f96ac4e4-9294-4bdc-aa00-f2d0ed41e075', 'Platform Admin', 'platform@virtual-company.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 1, '2026-09-25 21:32:45', '$2y$12$1OZcSHlrMPfq9oPAPd8Ep.winQ952Kqw0V6DrGBBX/kldqAv.JfvK', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (2, '9bcf9819-6fc6-4ca6-a81d-e8fe8bf2931e', 'سارا محمدی', 'ceo@ideban.test', '02191000000', NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 21:32:45', '$2y$12$Z79wckD7mNCk8X72kZQ3uuYuj/0/mqSAaiPTMupw4gv.XwG8pRoFu', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (3, '8a67473f-5894-459c-97b3-72a7401b716d', 'آرمان کاظمی', 'developer@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 21:32:46', '$2y$12$rfwNqj7fLvt8tAUaRSI9YOoz4M8HsFVjtsykg62nWBqY/7WCCJZpe', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (4, '6caba140-1e39-431a-be6a-b5febe15c777', 'نیلوفر رضایی', 'devops@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 21:32:46', '$2y$12$egnkKMaMdnbnIGLfkG3UJO5kTXYx4rpmDiF6Pc1iwF2/PXtkYeZ6K', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (5, '798df375-b455-4c43-89a8-7570f22c6da8', 'حسین مرادی', 'support@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 21:32:46', '$2y$12$qHH3q/bR9krvjH2mOBll1.UqZqAk629.qaQPEu4kLPnkf2EL8uysy', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 21:32:47', '2026-09-25 21:32:47'),
+    (6, '9af7b002-8ba4-4e2b-a615-2f330a8af3b5', 'مریم حسینی', 'sales@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 21:32:47', '$2y$12$XG6qurts7uHnyBgcF8uPtONKMD.Md5S9CAfdwKBc49eb0.5Ge7ELG', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 21:32:47', '2026-09-25 21:32:47'),
+    (7, '9a3579b8-381f-4c81-b2b0-585e21c2ce59', 'کیان نادری', 'marketing@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 21:32:47', '$2y$12$0dmcfD9XzyKBXQVaHowh7eXqGzyquNF8iJlHkJlGdePty/UdqJAKK', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 21:32:47', '2026-09-25 21:32:47'),
+    (8, '863262b3-1242-4ac2-a51f-2eb98d8088fa', 'لیلا اکبری', 'finance@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 21:32:47', '$2y$12$xamzd.6hyYbXJCuoCCFiKebvmms.vNg4SJnD2rySPiQG9.JV6q2ve', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 21:32:47', '2026-09-25 21:32:47'),
+    (9, '8129e41e-e936-47e9-92f9-94edce593188', 'رضا شریفی', 'hr@ideban.test', NULL, NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 21:32:47', '$2y$12$z6qHomNkW4SbXfLvg7fMteo96.DQTU7g4CF8cmDgt0Ph7sFZRlK2m', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (10, '5d845fac-b56f-408f-89b0-06e64fd0b4f8', 'نگار احمدی', 'customer@ideban.test', '09120001111', NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 21:32:50', '$2y$12$/BKmjKz290xb15WLrDSYH.sHOyPq1rMOpJtoTJ0J.8EqODAklA49C', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 21:32:51', '2026-09-25 21:32:51'),
+    (11, 'd55d9540-5820-4ce7-aab0-531afd547260', 'پارسا نعمتی', 'pending@ideban.test', '09120002222', NULL, 'fa', 'Asia/Tehran', 'active', 0, '2026-09-25 21:32:51', '$2y$12$NZyj5R9sGsH/T2.xgxfchOOvK6c13J6Xq/fm4SL6HaKvT7qXY0gKe', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-25 21:32:51', '2026-09-25 21:32:51');
 
-ALTER TABLE `users` AUTO_INCREMENT = 10;
+ALTER TABLE `users` AUTO_INCREMENT = 12;
 
--- permissions (70)
+-- permissions (78)
 INSERT INTO `permissions` (`id`, `name`, `module`, `description`, `created_at`, `updated_at`) VALUES
-    (1, 'dashboard.view', 'core', 'View the workspace dashboard', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (2, 'company.view', 'organizations', 'View company profile', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (3, 'company.update', 'organizations', 'Update company profile', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (4, 'company.settings.manage', 'organizations', 'Manage company settings and work schedule', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (5, 'users.view', 'identity', 'View company directory', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (6, 'users.create', 'identity', 'Create company members', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (7, 'users.update', 'identity', 'Update company members', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (8, 'users.delete', 'identity', 'Remove company members', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (9, 'users.invite', 'identity', 'Invite people to the company', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (10, 'departments.view', 'organizations', 'View departments', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (11, 'departments.create', 'organizations', 'Create departments', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (12, 'departments.update', 'organizations', 'Update departments', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (13, 'departments.delete', 'organizations', 'Delete departments', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (14, 'teams.view', 'organizations', 'View teams', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (15, 'teams.create', 'organizations', 'Create teams', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (16, 'teams.update', 'organizations', 'Update teams', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (17, 'teams.delete', 'organizations', 'Delete teams', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (18, 'roles.view', 'access', 'View roles', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (19, 'roles.create', 'access', 'Create roles', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (20, 'roles.update', 'access', 'Update roles and grants', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (21, 'roles.delete', 'access', 'Delete custom roles', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (22, 'permissions.view', 'access', 'View the permission catalog', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (23, 'activity_logs.view', 'core', 'View the company activity log', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (24, 'profile.view', 'identity', 'View own profile', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (25, 'profile.update', 'identity', 'Update own profile', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (26, 'features.view', 'core', 'View feature flags', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (27, 'features.manage', 'core', 'Manage feature flags', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (28, 'attendance.clock', 'attendance', 'Clock in, clock out, and set own work status', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (29, 'attendance.view', 'attendance', 'View attendance for people in scope', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (30, 'attendance.correct', 'attendance', 'Correct attendance records', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (31, 'attendance.reports.submit', 'attendance', 'Submit own morning check-in and daily report', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (32, 'attendance.reports.view', 'attendance', 'Read daily reports in scope', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (33, 'projects.view', 'projects', 'View visible projects', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (34, 'projects.create', 'projects', 'Create projects', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (35, 'projects.update', 'projects', 'Update projects and columns', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (36, 'projects.delete', 'projects', 'Archive or delete projects', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (37, 'tasks.view', 'projects', 'View tasks on visible projects', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (38, 'tasks.create', 'projects', 'Create tasks', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (39, 'tasks.update', 'projects', 'Update own or assigned tasks', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (40, 'tasks.assign', 'projects', 'Assign and move any visible task', '2026-09-25 14:37:27', '2026-09-25 14:37:27');
+    (1, 'dashboard.view', 'core', 'View the workspace dashboard', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (2, 'company.view', 'organizations', 'View company profile', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (3, 'company.update', 'organizations', 'Update company profile', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (4, 'company.settings.manage', 'organizations', 'Manage company settings and work schedule', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (5, 'users.view', 'identity', 'View company directory', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (6, 'users.create', 'identity', 'Create company members', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (7, 'users.update', 'identity', 'Update company members', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (8, 'users.delete', 'identity', 'Remove company members', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (9, 'users.invite', 'identity', 'Invite people to the company', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (10, 'departments.view', 'organizations', 'View departments', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (11, 'departments.create', 'organizations', 'Create departments', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (12, 'departments.update', 'organizations', 'Update departments', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (13, 'departments.delete', 'organizations', 'Delete departments', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (14, 'teams.view', 'organizations', 'View teams', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (15, 'teams.create', 'organizations', 'Create teams', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (16, 'teams.update', 'organizations', 'Update teams', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (17, 'teams.delete', 'organizations', 'Delete teams', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (18, 'roles.view', 'access', 'View roles', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (19, 'roles.create', 'access', 'Create roles', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (20, 'roles.update', 'access', 'Update roles and grants', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (21, 'roles.delete', 'access', 'Delete custom roles', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (22, 'permissions.view', 'access', 'View the permission catalog', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (23, 'activity_logs.view', 'core', 'View the company activity log', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (24, 'profile.view', 'identity', 'View own profile', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (25, 'profile.update', 'identity', 'Update own profile', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (26, 'features.view', 'core', 'View feature flags', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (27, 'features.manage', 'core', 'Manage feature flags', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (28, 'attendance.clock', 'attendance', 'Clock in, clock out, and set own work status', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (29, 'attendance.view', 'attendance', 'View attendance for people in scope', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (30, 'attendance.correct', 'attendance', 'Correct attendance records', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (31, 'attendance.reports.submit', 'attendance', 'Submit own morning check-in and daily report', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (32, 'attendance.reports.view', 'attendance', 'Read daily reports in scope', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (33, 'projects.view', 'projects', 'View visible projects', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (34, 'projects.create', 'projects', 'Create projects', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (35, 'projects.update', 'projects', 'Update projects and columns', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (36, 'projects.delete', 'projects', 'Archive or delete projects', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (37, 'tasks.view', 'projects', 'View tasks on visible projects', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (38, 'tasks.create', 'projects', 'Create tasks', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (39, 'tasks.update', 'projects', 'Update own or assigned tasks', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (40, 'tasks.assign', 'projects', 'Assign and move any visible task', '2026-09-25 21:32:45', '2026-09-25 21:32:45');
 
 INSERT INTO `permissions` (`id`, `name`, `module`, `description`, `created_at`, `updated_at`) VALUES
-    (41, 'tasks.delete', 'projects', 'Delete tasks', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (42, 'hr.profile.view', 'hr', 'View employee HR profiles', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (43, 'hr.profile.update', 'hr', 'Update employee HR profiles', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (44, 'hr.salary.view', 'hr', 'View salary and national id', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (45, 'leave.request', 'hr', 'Submit own leave requests', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (46, 'leave.review', 'hr', 'Review leave requests in scope', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (47, 'mission.request', 'hr', 'Submit own mission requests', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (48, 'mission.review', 'hr', 'Review mission requests in scope', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (49, 'messages.view', 'communication', 'Read company channels and announcements', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (50, 'messages.send', 'communication', 'Send messages in visible channels', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (51, 'announcements.publish', 'communication', 'Publish company announcements', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (52, 'calendar.view', 'calendar', 'View visible events', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (53, 'calendar.manage', 'calendar', 'Create and update events', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (54, 'crm.view', 'crm', 'View accounts, contacts, and deals', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (55, 'crm.manage', 'crm', 'Manage the sales pipeline', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (56, 'marketing.view', 'marketing', 'View campaigns', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (57, 'marketing.manage', 'marketing', 'Manage campaigns', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (58, 'advertising.view', 'advertising', 'View advertising campaigns', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (59, 'advertising.manage', 'advertising', 'Manage advertising campaigns', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (60, 'finance.view', 'finance', 'View invoices and expenses', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (61, 'finance.manage', 'finance', 'Record invoices and expenses', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (62, 'tickets.create', 'operations', 'Open and follow own tickets', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (63, 'tickets.manage', 'operations', 'Triage every ticket', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (64, 'workflows.request', 'workflows', 'Submit an approval request', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (65, 'workflows.review', 'workflows', 'Review approval requests', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (66, 'documents.view', 'documents', 'Read visible documents', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (67, 'documents.manage', 'documents', 'Create and edit documents', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (68, 'analytics.view', 'analytics', 'View permitted company metrics', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (69, 'platform.companies.view', 'platform', 'View companies on the platform', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (70, 'platform.companies.manage', 'platform', 'Suspend or activate companies', '2026-09-25 14:37:27', '2026-09-25 14:37:27');
+    (41, 'tasks.delete', 'projects', 'Delete tasks', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (42, 'hr.profile.view', 'hr', 'View employee HR profiles', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (43, 'hr.profile.update', 'hr', 'Update employee HR profiles', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (44, 'hr.salary.view', 'hr', 'View salary and national id', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (45, 'leave.request', 'hr', 'Submit own leave requests', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (46, 'leave.review', 'hr', 'Review leave requests in scope', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (47, 'mission.request', 'hr', 'Submit own mission requests', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (48, 'mission.review', 'hr', 'Review mission requests in scope', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (49, 'messages.view', 'communication', 'Read company channels and announcements', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (50, 'messages.send', 'communication', 'Send messages in visible channels', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (51, 'announcements.publish', 'communication', 'Publish company announcements', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (52, 'calendar.view', 'calendar', 'View visible events', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (53, 'calendar.manage', 'calendar', 'Create and update events', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (54, 'crm.view', 'crm', 'View accounts, contacts, and deals', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (55, 'crm.manage', 'crm', 'Manage the sales pipeline', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (56, 'marketing.view', 'marketing', 'View campaigns', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (57, 'marketing.manage', 'marketing', 'Manage campaigns', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (58, 'advertising.view', 'advertising', 'View advertising campaigns', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (59, 'advertising.manage', 'advertising', 'Manage advertising campaigns', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (60, 'finance.view', 'finance', 'View invoices and expenses', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (61, 'finance.manage', 'finance', 'Record invoices and expenses', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (62, 'tickets.create', 'operations', 'Open and follow own tickets', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (63, 'tickets.manage', 'operations', 'Triage every ticket', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (64, 'workflows.request', 'workflows', 'Submit an approval request', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (65, 'workflows.review', 'workflows', 'Review approval requests', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (66, 'documents.view', 'documents', 'Read visible documents', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (67, 'documents.manage', 'documents', 'Create and edit documents', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (68, 'analytics.view', 'analytics', 'View permitted company metrics', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (69, 'platform.companies.view', 'platform', 'View companies on the platform', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (70, 'platform.companies.manage', 'platform', 'Suspend or activate companies', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (71, 'customers.view', 'portal', 'View customer accounts', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (72, 'customers.review', 'portal', 'Approve or reject customer registration', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (73, 'products.view', 'portal', 'View the product catalog', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (74, 'products.manage', 'portal', 'Create and update products', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (75, 'customer_orders.view', 'portal', 'View customer orders', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (76, 'customer_orders.manage', 'portal', 'Update customer order status', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (77, 'customer_messages.view', 'portal', 'Read customer messages for a permitted desk', '2026-09-25 21:32:45', '2026-09-25 21:32:45'),
+    (78, 'customer_messages.reply', 'portal', 'Reply to customer messages on a permitted desk', '2026-09-25 21:32:45', '2026-09-25 21:32:45');
 
-ALTER TABLE `permissions` AUTO_INCREMENT = 71;
+ALTER TABLE `permissions` AUTO_INCREMENT = 79;
 
 -- companies (1)
 INSERT INTO `companies` (`id`, `uuid`, `name`, `legal_name`, `slug`, `status`, `timezone`, `locale`, `logo_path`, `plan`, `user_limit`, `settings`, `onboarded_at`, `created_at`, `updated_at`) VALUES
-    (1, '41cd3a34-b26b-46e0-82be-9f29978ddce4', 'شبکه پردازان ایده‌بان الماس', 'شبکه پردازان ایده‌بان الماس', 'ideban-almas', 'active', 'Asia/Tehran', 'fa', NULL, NULL, NULL, '{"onboarding":{"departments":true,"teams":true,"invites":true,"schedule":true,"completed":true},"calendar":"jalali"}', '2026-09-25 14:37:29', '2026-09-25 14:37:27', '2026-09-25 14:37:29');
+    (1, '803a48ab-f04e-42a2-8ee9-c7b58a9eceb3', 'شبکه پردازان ایده‌بان الماس', 'شبکه پردازان ایده‌بان الماس', 'ideban-almas', 'active', 'Asia/Tehran', 'fa', NULL, NULL, NULL, '{"onboarding":{"departments":true,"teams":true,"invites":true,"schedule":true,"completed":true},"calendar":"jalali"}', '2026-09-25 21:32:48', '2026-09-25 21:32:45', '2026-09-25 21:32:48');
 
 ALTER TABLE `companies` AUTO_INCREMENT = 2;
 
 -- departments (9)
 INSERT INTO `departments` (`id`, `company_id`, `uuid`, `name`, `slug`, `code`, `description`, `manager_id`, `parent_id`, `is_active`, `sort_order`, `created_at`, `updated_at`) VALUES
-    (1, 1, '24066776-4417-46cf-b19b-ff3dacc6bcfa', 'مدیریت', 'management', 'MGT', NULL, 2, NULL, 1, 0, '2026-09-25 14:37:27', '2026-09-25 14:37:29'),
-    (2, 1, '8637d63d-f8f0-4d36-91fa-3771c028da7f', 'توسعه نرم‌افزار', 'software', 'DEV', NULL, 3, NULL, 1, 1, '2026-09-25 14:37:27', '2026-09-25 14:37:29'),
-    (3, 1, '570f2111-8994-4c23-935b-49cfbed9bfdc', 'دوآپس', 'devops', 'OPSINF', NULL, NULL, NULL, 1, 2, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (4, 1, '678fef38-64c0-4a67-8223-0afdf23a3213', 'عملیات و پشتیبانی', 'operations', 'OPS', NULL, NULL, NULL, 1, 3, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (5, 1, 'ae3a232b-e209-4895-a4ff-43ec610dade1', 'فروش', 'sales', 'SAL', NULL, 6, NULL, 1, 4, '2026-09-25 14:37:27', '2026-09-25 14:37:29'),
-    (6, 1, '1a6f4154-7bca-4347-89c9-141d73d37527', 'بازاریابی', 'marketing', 'MKT', NULL, NULL, NULL, 1, 5, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (7, 1, '931b8bca-2a6d-4eb7-963e-e50b02d54642', 'تبلیغات', 'advertising', 'ADV', NULL, NULL, NULL, 1, 6, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (8, 1, '3f69623e-f0e2-4933-b5ac-a0e5889500ab', 'مالی', 'finance', 'FIN', NULL, 8, NULL, 1, 7, '2026-09-25 14:37:27', '2026-09-25 14:37:29'),
-    (9, 1, '58684219-fe36-43f8-a6d7-89afac8a7d76', 'منابع انسانی', 'hr', 'HR', NULL, 9, NULL, 1, 8, '2026-09-25 14:37:27', '2026-09-25 14:37:29');
+    (1, 1, '105ea40e-4412-448a-bd95-a31a78727d1c', 'مدیریت', 'management', 'MGT', NULL, 2, NULL, 1, 0, '2026-09-25 21:32:46', '2026-09-25 21:32:48'),
+    (2, 1, 'bba0ce69-176d-4d5a-a51b-e441e0c182ba', 'توسعه نرم‌افزار', 'software', 'DEV', NULL, 3, NULL, 1, 1, '2026-09-25 21:32:46', '2026-09-25 21:32:48'),
+    (3, 1, 'c138ccf8-72b8-4c70-91ab-a0b54ff170f8', 'دوآپس', 'devops', 'OPSINF', NULL, NULL, NULL, 1, 2, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (4, 1, '33f82ff0-3e26-4954-8821-04fc2adb411d', 'عملیات و پشتیبانی', 'operations', 'OPS', NULL, NULL, NULL, 1, 3, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (5, 1, 'cb0d9b1e-5019-4136-91e7-d5b1ceaee6d3', 'فروش', 'sales', 'SAL', NULL, 6, NULL, 1, 4, '2026-09-25 21:32:46', '2026-09-25 21:32:48'),
+    (6, 1, 'e5068ac6-052e-4cbc-8b41-373143934f27', 'بازاریابی', 'marketing', 'MKT', NULL, NULL, NULL, 1, 5, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (7, 1, 'd8752d7f-8235-4112-a3a6-c24d4619889b', 'تبلیغات', 'advertising', 'ADV', NULL, NULL, NULL, 1, 6, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (8, 1, 'b3245ee3-005f-4c73-8946-59dcb67972e3', 'مالی', 'finance', 'FIN', NULL, 8, NULL, 1, 7, '2026-09-25 21:32:46', '2026-09-25 21:32:48'),
+    (9, 1, 'b0d80a1f-0ebf-4a9c-ade0-ceefa487382e', 'منابع انسانی', 'hr', 'HR', NULL, 9, NULL, 1, 8, '2026-09-25 21:32:46', '2026-09-25 21:32:48');
 
 ALTER TABLE `departments` AUTO_INCREMENT = 10;
 
--- company_user (8)
+-- company_user (10)
 INSERT INTO `company_user` (`id`, `company_id`, `user_id`, `department_id`, `job_title`, `employee_code`, `status`, `is_owner`, `joined_at`, `created_at`, `updated_at`) VALUES
-    (1, 1, 2, NULL, 'مدیرعامل', NULL, 'active', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (2, 1, 3, 2, 'توسعه‌دهنده', 'DEV-01', 'active', 0, '2026-09-25 14:37:28', '2026-09-25 14:37:28', '2026-09-25 14:37:28'),
-    (3, 1, 4, 3, 'مهندس دوآپس', 'OPS-01', 'active', 0, '2026-09-25 14:37:28', '2026-09-25 14:37:28', '2026-09-25 14:37:28'),
-    (4, 1, 5, 4, 'کارشناس پشتیبانی', 'SUP-01', 'active', 0, '2026-09-25 14:37:28', '2026-09-25 14:37:28', '2026-09-25 14:37:28'),
-    (5, 1, 6, 5, 'مدیر فروش', 'SAL-01', 'active', 0, '2026-09-25 14:37:28', '2026-09-25 14:37:28', '2026-09-25 14:37:28'),
-    (6, 1, 7, 6, 'کارشناس بازاریابی', 'MKT-01', 'active', 0, '2026-09-25 14:37:29', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (7, 1, 8, 8, 'مدیر مالی', 'FIN-01', 'active', 0, '2026-09-25 14:37:29', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (8, 1, 9, 9, 'کارشناس منابع انسانی', 'HR-01', 'active', 0, '2026-09-25 14:37:29', '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, 2, NULL, 'مدیرعامل', NULL, 'active', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (2, 1, 3, 2, 'توسعه‌دهنده', 'DEV-01', 'active', 0, '2026-09-25 21:32:46', '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (3, 1, 4, 3, 'مهندس دوآپس', 'OPS-01', 'active', 0, '2026-09-25 21:32:46', '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (4, 1, 5, 4, 'کارشناس پشتیبانی', 'SUP-01', 'active', 0, '2026-09-25 21:32:47', '2026-09-25 21:32:47', '2026-09-25 21:32:47'),
+    (5, 1, 6, 5, 'مدیر فروش', 'SAL-01', 'active', 0, '2026-09-25 21:32:47', '2026-09-25 21:32:47', '2026-09-25 21:32:47'),
+    (6, 1, 7, 6, 'کارشناس بازاریابی', 'MKT-01', 'active', 0, '2026-09-25 21:32:47', '2026-09-25 21:32:47', '2026-09-25 21:32:47'),
+    (7, 1, 8, 8, 'مدیر مالی', 'FIN-01', 'active', 0, '2026-09-25 21:32:47', '2026-09-25 21:32:47', '2026-09-25 21:32:47'),
+    (8, 1, 9, 9, 'کارشناس منابع انسانی', 'HR-01', 'active', 0, '2026-09-25 21:32:48', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (9, 1, 10, NULL, 'مشتری', NULL, 'active', 0, '2026-09-25 21:32:51', '2026-09-25 21:32:51', '2026-09-25 21:32:51'),
+    (10, 1, 11, NULL, 'مشتری', NULL, 'pending', 0, '2026-09-25 21:32:51', '2026-09-25 21:32:51', '2026-09-25 21:32:51');
 
-ALTER TABLE `company_user` AUTO_INCREMENT = 9;
+ALTER TABLE `company_user` AUTO_INCREMENT = 11;
 
 -- teams (3)
 INSERT INTO `teams` (`id`, `company_id`, `department_id`, `uuid`, `name`, `slug`, `description`, `leader_id`, `is_active`, `created_at`, `updated_at`) VALUES
-    (1, 1, 2, '0a0c5e8d-462a-4b33-8013-423da5b9ea70', 'تیم محصول', 'product', 'توسعه محصول‌های نرم‌افزاری شرکت', 3, 1, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (2, 1, 3, 'a8e8333e-c135-4384-9430-0f7c9432683b', 'تیم زیرساخت', 'infrastructure', NULL, 4, 1, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (3, 1, 5, '08239bda-237a-47e6-8a1f-c4734b9e1321', 'میز فروش', 'sales-desk', NULL, 6, 1, '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, 2, 'e31ab1d1-ba89-4e88-85ca-aab9845f77c4', 'تیم محصول', 'product', 'توسعه محصول‌های نرم‌افزاری شرکت', 3, 1, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (2, 1, 3, '0cc8ff4c-fbcb-4401-adff-8d7f4d246407', 'تیم زیرساخت', 'infrastructure', NULL, 4, 1, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (3, 1, 5, '7525ddcb-d131-419c-97c7-b6d8f64c78ca', 'میز فروش', 'sales-desk', NULL, 6, 1, '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `teams` AUTO_INCREMENT = 4;
 
 -- team_user (3)
 INSERT INTO `team_user` (`id`, `team_id`, `user_id`, `role`, `created_at`, `updated_at`) VALUES
-    (1, 1, 3, 'leader', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (2, 2, 4, 'leader', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (3, 3, 6, 'leader', '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, 3, 'leader', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (2, 2, 4, 'leader', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (3, 3, 6, 'leader', '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `team_user` AUTO_INCREMENT = 4;
 
 -- roles (10)
 INSERT INTO `roles` (`id`, `company_id`, `uuid`, `name`, `slug`, `description`, `is_system`, `created_at`, `updated_at`) VALUES
-    (1, 1, '655b319f-95c2-4325-94f1-d10e30cb972b', 'مالک شرکت', 'company-owner', 'دسترسی کامل به شرکت', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (2, 1, '89d3a59b-0f72-4bcf-a9cf-bb0e13b77e82', 'مدیرعامل', 'ceo', 'مشاهده و مدیریت کل شرکت', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (3, 1, 'bc504d47-ccf0-4d17-9a8d-d65c5a2d35cf', 'مدیر واحد', 'department-manager', 'مدیریت تیم‌های واحد و مشاهده اعضا', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (4, 1, 'ae3fc012-75fb-4d67-9dc1-9b0f454d9054', 'سرپرست تیم', 'team-leader', 'مشاهده تیم و همکاران', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (5, 1, 'ffe13c86-8e84-41b9-804e-ba14ff34f88f', 'کارمند', 'employee', 'فضای کاری شخصی و مشاهده ساختار مجاز', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (6, 1, 'e6ec72bd-d64c-4406-bad3-70f4f433dd44', 'منابع انسانی', 'hr', 'مدیریت اعضا و دعوت‌ها', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (7, 1, '6c27591e-12b2-4acd-a164-126a0bc21cac', 'فروش', 'sales', 'دسترسی پایه تا فعال شدن ماژول فروش', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (8, 1, 'fbdf8320-f7f5-4d08-8aa8-f3fa8069dbc4', 'بازاریابی', 'marketing', 'دسترسی پایه تا فعال شدن ماژول بازاریابی', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (9, 1, '2f1501e2-dd00-492c-b930-b459bb753b4f', 'مالی', 'finance', 'دفتر مالی شرکت', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (10, 1, 'd87a8c0a-1429-453a-928b-56dfd1e55cc4', 'مشتری', 'client', 'دسترسی محدود به فضای شخصی', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27');
+    (1, 1, 'ddde21b7-338b-4e44-8b5e-d402a3eaac79', 'مالک شرکت', 'company-owner', 'دسترسی کامل به شرکت', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (2, 1, 'ad1c6b3f-4fd0-4db2-a541-31905e2bb558', 'مدیرعامل', 'ceo', 'مشاهده و مدیریت کل شرکت', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (3, 1, 'f7957cbf-fc1b-40eb-b9fa-abb1c62e6de1', 'مدیر واحد', 'department-manager', 'مدیریت تیم‌های واحد و مشاهده اعضا', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (4, 1, 'e2660d26-4469-488e-959b-04e541afb6af', 'سرپرست تیم', 'team-leader', 'مشاهده تیم و همکاران', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (5, 1, 'c0584d29-ae35-4dd5-8873-39f67e3a2f5c', 'کارمند', 'employee', 'فضای کاری شخصی و مشاهده ساختار مجاز', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (6, 1, '1aff5eb3-86c2-4e9f-8933-ca96bd71e2ca', 'منابع انسانی', 'hr', 'مدیریت اعضا و دعوت‌ها', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (7, 1, 'a1c2732d-ea0e-44eb-93fc-7512874a2bc8', 'فروش', 'sales', 'دسترسی پایه تا فعال شدن ماژول فروش', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (8, 1, 'bb9e26ec-2d1b-4cb2-a8f5-aa1b76ac83a0', 'بازاریابی', 'marketing', 'دسترسی پایه تا فعال شدن ماژول بازاریابی', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (9, 1, '8ec33ebc-4807-4b9e-a4d4-fa0d0de502fc', 'مالی', 'finance', 'دفتر مالی شرکت', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (10, 1, '4a011fc8-36fa-48d4-9e7c-40b2a448a678', 'مشتری', 'client', 'صفحه شخصی، سفارش و پیام پس از تأیید مدیر', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46');
 
 ALTER TABLE `roles` AUTO_INCREMENT = 11;
 
--- role_permissions (331)
+-- role_permissions (362)
 INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (1, 1),
     (1, 2),
@@ -1059,10 +1200,20 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (1, 66),
     (1, 67),
     (1, 68),
+    (1, 71),
+    (1, 72),
+    (1, 73),
+    (1, 74),
+    (1, 75),
+    (1, 76),
+    (1, 77),
+    (1, 78),
     (2, 1),
     (2, 2),
     (2, 3),
-    (2, 4),
+    (2, 4);
+
+INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (2, 5),
     (2, 6),
     (2, 7),
@@ -1070,9 +1221,7 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (2, 9),
     (2, 10),
     (2, 11),
-    (2, 12);
-
-INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
+    (2, 12),
     (2, 13),
     (2, 14),
     (2, 15),
@@ -1104,7 +1253,9 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (2, 41),
     (2, 42),
     (2, 43),
-    (2, 44),
+    (2, 44);
+
+INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (2, 45),
     (2, 46),
     (2, 47),
@@ -1112,9 +1263,7 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (2, 49),
     (2, 50),
     (2, 51),
-    (2, 52);
-
-INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
+    (2, 52),
     (2, 53),
     (2, 54),
     (2, 55),
@@ -1131,6 +1280,14 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (2, 66),
     (2, 67),
     (2, 68),
+    (2, 71),
+    (2, 72),
+    (2, 73),
+    (2, 74),
+    (2, 75),
+    (2, 76),
+    (2, 77),
+    (2, 78),
     (3, 1),
     (3, 2),
     (3, 5),
@@ -1138,7 +1295,9 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (3, 14),
     (3, 24),
     (3, 25),
-    (3, 28),
+    (3, 28);
+
+INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (3, 31),
     (3, 33),
     (3, 37),
@@ -1154,9 +1313,7 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (3, 29),
     (3, 32),
     (3, 7),
-    (3, 15);
-
-INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
+    (3, 15),
     (3, 16),
     (3, 17),
     (3, 23),
@@ -1172,7 +1329,17 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (3, 65),
     (3, 67),
     (3, 68),
-    (4, 1),
+    (3, 71),
+    (3, 72),
+    (3, 73),
+    (3, 74),
+    (3, 75),
+    (3, 76),
+    (3, 77),
+    (3, 78),
+    (4, 1);
+
+INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (4, 2),
     (4, 5),
     (4, 10),
@@ -1196,9 +1363,7 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (4, 52),
     (4, 62),
     (4, 64),
-    (4, 66);
-
-INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
+    (4, 66),
     (4, 53),
     (5, 1),
     (5, 2),
@@ -1214,7 +1379,9 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (5, 38),
     (5, 39),
     (5, 45),
-    (5, 47),
+    (5, 47);
+
+INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (5, 49),
     (5, 50),
     (5, 52),
@@ -1238,9 +1405,7 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (6, 47),
     (6, 42),
     (6, 43),
-    (6, 44);
-
-INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
+    (6, 44),
     (6, 46),
     (6, 48),
     (6, 29),
@@ -1250,11 +1415,15 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (6, 7),
     (6, 9),
     (6, 23),
+    (6, 71),
+    (6, 72),
     (6, 49),
     (6, 50),
     (6, 52),
     (6, 62),
-    (6, 64),
+    (6, 64);
+
+INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (6, 66),
     (6, 67),
     (7, 1),
@@ -1280,9 +1449,13 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (7, 66),
     (7, 54),
     (7, 55),
-    (8, 1);
-
-INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
+    (7, 71),
+    (7, 73),
+    (7, 75),
+    (7, 76),
+    (7, 77),
+    (7, 78),
+    (8, 1),
     (8, 2),
     (8, 5),
     (8, 10),
@@ -1290,7 +1463,9 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (8, 24),
     (8, 25),
     (8, 28),
-    (8, 31),
+    (8, 31);
+
+INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (8, 33),
     (8, 37),
     (8, 38),
@@ -1322,9 +1497,7 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (9, 39),
     (9, 45),
     (9, 47),
-    (9, 49);
-
-INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
+    (9, 49),
     (9, 50),
     (9, 52),
     (9, 62),
@@ -1332,1034 +1505,1102 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (9, 66),
     (9, 60),
     (9, 61),
-    (9, 68),
-    (10, 1),
+    (9, 68);
+
+INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
     (10, 24),
     (10, 25);
 
--- user_roles (10)
+-- user_roles (12)
 INSERT INTO `user_roles` (`id`, `company_id`, `user_id`, `role_id`, `created_at`, `updated_at`) VALUES
-    (1, 1, 2, 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (2, 1, 3, 4, '2026-09-25 14:37:28', '2026-09-25 14:37:28'),
-    (3, 1, 4, 5, '2026-09-25 14:37:28', '2026-09-25 14:37:28'),
-    (4, 1, 5, 5, '2026-09-25 14:37:28', '2026-09-25 14:37:28'),
-    (5, 1, 6, 3, '2026-09-25 14:37:28', '2026-09-25 14:37:28'),
-    (6, 1, 6, 7, '2026-09-25 14:37:28', '2026-09-25 14:37:28'),
-    (7, 1, 7, 8, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (8, 1, 8, 3, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (9, 1, 8, 9, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (10, 1, 9, 6, '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, 2, 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (2, 1, 3, 4, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (3, 1, 4, 5, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (4, 1, 5, 5, '2026-09-25 21:32:47', '2026-09-25 21:32:47'),
+    (5, 1, 6, 3, '2026-09-25 21:32:47', '2026-09-25 21:32:47'),
+    (6, 1, 6, 7, '2026-09-25 21:32:47', '2026-09-25 21:32:47'),
+    (7, 1, 7, 8, '2026-09-25 21:32:47', '2026-09-25 21:32:47'),
+    (8, 1, 8, 3, '2026-09-25 21:32:47', '2026-09-25 21:32:47'),
+    (9, 1, 8, 9, '2026-09-25 21:32:47', '2026-09-25 21:32:47'),
+    (10, 1, 9, 6, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (11, 1, 10, 10, '2026-09-25 21:32:51', '2026-09-25 21:32:51'),
+    (12, 1, 11, 10, '2026-09-25 21:32:51', '2026-09-25 21:32:51');
 
-ALTER TABLE `user_roles` AUTO_INCREMENT = 11;
+ALTER TABLE `user_roles` AUTO_INCREMENT = 13;
 
 -- work_schedules (7)
 INSERT INTO `work_schedules` (`id`, `company_id`, `weekday`, `is_working_day`, `start_time`, `end_time`, `break_minutes`, `grace_minutes`, `created_at`, `updated_at`) VALUES
-    (1, 1, 0, 1, '09:00:00', '17:00:00', 60, 15, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (2, 1, 1, 1, '09:00:00', '17:00:00', 60, 15, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (3, 1, 2, 1, '09:00:00', '17:00:00', 60, 15, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (4, 1, 3, 1, '09:00:00', '17:00:00', 60, 15, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (5, 1, 4, 1, '09:00:00', '17:00:00', 60, 15, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (6, 1, 5, 0, '09:00:00', '17:00:00', 60, 15, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (7, 1, 6, 1, '09:00:00', '17:00:00', 60, 15, '2026-09-25 14:37:27', '2026-09-25 14:37:27');
+    (1, 1, 0, 1, '09:00:00', '17:00:00', 60, 15, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (2, 1, 1, 1, '09:00:00', '17:00:00', 60, 15, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (3, 1, 2, 1, '09:00:00', '17:00:00', 60, 15, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (4, 1, 3, 1, '09:00:00', '17:00:00', 60, 15, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (5, 1, 4, 1, '09:00:00', '17:00:00', 60, 15, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (6, 1, 5, 0, '09:00:00', '17:00:00', 60, 15, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (7, 1, 6, 1, '09:00:00', '17:00:00', 60, 15, '2026-09-25 21:32:46', '2026-09-25 21:32:46');
 
 ALTER TABLE `work_schedules` AUTO_INCREMENT = 8;
 
--- features (14)
+-- features (15)
 INSERT INTO `features` (`id`, `company_id`, `key`, `enabled`, `created_at`, `updated_at`) VALUES
-    (1, 1, 'foundation', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (2, 1, 'attendance', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (3, 1, 'projects', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (4, 1, 'hr', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (5, 1, 'communication', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (6, 1, 'calendar', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (7, 1, 'crm', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (8, 1, 'marketing', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (9, 1, 'advertising', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (10, 1, 'finance', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (11, 1, 'operations', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (12, 1, 'workflows', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (13, 1, 'documents', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27'),
-    (14, 1, 'analytics', 1, '2026-09-25 14:37:27', '2026-09-25 14:37:27');
+    (1, 1, 'foundation', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (2, 1, 'attendance', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (3, 1, 'projects', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (4, 1, 'hr', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (5, 1, 'communication', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (6, 1, 'calendar', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (7, 1, 'crm', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (8, 1, 'marketing', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (9, 1, 'advertising', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (10, 1, 'finance', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (11, 1, 'operations', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (12, 1, 'workflows', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (13, 1, 'documents', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (14, 1, 'analytics', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46'),
+    (15, 1, 'portal', 1, '2026-09-25 21:32:46', '2026-09-25 21:32:46');
 
-ALTER TABLE `features` AUTO_INCREMENT = 15;
+ALTER TABLE `features` AUTO_INCREMENT = 16;
 
 -- projects (2)
 INSERT INTO `projects` (`id`, `company_id`, `uuid`, `name`, `slug`, `code`, `description`, `status`, `visibility`, `department_id`, `owner_id`, `start_date`, `due_date`, `created_at`, `updated_at`) VALUES
-    (1, 1, 'faa62c90-633d-480d-96ce-9e9213aa0b66', 'فروشگاه', 'shop', 'SHOP', 'فروش آنلاین و هماهنگی کاتالوگ', 'active', 'company', 5, 2, NULL, '2026-10-25 00:00:00', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (2, 1, 'cfe60b17-c9a9-4643-9dd0-cf1b98c6b857', 'دفتر مجازی', 'virtual-office', 'VOFFICE', 'حضور، وظیفه و گزارش روزانهٔ شرکت مجازی', 'active', 'company', 2, 2, NULL, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, 'e3b8f2d8-b203-424b-a9fd-4d1b7bcac121', 'فروشگاه', 'shop', 'SHOP', 'فروش آنلاین و هماهنگی کاتالوگ', 'active', 'company', 5, 2, NULL, '2026-10-25 00:00:00', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (2, 1, 'dc33ce45-bdfb-42f6-ba0a-4adb0c292347', 'دفتر مجازی', 'virtual-office', 'VOFFICE', 'حضور، وظیفه و گزارش روزانهٔ شرکت مجازی', 'active', 'company', 2, 2, NULL, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `projects` AUTO_INCREMENT = 3;
 
 -- project_members (6)
 INSERT INTO `project_members` (`id`, `company_id`, `project_id`, `user_id`, `role`, `created_at`, `updated_at`) VALUES
-    (1, 1, 1, 2, 'manager', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (2, 1, 2, 2, 'manager', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (3, 1, 1, 6, 'member', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (4, 1, 1, 7, 'member', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (5, 1, 2, 3, 'manager', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (6, 1, 2, 4, 'member', '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, 1, 2, 'manager', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (2, 1, 2, 2, 'manager', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (3, 1, 1, 6, 'member', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (4, 1, 1, 7, 'member', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (5, 1, 2, 3, 'manager', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (6, 1, 2, 4, 'member', '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `project_members` AUTO_INCREMENT = 7;
 
 -- kanban_columns (8)
 INSERT INTO `kanban_columns` (`id`, `company_id`, `project_id`, `uuid`, `name`, `sort_order`, `is_done`, `created_at`, `updated_at`) VALUES
-    (1, 1, 1, 'a5fed908-529f-4473-a94a-d01d454b7890', 'صف انتظار', 0, 0, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (2, 1, 1, 'e0cbca75-cd66-43e6-a1b0-9e826fd2f446', 'در حال انجام', 1, 0, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (3, 1, 1, 'caaf05a0-e144-46cd-b099-4ed4e62cc0b8', 'بازبینی', 2, 0, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (4, 1, 1, '7848f2c9-5437-42ab-bb67-321c7393c72d', 'انجام شد', 3, 1, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (5, 1, 2, 'cd1a980d-4bf9-401a-abbb-0326bb189850', 'صف انتظار', 0, 0, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (6, 1, 2, '2e69a195-39ae-4b63-9380-37773314ec0b', 'در حال انجام', 1, 0, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (7, 1, 2, '34c8b05c-85cf-4e8d-99bc-c36949dcb7de', 'بازبینی', 2, 0, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (8, 1, 2, '1e89e0cb-bba9-40d7-ac9f-759fc04c1d10', 'انجام شد', 3, 1, '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, 1, 'c6e72e8e-ab0f-44e6-b3e4-56ec26b71a0d', 'صف انتظار', 0, 0, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (2, 1, 1, '66ca5915-df7e-4d53-a576-49a11fae096f', 'در حال انجام', 1, 0, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (3, 1, 1, '54443d02-cf93-488b-a89f-3415c9d5a428', 'بازبینی', 2, 0, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (4, 1, 1, '4204e6d2-4f7d-46af-8aff-ec9d8a84399a', 'انجام شد', 3, 1, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (5, 1, 2, 'e8dbf12e-a490-42b1-bef1-ecffde847605', 'صف انتظار', 0, 0, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (6, 1, 2, 'b2ea1d77-cd02-441b-b6f3-25993c5f3fa5', 'در حال انجام', 1, 0, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (7, 1, 2, '365edaa3-9f78-4fbb-a864-3bf85001549c', 'بازبینی', 2, 0, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (8, 1, 2, 'b7587d93-f5bb-48b2-9e39-c967cfe122ba', 'انجام شد', 3, 1, '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `kanban_columns` AUTO_INCREMENT = 9;
 
 -- tasks (11)
 INSERT INTO `tasks` (`id`, `company_id`, `project_id`, `column_id`, `uuid`, `title`, `description`, `priority`, `assignee_id`, `reporter_id`, `due_date`, `sort_order`, `completed_at`, `created_at`, `updated_at`) VALUES
-    (1, 1, 1, 1, 'df2c96bb-8c92-4ed1-a7be-b134cc08181a', 'آماده‌سازی کاتالوگ پاییز', NULL, 'high', 6, 2, '2026-09-25 00:00:00', 1, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (2, 1, 2, 5, '23edfd0c-3f0c-454e-a3d4-f0a38b5a47a0', 'برد کانبان دفتر مجازی', NULL, 'high', 3, 2, '2026-09-25 00:00:00', 1, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (3, 1, 2, 5, 'f2afd1a8-46a4-4c96-9452-b5caeab24bcf', 'پایدارسازی سرویس حضور', NULL, 'normal', 4, 2, '2026-09-25 00:00:00', 2, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (4, 1, 2, 5, '84427581-941c-4adc-bea3-d54b171ad13a', 'جمع‌بندی گزارش کار هفته', 'گزارش ساعت و تأخیر هفته را برای مدیرعامل جمع کنید.', 'high', 3, 2, '2026-09-27 00:00:00', 3, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (5, 1, 2, 8, 'e86b2083-2dc8-4813-9ad4-9d687aae5f10', 'بستن گزارش روزانه پنجشنبه', 'گزارش روزانه ثبت و تحویل شد.', 'normal', 3, 2, '2026-09-22 00:00:00', 1, '2026-09-24 00:00:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (6, 1, 2, 5, '31e588e3-2a1c-4ddb-be97-93c9b51d1b65', 'بررسی تأخیر ورود', 'ساعت ورود دو روز اخیر را با مدیر هماهنگ کنید.', 'high', 4, 2, '2026-09-23 00:00:00', 4, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (7, 1, 2, 5, 'a891fae8-3372-4df2-9a1e-9d10f363fd72', 'پاسخ تیکت‌های باز صبح', 'تیکت‌های بدون پاسخ را تا پایان شیفت ببندید.', 'normal', 5, 2, '2026-09-26 00:00:00', 5, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (8, 1, 1, 1, '9d05e8b3-44d1-4cc6-95ee-62b2a5e02d47', 'پیگیری پیش‌فاکتور مشتری', 'پیش‌فاکتور را برای مشتری ارسال کنید.', 'high', 6, 2, '2026-09-28 00:00:00', 2, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (9, 1, 1, 1, 'deb99f9a-3019-4879-8ac9-21fea30d6be2', 'به‌روزرسانی متن کمپین', 'متن کمپین پاییز را با فروش هماهنگ کنید.', 'normal', 7, 2, '2026-09-29 00:00:00', 3, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (10, 1, 1, 1, 'c4f282b8-b1ec-4c5c-bb09-f8e6c3146f2c', 'ثبت هزینهٔ جلسه مشتری', 'هزینه را در مالی ثبت کنید. مبلغ نمونه است.', 'normal', 8, 2, '2026-09-26 00:00:00', 4, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (11, 1, 2, 5, 'e8b7dd42-0b4e-4953-b1c6-7f86cbdb9077', 'تکمیل پروندهٔ حضور ماه', 'مرخصی و مأموریت‌های باز را بررسی کنید.', 'normal', 9, 2, '2026-09-30 00:00:00', 6, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31');
+    (1, 1, 1, 1, '95fe1efb-459c-4a9f-9955-fbc7f4a31cca', 'آماده‌سازی کاتالوگ پاییز', NULL, 'high', 6, 2, '2026-09-26 00:00:00', 1, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (2, 1, 2, 5, '9d54b460-f4b3-4ba1-b0e4-04277d59600d', 'برد کانبان دفتر مجازی', NULL, 'high', 3, 2, '2026-09-26 00:00:00', 1, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (3, 1, 2, 5, 'cc00f4d1-1e52-4dc9-86e2-ca0269b2b22b', 'پایدارسازی سرویس حضور', NULL, 'normal', 4, 2, '2026-09-26 00:00:00', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (4, 1, 2, 5, '924434c2-a9a7-43ce-a7bc-5d62855e3ab2', 'جمع‌بندی گزارش کار هفته', 'گزارش ساعت و تأخیر هفته را برای مدیرعامل جمع کنید.', 'high', 3, 2, '2026-09-28 00:00:00', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (5, 1, 2, 8, 'f55580e2-afa4-483c-abaf-3681bfbbfda8', 'بستن گزارش روزانه پنجشنبه', 'گزارش روزانه ثبت و تحویل شد.', 'normal', 3, 2, '2026-09-23 00:00:00', 1, '2026-09-25 00:00:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (6, 1, 2, 5, '8815008f-2dc0-4812-a724-cb6ff9ffcf18', 'بررسی تأخیر ورود', 'ساعت ورود دو روز اخیر را با مدیر هماهنگ کنید.', 'high', 4, 2, '2026-09-24 00:00:00', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (7, 1, 2, 5, 'cc9b9d08-38b4-4b24-8667-630888c40af4', 'پاسخ تیکت‌های باز صبح', 'تیکت‌های بدون پاسخ را تا پایان شیفت ببندید.', 'normal', 5, 2, '2026-09-27 00:00:00', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (8, 1, 1, 1, 'c58e44b7-cabe-4f2b-9f18-f43eed601473', 'پیگیری پیش‌فاکتور مشتری', 'پیش‌فاکتور را برای مشتری ارسال کنید.', 'high', 6, 2, '2026-09-29 00:00:00', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (9, 1, 1, 1, 'fb2261e6-0dc8-4fe9-97f7-e380459d2cff', 'به‌روزرسانی متن کمپین', 'متن کمپین پاییز را با فروش هماهنگ کنید.', 'normal', 7, 2, '2026-09-30 00:00:00', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (10, 1, 1, 1, 'c12f2f39-2a08-4903-a241-0014a4065ef3', 'ثبت هزینهٔ جلسه مشتری', 'هزینه را در مالی ثبت کنید. مبلغ نمونه است.', 'normal', 8, 2, '2026-09-27 00:00:00', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (11, 1, 2, 5, '09933204-813f-403a-9ea2-bd2463916eb4', 'تکمیل پروندهٔ حضور ماه', 'مرخصی و مأموریت‌های باز را بررسی کنید.', 'normal', 9, 2, '2026-10-01 00:00:00', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50');
 
 ALTER TABLE `tasks` AUTO_INCREMENT = 12;
 
 -- hr_profiles (1)
 INSERT INTO `hr_profiles` (`id`, `company_id`, `user_id`, `hire_date`, `employment_type`, `national_id`, `emergency_name`, `emergency_phone`, `salary_amount`, `salary_currency`, `notes`, `created_at`, `updated_at`) VALUES
-    (1, 1, 3, '2024-03-01 00:00:00', 'full_time', '0087654321', 'خانواده کاظمی', '09120000000', 850000000, 'IRR', NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, 3, '2024-03-01 00:00:00', 'full_time', '0087654321', 'خانواده کاظمی', '09120000000', 850000000, 'IRR', NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `hr_profiles` AUTO_INCREMENT = 2;
 
 -- leave_requests (1)
 INSERT INTO `leave_requests` (`id`, `company_id`, `uuid`, `user_id`, `type`, `starts_on`, `ends_on`, `reason`, `status`, `reviewer_id`, `reviewed_at`, `review_note`, `created_at`, `updated_at`) VALUES
-    (1, 1, '7f4aa1f9-0a33-4bcd-926d-294bc5725e7c', 4, 'annual', '2026-09-25 00:00:00', '2026-09-25 00:00:00', 'مرخصی استحقاقی نمونه', 'pending', NULL, NULL, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, '0fdabe07-3d50-4f53-ab4f-d78e184e9ac1', 4, 'annual', '2026-09-26 00:00:00', '2026-09-26 00:00:00', 'مرخصی استحقاقی نمونه', 'pending', NULL, NULL, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `leave_requests` AUTO_INCREMENT = 2;
 
 -- mission_requests (1)
 INSERT INTO `mission_requests` (`id`, `company_id`, `uuid`, `user_id`, `destination`, `starts_on`, `ends_on`, `purpose`, `status`, `reviewer_id`, `reviewed_at`, `review_note`, `created_at`, `updated_at`) VALUES
-    (1, 1, '1d908fd8-030e-4ad9-85d4-47ded7da2a43', 6, 'دفتر مشتری، تهران', '2026-09-25 00:00:00', '2026-09-25 00:00:00', 'جلسه معرفی فروشگاه', 'pending', NULL, NULL, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, '02bb25da-5792-4597-850a-a46c35ec30e0', 6, 'دفتر مشتری، تهران', '2026-09-26 00:00:00', '2026-09-26 00:00:00', 'جلسه معرفی فروشگاه', 'pending', NULL, NULL, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `mission_requests` AUTO_INCREMENT = 2;
 
 -- channels (1)
 INSERT INTO `channels` (`id`, `company_id`, `uuid`, `name`, `slug`, `kind`, `created_at`, `updated_at`) VALUES
-    (1, 1, '36a0c790-b72c-4340-a478-733a2a9ea349', 'عمومی', 'general', 'company', '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, 'eec84ad6-0692-45c4-99a8-7490b1c528b5', 'عمومی', 'general', 'company', '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `channels` AUTO_INCREMENT = 2;
 
 -- messages (1)
 INSERT INTO `messages` (`id`, `company_id`, `channel_id`, `user_id`, `uuid`, `body`, `created_at`, `updated_at`) VALUES
-    (1, 1, 1, 2, 'a6936d19-90b1-4bbf-8cef-770444b603f4', 'صبح بخیر. اولویت امروز: فروشگاه و دفتر مجازی.', '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, 1, 2, '2de00e41-37fd-4d14-b4d0-9d814fbe7795', 'صبح بخیر. اولویت امروز: فروشگاه و دفتر مجازی.', '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `messages` AUTO_INCREMENT = 2;
 
 -- announcements (1)
 INSERT INTO `announcements` (`id`, `company_id`, `uuid`, `title`, `body`, `author_id`, `created_at`, `updated_at`) VALUES
-    (1, 1, 'd2df2fb4-2d8b-4bb4-b46d-00d1f79f4dd8', 'شروع هفته', 'جلسهٔ هماهنگی ساعت ۱۰ در تقویم شرکت است.', 2, '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, '9e391ce9-062a-4d24-aa28-635244be265a', 'شروع هفته', 'جلسهٔ هماهنگی ساعت ۱۰ در تقویم شرکت است.', 2, '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `announcements` AUTO_INCREMENT = 2;
 
 -- events (1)
 INSERT INTO `events` (`id`, `company_id`, `uuid`, `title`, `location`, `starts_at`, `ends_at`, `visibility`, `owner_id`, `created_at`, `updated_at`) VALUES
-    (1, 1, '67ebc807-ed34-4886-a618-c5eb7f9cf89e', 'هماهنگی هفتگی', 'اتاق مجازی', '2026-09-25 10:00:00', '2026-09-25 11:00:00', 'company', 2, '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, 'aec1b4b4-f84a-4560-840e-e74feeaa6e81', 'هماهنگی هفتگی', 'اتاق مجازی', '2026-09-26 10:00:00', '2026-09-26 11:00:00', 'company', 2, '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `events` AUTO_INCREMENT = 2;
 
 -- crm_accounts (1)
 INSERT INTO `crm_accounts` (`id`, `company_id`, `uuid`, `name`, `status`, `created_at`, `updated_at`) VALUES
-    (1, 1, 'ab9e77cf-d858-42f2-b545-42842695d632', 'خانهٔ کتاب', 'active', '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, '7b9af106-b66d-4b6e-8fb5-842f52ba2941', 'خانهٔ کتاب', 'active', '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `crm_accounts` AUTO_INCREMENT = 2;
 
 -- crm_contacts (1)
 INSERT INTO `crm_contacts` (`id`, `company_id`, `uuid`, `account_id`, `name`, `email`, `phone`, `created_at`, `updated_at`) VALUES
-    (1, 1, '7a7c6aaa-5709-4494-9aaa-45ba18690a26', 1, 'نگار سلیمانی', 'negar@example.test', '02144000000', '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, '1b22bea2-455f-4556-9b18-6b258ca3c9f4', 1, 'نگار سلیمانی', 'negar@example.test', '02144000000', '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `crm_contacts` AUTO_INCREMENT = 2;
 
 -- crm_deals (1)
 INSERT INTO `crm_deals` (`id`, `company_id`, `uuid`, `account_id`, `title`, `stage`, `amount`, `currency`, `owner_id`, `created_at`, `updated_at`) VALUES
-    (1, 1, '27870ec1-893c-4004-b1f9-d0f2a903f266', 1, 'قرارداد فروشگاه', 'proposal', 240000000, 'IRR', 6, '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, '2984c02e-8a96-4cf7-8f93-5176ea5f8093', 1, 'قرارداد فروشگاه', 'proposal', 240000000, 'IRR', 6, '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `crm_deals` AUTO_INCREMENT = 2;
 
 -- campaigns (2)
 INSERT INTO `campaigns` (`id`, `company_id`, `uuid`, `name`, `channel`, `status`, `budget_amount`, `currency`, `starts_on`, `ends_on`, `created_at`, `updated_at`) VALUES
-    (1, 1, 'cc8dc36a-a0c0-42e4-9858-78069a8f0ed6', 'کمپین پاییز', 'social', 'active', 80000000, 'IRR', '2026-09-25 00:00:00', '2026-10-25 00:00:00', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (2, 1, '0c3fc669-6020-4d5b-9de3-426a2ccaccf6', 'تبلیغ جستجو', 'ads', 'draft', 45000000, 'IRR', NULL, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, '8cbdaae5-5c39-43ed-a8e9-8ae61f66c8ce', 'کمپین پاییز', 'social', 'active', 80000000, 'IRR', '2026-09-25 00:00:00', '2026-10-25 00:00:00', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (2, 1, '87df7eb3-4194-48bd-9508-1eeab23ca0a0', 'تبلیغ جستجو', 'ads', 'draft', 45000000, 'IRR', NULL, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `campaigns` AUTO_INCREMENT = 3;
 
 -- invoices (1)
 INSERT INTO `invoices` (`id`, `company_id`, `uuid`, `number`, `party_name`, `amount`, `currency`, `status`, `issued_on`, `due_on`, `created_at`, `updated_at`) VALUES
-    (1, 1, 'd58903e7-7afd-4374-a340-94cedbcc415b', 'INV-1405-001', 'خانهٔ کتاب', 120000000, 'IRR', 'sent', '2026-09-25 00:00:00', '2026-10-09 00:00:00', '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, '1f52037d-9e7a-49a3-9965-efe51d575517', 'INV-1405-001', 'خانهٔ کتاب', 120000000, 'IRR', 'sent', '2026-09-25 00:00:00', '2026-10-09 00:00:00', '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `invoices` AUTO_INCREMENT = 2;
 
 -- expenses (1)
 INSERT INTO `expenses` (`id`, `company_id`, `uuid`, `category`, `amount`, `currency`, `status`, `spent_on`, `note`, `created_at`, `updated_at`) VALUES
-    (1, 1, 'a55ae278-f5f9-41b8-8382-54c40c97cf92', 'زیرساخت', 18000000, 'IRR', 'recorded', '2026-09-25 00:00:00', 'هزینهٔ نمونه', '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, 'a9b3d69e-4f70-4796-aa2d-d6f184c5c484', 'زیرساخت', 18000000, 'IRR', 'recorded', '2026-09-25 00:00:00', 'هزینهٔ نمونه', '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `expenses` AUTO_INCREMENT = 2;
 
 -- tickets (1)
 INSERT INTO `tickets` (`id`, `company_id`, `uuid`, `subject`, `body`, `status`, `priority`, `requester_id`, `assignee_id`, `created_at`, `updated_at`) VALUES
-    (1, 1, '68c043cf-8da2-43f2-a573-ce0e4523b993', 'دسترسی گزارش روزانه', 'همکار جدید صفحهٔ حضور را نمی‌بیند.', 'open', 'high', 5, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, '372d6b55-8adc-4603-8122-952a24c4d3e4', 'دسترسی گزارش روزانه', 'همکار جدید صفحهٔ حضور را نمی‌بیند.', 'open', 'high', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `tickets` AUTO_INCREMENT = 2;
 
 -- approvals (1)
 INSERT INTO `approvals` (`id`, `company_id`, `uuid`, `title`, `kind`, `status`, `requester_id`, `reviewer_id`, `note`, `review_note`, `reviewed_at`, `created_at`, `updated_at`) VALUES
-    (1, 1, '8af73874-fe50-43ae-886a-002107d1b615', 'خرید دامنهٔ فروشگاه', 'purchase', 'pending', 3, NULL, 'تمدید یک‌ساله', NULL, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, '66678025-ddef-4cd1-a315-c8590f1e2660', 'خرید دامنهٔ فروشگاه', 'purchase', 'pending', 3, NULL, 'تمدید یک‌ساله', NULL, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `approvals` AUTO_INCREMENT = 2;
 
 -- documents (1)
 INSERT INTO `documents` (`id`, `company_id`, `uuid`, `title`, `body`, `visibility`, `author_id`, `created_at`, `updated_at`) VALUES
-    (1, 1, '7d024156-8c33-4b6e-ab75-9a6b675eb9c4', 'راهنمای دفتر مجازی', 'ورود، وظیفهٔ امروز، گزارش روزانه و مرخصی از همین سامانه انجام می‌شود.', 'company', 2, '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, 'db234210-208a-40fb-97b4-9b4f67234e4a', 'راهنمای دفتر مجازی', 'ورود، وظیفهٔ امروز، گزارش روزانه و مرخصی از همین سامانه انجام می‌شود.', 'company', 2, '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `documents` AUTO_INCREMENT = 2;
 
+-- customers (2)
+INSERT INTO `customers` (`id`, `company_id`, `uuid`, `user_id`, `status`, `organization_name`, `phone`, `note`, `review_note`, `reviewer_id`, `reviewed_at`, `created_at`, `updated_at`) VALUES
+    (1, 1, '209f6b8c-6905-439a-b0df-4c3c8248b175', 10, 'active', 'آتیه‌سازان نمونه', '09120001111', NULL, 'مشتری نمونه تأیید شد.', 2, '2026-09-25 21:32:51', '2026-09-25 21:32:51', '2026-09-25 21:32:51'),
+    (2, 1, '6c5c00ab-d082-45a0-8378-8cd6cffcb7ba', 11, 'pending', 'بازرگانی در انتظار', '09120002222', NULL, NULL, NULL, NULL, '2026-09-25 21:32:51', '2026-09-25 21:32:51');
+
+ALTER TABLE `customers` AUTO_INCREMENT = 3;
+
+-- products (3)
+INSERT INTO `products` (`id`, `company_id`, `uuid`, `name`, `sku`, `description`, `unit_price`, `currency`, `stock`, `is_active`, `created_at`, `updated_at`) VALUES
+    (1, 1, 'ea9e4d20-c5ef-466b-af5c-ad0ff4374da0', 'بسته راه‌اندازی شبکه', 'NET-SETUP', 'طراحی و راه‌اندازی شبکه دفتر.', 185000000, 'IRR', 11, 1, '2026-09-25 21:32:50', '2026-09-25 21:32:51'),
+    (2, 1, '7cae438d-95e6-4d0f-aa95-37ed1d36fc75', 'پشتیبانی سالانه', 'SUP-YEAR', 'پشتیبانی نرم‌افزار و شبکه برای یک سال.', 96000000, 'IRR', NULL, 1, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (3, 1, '864ff431-2888-4494-ac42-84d98cb40616', 'مشاوره حضوری', 'CON-VISIT', 'یک جلسه مشاوره در تهران.', 25000000, 'IRR', 40, 1, '2026-09-25 21:32:50', '2026-09-25 21:32:50');
+
+ALTER TABLE `products` AUTO_INCREMENT = 4;
+
+-- customer_orders (1)
+INSERT INTO `customer_orders` (`id`, `company_id`, `uuid`, `customer_id`, `number`, `status`, `note`, `staff_note`, `total_amount`, `currency`, `reviewer_id`, `reviewed_at`, `created_at`, `updated_at`) VALUES
+    (1, 1, '7aa0fc4e-0b65-4189-80f8-0522f9899a11', 1, 'ORD-0001', 'submitted', 'راه‌اندازی دفتر و پشتیبانی سال اول.', NULL, 281000000, 'IRR', NULL, NULL, '2026-09-25 21:32:51', '2026-09-25 21:32:51');
+
+ALTER TABLE `customer_orders` AUTO_INCREMENT = 2;
+
+-- customer_order_items (2)
+INSERT INTO `customer_order_items` (`id`, `company_id`, `order_id`, `product_id`, `name`, `quantity`, `unit_price`, `line_total`, `created_at`, `updated_at`) VALUES
+    (1, 1, 1, 1, 'بسته راه‌اندازی شبکه', 1, 185000000, 185000000, '2026-09-25 21:32:51', '2026-09-25 21:32:51'),
+    (2, 1, 1, 2, 'پشتیبانی سالانه', 1, 96000000, 96000000, '2026-09-25 21:32:51', '2026-09-25 21:32:51');
+
+ALTER TABLE `customer_order_items` AUTO_INCREMENT = 3;
+
+-- customer_threads (2)
+INSERT INTO `customer_threads` (`id`, `company_id`, `uuid`, `customer_id`, `desk`, `subject`, `status`, `created_at`, `updated_at`) VALUES
+    (1, 1, '75fc0b49-6de0-41fe-82f1-416585be0c1d', 1, 'sales', 'هماهنگی تحویل سفارش', 'open', '2026-09-25 21:32:51', '2026-09-25 21:32:51'),
+    (2, 1, '5dc2add9-293b-42ad-a6c4-7673d072f4ad', 1, 'support', 'سؤال درباره پشتیبانی', 'open', '2026-09-25 21:32:51', '2026-09-25 21:32:51');
+
+ALTER TABLE `customer_threads` AUTO_INCREMENT = 3;
+
+-- customer_thread_messages (2)
+INSERT INTO `customer_thread_messages` (`id`, `company_id`, `thread_id`, `user_id`, `body`, `is_staff`, `created_at`, `updated_at`) VALUES
+    (1, 1, 1, 10, 'لطفاً زمان نصب را با واحد فروش هماهنگ کنید.', 0, '2026-09-25 21:32:51', '2026-09-25 21:32:51'),
+    (2, 1, 2, 10, 'ساعت پاسخ‌گویی پشتیبانی را اعلام کنید.', 0, '2026-09-25 21:32:51', '2026-09-25 21:32:51');
+
+ALTER TABLE `customer_thread_messages` AUTO_INCREMENT = 3;
+
+-- customer_tickets (2)
+INSERT INTO `customer_tickets` (`id`, `company_id`, `uuid`, `customer_id`, `number`, `desk`, `subject`, `priority`, `status`, `created_at`, `updated_at`) VALUES
+    (1, 1, '2e72c866-3abe-448d-80ee-a9b600e45520', 1, 'TKT-0001', 'support', 'درخواست پیگیری نصب', 'high', 'open', '2026-09-25 21:32:51', '2026-09-25 21:32:51'),
+    (2, 1, '6bac438d-510e-44f2-a4af-69adee2b9ad5', 1, 'TKT-0002', 'management', 'درخواست جلسه با مدیریت', 'normal', 'open', '2026-09-25 21:32:51', '2026-09-25 21:32:51');
+
+ALTER TABLE `customer_tickets` AUTO_INCREMENT = 3;
+
+-- customer_ticket_messages (2)
+INSERT INTO `customer_ticket_messages` (`id`, `company_id`, `ticket_id`, `user_id`, `body`, `is_staff`, `created_at`, `updated_at`) VALUES
+    (1, 1, 1, 10, 'لطفاً این مورد را به صورت تیکت پیگیری کنید.', 0, '2026-09-25 21:32:51', '2026-09-25 21:32:51'),
+    (2, 1, 2, 10, 'برای تمدید قرارداد یک جلسه کوتاه می‌خواهیم.', 0, '2026-09-25 21:32:51', '2026-09-25 21:32:51');
+
+ALTER TABLE `customer_ticket_messages` AUTO_INCREMENT = 3;
+
 -- attendance_days (149)
 INSERT INTO `attendance_days` (`id`, `company_id`, `uuid`, `user_id`, `work_date`, `location`, `day_status`, `check_in_at`, `check_out_at`, `late_minutes`, `worked_minutes`, `break_minutes`, `expected_minutes`, `excused`, `note`, `created_at`, `updated_at`) VALUES
-    (1, 1, 'b2c119d6-c719-4b8c-94a9-517f90a08fb7', 2, '2026-09-25 00:00:00', 'office', 'open', '2026-09-25 14:37:29', NULL, 0, 0, 0, 0, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (2, 1, 'cb0acbb5-f616-47dd-8e72-72dae35c39f7', 3, '2026-09-25 00:00:00', 'remote', 'open', '2026-09-25 14:37:29', NULL, 0, 0, 0, 0, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (3, 1, '6d012c9d-da87-42be-8551-44a362ddd4e7', 4, '2026-09-25 00:00:00', 'office', 'open', '2026-09-25 14:37:29', NULL, 0, 0, 0, 0, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (4, 1, 'fa3f8b43-bf62-4668-b132-572d38be740e', 6, '2026-09-25 00:00:00', 'office', 'marked', NULL, NULL, 0, 0, 0, 0, 1, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (5, 1, 'fb981fb7-43af-415a-bf7a-ed6ce0aeef8d', 9, '2026-09-25 00:00:00', 'office', 'marked', NULL, NULL, 0, 0, 0, 0, 1, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (6, 1, 'eac38883-649c-42ad-be4d-9b8585aab528', 2, '2026-09-05 00:00:00', 'office', 'closed', '2026-09-05 05:20:00', '2026-09-05 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (7, 1, 'f148c26b-f3b8-4a66-ad5f-8ee4b37ed095', 3, '2026-09-05 00:00:00', 'remote', 'closed', '2026-09-05 05:58:00', '2026-09-05 13:50:00', 13, 417, 55, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (8, 1, '38e1b52a-50c5-4f5a-a1ea-5f4962b26458', 4, '2026-09-05 00:00:00', 'office', 'closed', '2026-09-05 05:34:00', '2026-09-05 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (9, 1, '28699f51-f5db-4e3f-a6c6-d1066f8bd278', 5, '2026-09-05 00:00:00', 'office', 'closed', '2026-09-05 05:58:00', '2026-09-05 13:35:00', 13, 397, 60, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (10, 1, '9a1b93e9-fba4-47c3-ae30-d4ff4524c92d', 6, '2026-09-05 00:00:00', 'office', 'closed', '2026-09-05 05:30:00', '2026-09-05 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (11, 1, '3ba432b6-2ea3-4278-9e01-c0cf8ac26ea7', 7, '2026-09-05 00:00:00', 'office', 'closed', '2026-09-05 05:42:00', '2026-09-05 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (12, 1, '9d479c99-75af-41e4-83af-05278ef31448', 8, '2026-09-05 00:00:00', 'office', 'closed', '2026-09-05 05:25:00', '2026-09-05 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (13, 1, 'a0f5dd4d-1fce-4920-849d-f3905f1b4c9a', 9, '2026-09-05 00:00:00', 'office', 'closed', '2026-09-05 05:31:00', '2026-09-05 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (14, 1, '258a8c23-b515-4953-85cf-4ad6371d7c03', 2, '2026-09-06 00:00:00', 'office', 'closed', '2026-09-06 05:20:00', '2026-09-06 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (15, 1, '65700597-670f-4c05-b907-1c73b4f563ed', 3, '2026-09-06 00:00:00', 'remote', 'closed', '2026-09-06 05:36:00', '2026-09-06 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (16, 1, '86de44d6-c37f-42d6-b33f-24834046d4ed', 4, '2026-09-06 00:00:00', 'office', 'closed', '2026-09-06 05:34:00', '2026-09-06 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (17, 1, 'c8d3063a-986b-4b8d-b7e0-711e1540b01c', 5, '2026-09-06 00:00:00', 'office', 'closed', '2026-09-06 05:38:00', '2026-09-06 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (18, 1, 'a95932d0-b9f8-4ff3-9b07-9c8de9e84dd8', 6, '2026-09-06 00:00:00', 'office', 'closed', '2026-09-06 05:30:00', '2026-09-06 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (19, 1, '9995abab-6995-485b-a052-c6fa12d6763c', 7, '2026-09-06 00:00:00', 'office', 'closed', '2026-09-06 05:42:00', '2026-09-06 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (20, 1, 'db7233c3-6fcc-4d2f-8ab1-5ba1df8caad2', 8, '2026-09-06 00:00:00', 'office', 'closed', '2026-09-06 05:25:00', '2026-09-06 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (21, 1, 'e0530ea7-179d-49fa-868d-9662fa1ea624', 9, '2026-09-06 00:00:00', 'office', 'closed', '2026-09-06 05:31:00', '2026-09-06 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (22, 1, '6f381f12-3f35-4b36-88b3-2a967b5a50cf', 2, '2026-09-07 00:00:00', 'office', 'closed', '2026-09-07 05:20:00', '2026-09-07 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (23, 1, 'a2beedf1-9a29-4a54-ae66-86076eb9a3c4', 3, '2026-09-07 00:00:00', 'remote', 'closed', '2026-09-07 05:36:00', '2026-09-07 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (24, 1, '54c60ea3-6baa-4c2f-a8a5-6d4d1097f43a', 4, '2026-09-07 00:00:00', 'office', 'closed', '2026-09-07 05:34:00', '2026-09-07 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (25, 1, 'e3f00724-a61b-437f-b728-0e9eee976ed8', 5, '2026-09-07 00:00:00', 'office', 'closed', '2026-09-07 05:38:00', '2026-09-07 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (26, 1, 'b91541a5-54b9-43d3-83c8-78733c982fbe', 6, '2026-09-07 00:00:00', 'office', 'closed', '2026-09-07 05:30:00', '2026-09-07 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (27, 1, 'f73574fa-5034-470c-ba67-e50f3e0dfc2e', 7, '2026-09-07 00:00:00', 'office', 'closed', '2026-09-07 05:42:00', '2026-09-07 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (28, 1, '6b30916e-53f9-4042-bf9e-40a123959e2b', 8, '2026-09-07 00:00:00', 'office', 'closed', '2026-09-07 05:25:00', '2026-09-07 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (29, 1, '8226d035-1577-4750-ba92-2942bdc73d5f', 9, '2026-09-07 00:00:00', 'office', 'closed', '2026-09-07 05:31:00', '2026-09-07 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (30, 1, '289d162c-c4b9-4b82-8640-104ef8b10c16', 2, '2026-09-08 00:00:00', 'office', 'closed', '2026-09-08 05:20:00', '2026-09-08 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (31, 1, '11b6ecfe-5d0c-4833-aefd-00250abad9d0', 3, '2026-09-08 00:00:00', 'remote', 'closed', '2026-09-08 05:36:00', '2026-09-08 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (32, 1, 'ddd607f5-1db1-4c38-98e8-9062fcba1d40', 4, '2026-09-08 00:00:00', 'office', 'closed', '2026-09-08 05:34:00', '2026-09-08 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (33, 1, '34041cbe-e5d8-4db2-8f40-4848912f2e78', 5, '2026-09-08 00:00:00', 'office', 'closed', '2026-09-08 05:38:00', '2026-09-08 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (34, 1, 'caeb23fc-a1dc-4d87-9cda-aa36e8167994', 6, '2026-09-08 00:00:00', 'office', 'marked', NULL, NULL, 0, 0, 0, 420, 1, 'مأموریت مشتری', '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (35, 1, '2bab74bd-9161-48d7-a5cb-b48dce001703', 7, '2026-09-08 00:00:00', 'office', 'closed', '2026-09-08 05:42:00', '2026-09-08 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (36, 1, '78e223ca-1deb-4bb7-bb56-dcaf84305af3', 8, '2026-09-08 00:00:00', 'office', 'closed', '2026-09-08 05:25:00', '2026-09-08 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (37, 1, 'a186b47b-4c97-4b25-b44c-2ff8556e552a', 9, '2026-09-08 00:00:00', 'office', 'closed', '2026-09-08 05:31:00', '2026-09-08 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (38, 1, '511aae7f-1656-47bb-801f-015fd89c02bf', 2, '2026-09-09 00:00:00', 'office', 'closed', '2026-09-09 05:20:00', '2026-09-09 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (39, 1, '93450e47-0927-4536-8186-13d5a9d12ada', 3, '2026-09-09 00:00:00', 'remote', 'closed', '2026-09-09 05:36:00', '2026-09-09 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (40, 1, 'fc5065a2-97a8-4478-8b0d-75ea6da54353', 4, '2026-09-09 00:00:00', 'office', 'closed', '2026-09-09 05:34:00', '2026-09-09 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30');
+    (1, 1, '7cdc115c-a967-4ac9-8835-b396d78bd836', 2, '2026-09-26 00:00:00', 'office', 'open', '2026-09-25 21:32:48', NULL, 0, 0, 0, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (2, 1, '973a593f-0aaf-4e47-a72f-86f604555f59', 3, '2026-09-26 00:00:00', 'remote', 'open', '2026-09-25 21:32:48', NULL, 0, 0, 0, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (3, 1, '00c20ace-42d6-4a04-aa4e-95c48f468575', 4, '2026-09-26 00:00:00', 'office', 'open', '2026-09-25 21:32:48', NULL, 0, 0, 0, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (4, 1, '4ba81535-0529-4119-a977-0215a2db1f7c', 6, '2026-09-26 00:00:00', 'office', 'marked', NULL, NULL, 0, 0, 0, 420, 1, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (5, 1, 'dd28586a-793c-4f9d-a833-68a440c59aa2', 9, '2026-09-26 00:00:00', 'office', 'marked', NULL, NULL, 0, 0, 0, 420, 1, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (6, 1, '4e6e5173-5dc4-4a2a-a43a-7a17ac24f3c0', 2, '2026-09-05 00:00:00', 'office', 'closed', '2026-09-05 05:20:00', '2026-09-05 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (7, 1, '2d1e2622-d3d7-4928-9237-1f2f069c87c3', 3, '2026-09-05 00:00:00', 'remote', 'closed', '2026-09-05 05:58:00', '2026-09-05 13:50:00', 13, 417, 55, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (8, 1, '5bb2426e-f892-4d50-871f-2923275c4b86', 4, '2026-09-05 00:00:00', 'office', 'closed', '2026-09-05 05:34:00', '2026-09-05 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (9, 1, '3c3cf863-b05d-4267-a5b5-89ca5f2ac84b', 5, '2026-09-05 00:00:00', 'office', 'closed', '2026-09-05 05:58:00', '2026-09-05 13:35:00', 13, 397, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (10, 1, '7badb763-cbb6-4f0d-8577-9a387b5f1ea1', 6, '2026-09-05 00:00:00', 'office', 'closed', '2026-09-05 05:30:00', '2026-09-05 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (11, 1, 'd5ccdbcb-854f-4aba-8e14-94303b98705f', 7, '2026-09-05 00:00:00', 'office', 'closed', '2026-09-05 05:42:00', '2026-09-05 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (12, 1, '79f214ed-03f2-47fc-9ca7-39a18e20bd55', 8, '2026-09-05 00:00:00', 'office', 'closed', '2026-09-05 05:25:00', '2026-09-05 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (13, 1, 'b323d774-3dfc-4056-8e0d-25e076e74322', 9, '2026-09-05 00:00:00', 'office', 'closed', '2026-09-05 05:31:00', '2026-09-05 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (14, 1, 'f9a27b60-36ff-4203-9384-eb6e0764955e', 2, '2026-09-06 00:00:00', 'office', 'closed', '2026-09-06 05:20:00', '2026-09-06 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (15, 1, 'de80e815-d16e-4304-bf0d-236890653ee9', 3, '2026-09-06 00:00:00', 'remote', 'closed', '2026-09-06 05:36:00', '2026-09-06 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (16, 1, '1b5e4125-3a6d-4bd0-ab83-68587578ea64', 4, '2026-09-06 00:00:00', 'office', 'closed', '2026-09-06 05:34:00', '2026-09-06 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (17, 1, '8d3a0698-f6ad-4b6f-b004-fb9aabfdff48', 5, '2026-09-06 00:00:00', 'office', 'closed', '2026-09-06 05:38:00', '2026-09-06 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (18, 1, '1a576c47-88f0-4a8f-9244-f1e1006c6460', 6, '2026-09-06 00:00:00', 'office', 'closed', '2026-09-06 05:30:00', '2026-09-06 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (19, 1, '8888f748-fa34-4f94-8791-bf1ee3393c35', 7, '2026-09-06 00:00:00', 'office', 'closed', '2026-09-06 05:42:00', '2026-09-06 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (20, 1, 'df4fb429-aee1-452d-a9e8-3808ff5ac325', 8, '2026-09-06 00:00:00', 'office', 'closed', '2026-09-06 05:25:00', '2026-09-06 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (21, 1, '30541103-b462-42a3-bf52-b51706240451', 9, '2026-09-06 00:00:00', 'office', 'closed', '2026-09-06 05:31:00', '2026-09-06 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (22, 1, '190552cd-d9a8-442a-b8db-95ef414a70f9', 2, '2026-09-07 00:00:00', 'office', 'closed', '2026-09-07 05:20:00', '2026-09-07 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (23, 1, 'ac0fb9f5-e92e-460f-a11b-4851e926f046', 3, '2026-09-07 00:00:00', 'remote', 'closed', '2026-09-07 05:36:00', '2026-09-07 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (24, 1, 'b23f6c18-cb7c-486f-aaea-6fd29c1ee384', 4, '2026-09-07 00:00:00', 'office', 'closed', '2026-09-07 05:34:00', '2026-09-07 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (25, 1, '713e4846-ed25-4d59-a5ae-2610131b9f9a', 5, '2026-09-07 00:00:00', 'office', 'closed', '2026-09-07 05:38:00', '2026-09-07 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (26, 1, 'd50e24bd-e217-4ed4-8570-d9ee5c155837', 6, '2026-09-07 00:00:00', 'office', 'closed', '2026-09-07 05:30:00', '2026-09-07 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (27, 1, '70da02e1-d779-4205-ad52-bfdc3a87ac22', 7, '2026-09-07 00:00:00', 'office', 'closed', '2026-09-07 05:42:00', '2026-09-07 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (28, 1, 'eeb1e981-cde7-4ce4-bcc1-a9d1903f279f', 8, '2026-09-07 00:00:00', 'office', 'closed', '2026-09-07 05:25:00', '2026-09-07 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (29, 1, '4ad74ba7-e7c1-4291-9d3b-20092a13085b', 9, '2026-09-07 00:00:00', 'office', 'closed', '2026-09-07 05:31:00', '2026-09-07 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (30, 1, 'ddb1679a-1c88-4e56-b300-16143f2c2785', 2, '2026-09-08 00:00:00', 'office', 'closed', '2026-09-08 05:20:00', '2026-09-08 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (31, 1, '441231e8-f852-4bfe-9223-8afe0ee6e177', 3, '2026-09-08 00:00:00', 'remote', 'closed', '2026-09-08 05:36:00', '2026-09-08 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (32, 1, 'dd71beaf-ec43-4911-9bc3-d2f7a105275e', 4, '2026-09-08 00:00:00', 'office', 'closed', '2026-09-08 05:34:00', '2026-09-08 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (33, 1, 'f854f054-fefe-403a-894d-ef0f72ff7a12', 5, '2026-09-08 00:00:00', 'office', 'closed', '2026-09-08 05:38:00', '2026-09-08 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (34, 1, '3da43e43-9c00-40c6-b13c-435911b618cd', 6, '2026-09-08 00:00:00', 'office', 'marked', NULL, NULL, 0, 0, 0, 420, 1, 'مأموریت مشتری', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (35, 1, '6c476a30-d1be-4216-8949-89b5c39c87da', 7, '2026-09-08 00:00:00', 'office', 'closed', '2026-09-08 05:42:00', '2026-09-08 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (36, 1, '4a044525-a756-4f6b-b273-e8cbd0bb0a88', 8, '2026-09-08 00:00:00', 'office', 'closed', '2026-09-08 05:25:00', '2026-09-08 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (37, 1, '9267552d-60e9-4fba-9637-8ce217e4fb72', 9, '2026-09-08 00:00:00', 'office', 'closed', '2026-09-08 05:31:00', '2026-09-08 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (38, 1, 'fc4252bb-97aa-46e4-85e6-4de3b56faeb4', 2, '2026-09-09 00:00:00', 'office', 'closed', '2026-09-09 05:20:00', '2026-09-09 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (39, 1, '65f90618-db71-4261-be8f-5e0d32370af7', 3, '2026-09-09 00:00:00', 'remote', 'closed', '2026-09-09 05:36:00', '2026-09-09 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (40, 1, '243c98a9-42cb-49ee-8cd6-f53aae025b01', 4, '2026-09-09 00:00:00', 'office', 'closed', '2026-09-09 05:34:00', '2026-09-09 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 INSERT INTO `attendance_days` (`id`, `company_id`, `uuid`, `user_id`, `work_date`, `location`, `day_status`, `check_in_at`, `check_out_at`, `late_minutes`, `worked_minutes`, `break_minutes`, `expected_minutes`, `excused`, `note`, `created_at`, `updated_at`) VALUES
-    (41, 1, '1ac0fc0d-002d-4d08-b6de-23069db3406d', 5, '2026-09-09 00:00:00', 'office', 'closed', '2026-09-09 05:58:00', '2026-09-09 13:35:00', 13, 397, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (42, 1, 'ae8f5421-7bdb-4a52-9c5b-11b961c9628e', 6, '2026-09-09 00:00:00', 'office', 'closed', '2026-09-09 05:30:00', '2026-09-09 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (43, 1, '56755978-2ecf-46f4-8ed4-018aa9afadd5', 7, '2026-09-09 00:00:00', 'office', 'closed', '2026-09-09 05:42:00', '2026-09-09 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (44, 1, '4382143c-2417-4a16-917b-00a7a0cf0273', 8, '2026-09-09 00:00:00', 'office', 'closed', '2026-09-09 05:25:00', '2026-09-09 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (45, 1, '12925394-126e-4392-984a-0b1954b5eee8', 9, '2026-09-09 00:00:00', 'office', 'closed', '2026-09-09 05:31:00', '2026-09-09 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (46, 1, 'a58a2136-88e6-4913-b0c4-757fc40b49ba', 2, '2026-09-10 00:00:00', 'office', 'closed', '2026-09-10 05:20:00', '2026-09-10 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (47, 1, 'f76c91e0-83c3-49b0-b7a9-3cca81944a9b', 3, '2026-09-10 00:00:00', 'remote', 'closed', '2026-09-10 05:58:00', '2026-09-10 13:50:00', 13, 417, 55, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (48, 1, '6e837f89-6192-41f3-9141-d58631b73c82', 4, '2026-09-10 00:00:00', 'office', 'closed', '2026-09-10 05:34:00', '2026-09-10 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (49, 1, '2f50cbf9-8205-4a8e-b795-532621f57f58', 5, '2026-09-10 00:00:00', 'office', 'closed', '2026-09-10 05:38:00', '2026-09-10 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (50, 1, '2d6c62fe-8cd0-45a0-a623-e7e3d483fbe9', 6, '2026-09-10 00:00:00', 'office', 'closed', '2026-09-10 05:30:00', '2026-09-10 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (51, 1, 'a02a3ca4-b580-4006-beef-925d9c85dcd1', 7, '2026-09-10 00:00:00', 'office', 'closed', '2026-09-10 05:42:00', '2026-09-10 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (52, 1, 'b896bb30-5609-44d0-95a0-b49b19becee9', 8, '2026-09-10 00:00:00', 'office', 'closed', '2026-09-10 05:25:00', '2026-09-10 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (53, 1, '58dd2a65-c8df-4acc-aeb3-93f83219dc10', 9, '2026-09-10 00:00:00', 'office', 'closed', '2026-09-10 05:31:00', '2026-09-10 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (54, 1, '5426e548-6b44-4da9-9cd9-1cedb2310cf2', 2, '2026-09-12 00:00:00', 'office', 'closed', '2026-09-12 05:20:00', '2026-09-12 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (55, 1, '6493bf1b-c923-43fc-9f11-2b21334959bf', 3, '2026-09-12 00:00:00', 'remote', 'closed', '2026-09-12 05:36:00', '2026-09-12 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (56, 1, 'b96b3bd1-2427-4619-adfc-06dd3a26154d', 4, '2026-09-12 00:00:00', 'office', 'closed', '2026-09-12 05:34:00', '2026-09-12 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (57, 1, '57d8aebf-a8e0-401c-bd51-1d4f2b5d6606', 5, '2026-09-12 00:00:00', 'office', 'closed', '2026-09-12 05:38:00', '2026-09-12 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (58, 1, '31e65aee-6051-454c-b322-6811fa44e394', 6, '2026-09-12 00:00:00', 'office', 'closed', '2026-09-12 05:30:00', '2026-09-12 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (59, 1, 'dc3d51be-25ed-4b24-b03a-3cc6c6e448e3', 7, '2026-09-12 00:00:00', 'office', 'closed', '2026-09-12 05:42:00', '2026-09-12 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (60, 1, '429ab790-ef54-4b58-b2e7-d1be51741857', 8, '2026-09-12 00:00:00', 'office', 'closed', '2026-09-12 05:25:00', '2026-09-12 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (61, 1, '4847b275-1460-4289-b9da-c18410d2b5f4', 9, '2026-09-12 00:00:00', 'office', 'closed', '2026-09-12 05:31:00', '2026-09-12 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (62, 1, '2f17b10f-4940-4938-9727-fbf26cece44b', 2, '2026-09-13 00:00:00', 'office', 'closed', '2026-09-13 05:20:00', '2026-09-13 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (63, 1, '1d72c596-3e18-4126-a778-705b20df0951', 3, '2026-09-13 00:00:00', 'remote', 'closed', '2026-09-13 05:36:00', '2026-09-13 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (64, 1, '112c2519-389f-4c44-8eec-e591d54e14d0', 4, '2026-09-13 00:00:00', 'office', 'marked', NULL, NULL, 0, 0, 0, 420, 1, 'مرخصی استحقاقی', '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (65, 1, 'dd7eb8b4-d976-4974-a02a-a339a8b48bf3', 5, '2026-09-13 00:00:00', 'office', 'closed', '2026-09-13 05:38:00', '2026-09-13 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (66, 1, '807bd36a-3614-4fef-956a-9754e092601f', 6, '2026-09-13 00:00:00', 'office', 'closed', '2026-09-13 05:30:00', '2026-09-13 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (67, 1, '282e88ee-85c0-4340-9c87-4fd64f874205', 7, '2026-09-13 00:00:00', 'office', 'closed', '2026-09-13 05:42:00', '2026-09-13 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (68, 1, '1b1e939a-368f-4e72-bc37-e9bece50ff89', 8, '2026-09-13 00:00:00', 'office', 'closed', '2026-09-13 05:25:00', '2026-09-13 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (69, 1, '8abe3116-8461-4ef5-9847-6a904b73574f', 9, '2026-09-13 00:00:00', 'office', 'closed', '2026-09-13 05:31:00', '2026-09-13 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (70, 1, 'e1075f8a-99a0-4827-ad74-781b90045f0a', 2, '2026-09-14 00:00:00', 'office', 'closed', '2026-09-14 05:20:00', '2026-09-14 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (71, 1, 'ce036f5f-815c-44c3-9e2c-c10dde238395', 3, '2026-09-14 00:00:00', 'remote', 'closed', '2026-09-14 05:36:00', '2026-09-14 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (72, 1, 'ca947ad1-01b3-4088-8c3f-87ec5e7aaade', 4, '2026-09-14 00:00:00', 'office', 'closed', '2026-09-14 05:34:00', '2026-09-14 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (73, 1, '456dd37e-6434-40ad-b403-a475cad5a3ef', 5, '2026-09-14 00:00:00', 'office', 'closed', '2026-09-14 05:58:00', '2026-09-14 13:35:00', 13, 397, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (74, 1, '101b91d0-0590-4ded-87df-0bf9ce0d84a6', 6, '2026-09-14 00:00:00', 'office', 'closed', '2026-09-14 05:30:00', '2026-09-14 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (75, 1, 'ab406542-2531-4faf-bff5-23f9eb7e3d50', 7, '2026-09-14 00:00:00', 'office', 'closed', '2026-09-14 05:42:00', '2026-09-14 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (76, 1, 'fadb4ad1-d850-46ed-a5ad-1831c447de2a', 8, '2026-09-14 00:00:00', 'office', 'closed', '2026-09-14 05:25:00', '2026-09-14 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (77, 1, 'a37db986-5012-44ec-92af-f717e93abcd4', 9, '2026-09-14 00:00:00', 'office', 'closed', '2026-09-14 05:31:00', '2026-09-14 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (78, 1, '5673e9d2-987e-43b7-9d49-2b9501e546a4', 2, '2026-09-15 00:00:00', 'office', 'closed', '2026-09-15 05:20:00', '2026-09-15 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (79, 1, '84b73d47-5c1c-4769-8b8b-50f9054d8b54', 3, '2026-09-15 00:00:00', 'remote', 'closed', '2026-09-15 05:36:00', '2026-09-15 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (80, 1, 'fe1f9482-6f40-45b5-b4d5-2b4dc13a07e0', 4, '2026-09-15 00:00:00', 'office', 'closed', '2026-09-15 05:34:00', '2026-09-15 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30');
+    (41, 1, '1c1b1293-ef8f-430e-b30f-61be5b8a75ff', 5, '2026-09-09 00:00:00', 'office', 'closed', '2026-09-09 05:58:00', '2026-09-09 13:35:00', 13, 397, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (42, 1, '64072567-f043-4db1-86fe-ce9b201df501', 6, '2026-09-09 00:00:00', 'office', 'closed', '2026-09-09 05:30:00', '2026-09-09 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (43, 1, '5e8b8120-2fb9-43ca-ad5b-5c021f5a99b7', 7, '2026-09-09 00:00:00', 'office', 'closed', '2026-09-09 05:42:00', '2026-09-09 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (44, 1, 'f4a88605-6821-4611-b3ee-6a7f37deb5c6', 8, '2026-09-09 00:00:00', 'office', 'closed', '2026-09-09 05:25:00', '2026-09-09 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (45, 1, '4c5da49f-d83b-40b2-88b1-ccb3326288f3', 9, '2026-09-09 00:00:00', 'office', 'closed', '2026-09-09 05:31:00', '2026-09-09 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (46, 1, '09124fd3-2d83-4da1-a780-45bb73aa6733', 2, '2026-09-10 00:00:00', 'office', 'closed', '2026-09-10 05:20:00', '2026-09-10 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (47, 1, '2300ee75-8965-4859-be99-f53c51d551df', 3, '2026-09-10 00:00:00', 'remote', 'closed', '2026-09-10 05:58:00', '2026-09-10 13:50:00', 13, 417, 55, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (48, 1, '71535e2a-5ba7-42db-b345-f749d088f10b', 4, '2026-09-10 00:00:00', 'office', 'closed', '2026-09-10 05:34:00', '2026-09-10 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (49, 1, '13791488-01b6-4b82-8e70-2406a960ef3e', 5, '2026-09-10 00:00:00', 'office', 'closed', '2026-09-10 05:38:00', '2026-09-10 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (50, 1, 'acd67bc5-9994-409b-b072-ef816731f424', 6, '2026-09-10 00:00:00', 'office', 'closed', '2026-09-10 05:30:00', '2026-09-10 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (51, 1, '185566a0-06d8-43d4-8b2b-006ee809f0d4', 7, '2026-09-10 00:00:00', 'office', 'closed', '2026-09-10 05:42:00', '2026-09-10 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (52, 1, '8693876d-4348-4f4c-8173-204857f2141c', 8, '2026-09-10 00:00:00', 'office', 'closed', '2026-09-10 05:25:00', '2026-09-10 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (53, 1, 'b8fdaa5c-82df-4046-b06e-dc18bc542729', 9, '2026-09-10 00:00:00', 'office', 'closed', '2026-09-10 05:31:00', '2026-09-10 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (54, 1, 'a413491c-804b-46fb-9376-442fdd634882', 2, '2026-09-12 00:00:00', 'office', 'closed', '2026-09-12 05:20:00', '2026-09-12 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (55, 1, '9cfc4538-f41d-4f51-91e6-f75c85805603', 3, '2026-09-12 00:00:00', 'remote', 'closed', '2026-09-12 05:36:00', '2026-09-12 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (56, 1, 'a0bf56eb-1977-4136-86a2-47cdf0af40c1', 4, '2026-09-12 00:00:00', 'office', 'closed', '2026-09-12 05:34:00', '2026-09-12 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (57, 1, '37a9d15f-a54d-4d4c-9b5d-a03f3d3533ef', 5, '2026-09-12 00:00:00', 'office', 'closed', '2026-09-12 05:38:00', '2026-09-12 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (58, 1, '21e71c9f-4452-4d08-89d6-8a6456422fb2', 6, '2026-09-12 00:00:00', 'office', 'closed', '2026-09-12 05:30:00', '2026-09-12 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (59, 1, '62deb7c7-733b-425f-bcd4-e31cebc709c7', 7, '2026-09-12 00:00:00', 'office', 'closed', '2026-09-12 05:42:00', '2026-09-12 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (60, 1, 'f778706b-e16f-4f20-a4f7-d29a1458f68b', 8, '2026-09-12 00:00:00', 'office', 'closed', '2026-09-12 05:25:00', '2026-09-12 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (61, 1, '51a7cb8e-18d1-49be-9957-7e9422046c73', 9, '2026-09-12 00:00:00', 'office', 'closed', '2026-09-12 05:31:00', '2026-09-12 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (62, 1, '109bc261-ee50-4046-880d-df6716ca7270', 2, '2026-09-13 00:00:00', 'office', 'closed', '2026-09-13 05:20:00', '2026-09-13 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (63, 1, '8def2a1c-5dce-480b-a1d5-c5cf0edd733d', 3, '2026-09-13 00:00:00', 'remote', 'closed', '2026-09-13 05:36:00', '2026-09-13 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (64, 1, '3a7cc60b-0009-4aae-b0ce-bb718e6fac91', 4, '2026-09-13 00:00:00', 'office', 'marked', NULL, NULL, 0, 0, 0, 420, 1, 'مرخصی استحقاقی', '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (65, 1, 'c14b470c-8619-40c3-9efa-e0a4c2491f17', 5, '2026-09-13 00:00:00', 'office', 'closed', '2026-09-13 05:38:00', '2026-09-13 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (66, 1, '632383db-be8f-445b-842a-ea17e91fb21a', 6, '2026-09-13 00:00:00', 'office', 'closed', '2026-09-13 05:30:00', '2026-09-13 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (67, 1, '9498093f-f1cd-4ee1-a58d-7217daaaf7d4', 7, '2026-09-13 00:00:00', 'office', 'closed', '2026-09-13 05:42:00', '2026-09-13 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (68, 1, 'f980910a-6975-4488-bfb3-3252e9f21b30', 8, '2026-09-13 00:00:00', 'office', 'closed', '2026-09-13 05:25:00', '2026-09-13 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (69, 1, '211fb8c7-4bb0-404f-8a69-27ae7d6d82c1', 9, '2026-09-13 00:00:00', 'office', 'closed', '2026-09-13 05:31:00', '2026-09-13 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (70, 1, '6bfcca60-d9a9-460b-a90a-15eb95508098', 2, '2026-09-14 00:00:00', 'office', 'closed', '2026-09-14 05:20:00', '2026-09-14 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (71, 1, '14ff7a66-af4f-4e61-8026-6c004d56b302', 3, '2026-09-14 00:00:00', 'remote', 'closed', '2026-09-14 05:36:00', '2026-09-14 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (72, 1, '6859d012-d82d-447b-8c8e-b630ddbe232d', 4, '2026-09-14 00:00:00', 'office', 'closed', '2026-09-14 05:34:00', '2026-09-14 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (73, 1, 'e9a844d7-b8cf-4ecf-9ac0-279790135770', 5, '2026-09-14 00:00:00', 'office', 'closed', '2026-09-14 05:58:00', '2026-09-14 13:35:00', 13, 397, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (74, 1, 'c4d18b32-959d-41ce-9351-ddcef68da8f2', 6, '2026-09-14 00:00:00', 'office', 'closed', '2026-09-14 05:30:00', '2026-09-14 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (75, 1, '17969e2f-aed6-4164-ade4-941fd4b5acf0', 7, '2026-09-14 00:00:00', 'office', 'closed', '2026-09-14 05:42:00', '2026-09-14 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (76, 1, '033c4b83-272c-4c3c-8c95-1d8ae133b53a', 8, '2026-09-14 00:00:00', 'office', 'closed', '2026-09-14 05:25:00', '2026-09-14 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (77, 1, '86c3106d-a536-4e00-9f82-3879f98edf09', 9, '2026-09-14 00:00:00', 'office', 'closed', '2026-09-14 05:31:00', '2026-09-14 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (78, 1, '874b6239-cc9f-4c14-a919-ff59129dd011', 2, '2026-09-15 00:00:00', 'office', 'closed', '2026-09-15 05:20:00', '2026-09-15 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (79, 1, 'c8706d78-bf58-46e5-9eb3-a54753036648', 3, '2026-09-15 00:00:00', 'remote', 'closed', '2026-09-15 05:36:00', '2026-09-15 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (80, 1, '7da9adc7-2971-49c2-b12d-afe902127767', 4, '2026-09-15 00:00:00', 'office', 'closed', '2026-09-15 05:34:00', '2026-09-15 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49');
 
 INSERT INTO `attendance_days` (`id`, `company_id`, `uuid`, `user_id`, `work_date`, `location`, `day_status`, `check_in_at`, `check_out_at`, `late_minutes`, `worked_minutes`, `break_minutes`, `expected_minutes`, `excused`, `note`, `created_at`, `updated_at`) VALUES
-    (81, 1, '82ca25ef-98aa-438e-a1eb-3ac4903262d3', 5, '2026-09-15 00:00:00', 'office', 'closed', '2026-09-15 05:38:00', '2026-09-15 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (82, 1, 'd387a9de-32a7-4b1b-b9b5-83d29eaf3b9c', 6, '2026-09-15 00:00:00', 'office', 'closed', '2026-09-15 05:30:00', '2026-09-15 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (83, 1, 'db981b40-ceb2-474f-9927-f48795dd3c3e', 7, '2026-09-15 00:00:00', 'office', 'closed', '2026-09-15 05:42:00', '2026-09-15 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (84, 1, '8a2b0146-8024-4df8-bb0c-15ab10bc2eb1', 8, '2026-09-15 00:00:00', 'office', 'closed', '2026-09-15 05:25:00', '2026-09-15 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (85, 1, '44e9269e-e6a2-4ce3-b427-6e60ed6c230b', 9, '2026-09-15 00:00:00', 'office', 'closed', '2026-09-15 05:31:00', '2026-09-15 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (86, 1, 'e269653c-13a3-429b-97be-7afbc9ce0493', 2, '2026-09-16 00:00:00', 'office', 'closed', '2026-09-16 05:20:00', '2026-09-16 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (87, 1, '5680c109-e5e7-4af0-87e0-5826545a8437', 3, '2026-09-16 00:00:00', 'remote', 'closed', '2026-09-16 05:58:00', '2026-09-16 13:50:00', 13, 417, 55, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (88, 1, '5412e092-5305-4ce2-a8d0-221df30aa027', 4, '2026-09-16 00:00:00', 'office', 'closed', '2026-09-16 05:34:00', '2026-09-16 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (89, 1, 'f40bf089-795d-41af-a57f-8c153bc218da', 5, '2026-09-16 00:00:00', 'office', 'closed', '2026-09-16 05:38:00', '2026-09-16 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (90, 1, '92c2cd9e-3e0d-48f6-bd5c-f6f4d4d6a068', 6, '2026-09-16 00:00:00', 'office', 'closed', '2026-09-16 05:30:00', '2026-09-16 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (91, 1, 'bfb16b0f-831b-4255-b36d-cfdecca2bf00', 7, '2026-09-16 00:00:00', 'office', 'closed', '2026-09-16 05:42:00', '2026-09-16 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (92, 1, '56ba46ce-8056-41c0-8843-ac710223ca0a', 8, '2026-09-16 00:00:00', 'office', 'closed', '2026-09-16 05:25:00', '2026-09-16 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (93, 1, '558bfd3d-9bb0-4c37-a425-c4597ef0fd46', 9, '2026-09-16 00:00:00', 'office', 'closed', '2026-09-16 05:31:00', '2026-09-16 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (94, 1, '2dfc0bc2-1e64-4d32-9132-1cd734f48e35', 2, '2026-09-17 00:00:00', 'office', 'closed', '2026-09-17 05:20:00', '2026-09-17 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (95, 1, '2c460650-c7e0-4a33-bd67-df016ea07d97', 3, '2026-09-17 00:00:00', 'remote', 'closed', '2026-09-17 05:36:00', '2026-09-17 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (96, 1, 'd9fa83eb-c357-406f-b7b2-976cef67d837', 4, '2026-09-17 00:00:00', 'office', 'closed', '2026-09-17 05:34:00', '2026-09-17 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (97, 1, '3cdb8946-208d-417e-b955-95b47b312ef8', 5, '2026-09-17 00:00:00', 'office', 'closed', '2026-09-17 05:38:00', '2026-09-17 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (98, 1, '565a9c4d-48a9-4e7c-ba95-8add7beb8bbf', 6, '2026-09-17 00:00:00', 'office', 'closed', '2026-09-17 05:30:00', '2026-09-17 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (99, 1, '82b8fd24-2a3e-4d3e-b5aa-2c9d1e948816', 7, '2026-09-17 00:00:00', 'office', 'marked', NULL, NULL, 0, 0, 0, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (100, 1, '8210e35c-ada0-4b6e-b873-ad8a68cb329b', 8, '2026-09-17 00:00:00', 'office', 'closed', '2026-09-17 05:25:00', '2026-09-17 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (101, 1, '0e56d2a3-2169-45d8-a67a-6a9f1ecab14a', 9, '2026-09-17 00:00:00', 'office', 'closed', '2026-09-17 05:31:00', '2026-09-17 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (102, 1, '5af1fc7a-e1db-4b70-a416-7930f098f3f5', 2, '2026-09-19 00:00:00', 'office', 'closed', '2026-09-19 05:20:00', '2026-09-19 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (103, 1, '66cf617f-df1b-440c-815a-a1d6caadf8e7', 3, '2026-09-19 00:00:00', 'remote', 'closed', '2026-09-19 05:36:00', '2026-09-19 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (104, 1, '7dd4f996-1a54-42e0-a30e-e025fa81e787', 4, '2026-09-19 00:00:00', 'office', 'closed', '2026-09-19 05:34:00', '2026-09-19 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (105, 1, '9d6ebbcc-b28b-48bc-9383-751514cab549', 5, '2026-09-19 00:00:00', 'office', 'closed', '2026-09-19 05:58:00', '2026-09-19 13:35:00', 13, 397, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (106, 1, '5962a26c-0bf4-49b0-8792-e5c1c201c890', 6, '2026-09-19 00:00:00', 'office', 'closed', '2026-09-19 05:30:00', '2026-09-19 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (107, 1, 'ccea21a4-4ef0-4062-a3df-09a183079b5f', 7, '2026-09-19 00:00:00', 'office', 'closed', '2026-09-19 05:42:00', '2026-09-19 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (108, 1, '10e8f958-7611-46fc-b744-2e2f7e3e4269', 8, '2026-09-19 00:00:00', 'office', 'closed', '2026-09-19 05:25:00', '2026-09-19 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (109, 1, '20559856-b494-4dd3-8664-8a8e569cc54e', 9, '2026-09-19 00:00:00', 'office', 'closed', '2026-09-19 05:31:00', '2026-09-19 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (110, 1, '7cc9dc5b-5438-4b1b-ae1b-84427b48e1b1', 2, '2026-09-20 00:00:00', 'office', 'closed', '2026-09-20 05:20:00', '2026-09-20 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (111, 1, 'e12751e4-c0d6-4513-90a6-53d71b8889ad', 3, '2026-09-20 00:00:00', 'remote', 'closed', '2026-09-20 05:36:00', '2026-09-20 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (112, 1, '05a33c6b-01a1-4312-ad21-b5aa7a590240', 4, '2026-09-20 00:00:00', 'office', 'closed', '2026-09-20 05:34:00', '2026-09-20 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (113, 1, 'eed7c195-adc0-497d-a5f4-47e6e79fddb3', 5, '2026-09-20 00:00:00', 'office', 'closed', '2026-09-20 05:38:00', '2026-09-20 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (114, 1, 'f89e42f6-e2f8-4ed8-83f1-770f20633809', 6, '2026-09-20 00:00:00', 'office', 'closed', '2026-09-20 05:30:00', '2026-09-20 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (115, 1, '58213052-360f-4289-82ea-2ee02906c4e1', 7, '2026-09-20 00:00:00', 'office', 'closed', '2026-09-20 05:42:00', '2026-09-20 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (116, 1, '3e655b15-1d21-4045-8f98-7bb6e2e56c15', 8, '2026-09-20 00:00:00', 'office', 'closed', '2026-09-20 05:25:00', '2026-09-20 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (117, 1, 'c54220bd-d828-4b94-88e2-726bf55785a7', 9, '2026-09-20 00:00:00', 'office', 'closed', '2026-09-20 05:31:00', '2026-09-20 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (118, 1, '6c22b940-deca-4f4b-8764-fb530020a11d', 2, '2026-09-21 00:00:00', 'office', 'closed', '2026-09-21 05:20:00', '2026-09-21 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (119, 1, '588943fa-0941-41da-b218-5c7cb3387618', 3, '2026-09-21 00:00:00', 'remote', 'closed', '2026-09-21 05:36:00', '2026-09-21 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (120, 1, '10b674f6-e732-475e-afbb-455ba591f83e', 4, '2026-09-21 00:00:00', 'office', 'closed', '2026-09-21 05:34:00', '2026-09-21 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30');
+    (81, 1, '2019e906-8929-4c88-86fd-05408cba27e5', 5, '2026-09-15 00:00:00', 'office', 'closed', '2026-09-15 05:38:00', '2026-09-15 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (82, 1, '8e0bba5f-74d0-46ea-932c-7a50a3ac8c05', 6, '2026-09-15 00:00:00', 'office', 'closed', '2026-09-15 05:30:00', '2026-09-15 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (83, 1, '53c40f5a-7f91-483d-b7b6-2fbb8d01d6ef', 7, '2026-09-15 00:00:00', 'office', 'closed', '2026-09-15 05:42:00', '2026-09-15 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (84, 1, '4f589231-752b-4283-b831-c5017f02590e', 8, '2026-09-15 00:00:00', 'office', 'closed', '2026-09-15 05:25:00', '2026-09-15 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (85, 1, '6fa85ea0-6d23-4ff4-b6f6-0caf1259ddd0', 9, '2026-09-15 00:00:00', 'office', 'closed', '2026-09-15 05:31:00', '2026-09-15 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (86, 1, '398c78f7-8b49-48c3-bbf6-7d5b0adeed6f', 2, '2026-09-16 00:00:00', 'office', 'closed', '2026-09-16 05:20:00', '2026-09-16 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (87, 1, 'f07cedd3-f3e3-454c-af1a-cef6f7cf6d21', 3, '2026-09-16 00:00:00', 'remote', 'closed', '2026-09-16 05:58:00', '2026-09-16 13:50:00', 13, 417, 55, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (88, 1, 'e92c1d7a-a9f7-450e-83e4-0d81dfc2c3fc', 4, '2026-09-16 00:00:00', 'office', 'closed', '2026-09-16 05:34:00', '2026-09-16 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (89, 1, '75b9fcf1-e9ac-4350-a427-e28dc2a89464', 5, '2026-09-16 00:00:00', 'office', 'closed', '2026-09-16 05:38:00', '2026-09-16 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (90, 1, 'e84e0a89-2807-448d-9a1a-a59ad6c4bc54', 6, '2026-09-16 00:00:00', 'office', 'closed', '2026-09-16 05:30:00', '2026-09-16 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (91, 1, '4ec2ae85-f505-445e-a1b4-abc4df03c5a0', 7, '2026-09-16 00:00:00', 'office', 'closed', '2026-09-16 05:42:00', '2026-09-16 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (92, 1, '7cdf9fb5-73be-4eae-b5de-46d45e3f15d7', 8, '2026-09-16 00:00:00', 'office', 'closed', '2026-09-16 05:25:00', '2026-09-16 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (93, 1, '2243228e-e80e-4423-b96f-2724e2edf409', 9, '2026-09-16 00:00:00', 'office', 'closed', '2026-09-16 05:31:00', '2026-09-16 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (94, 1, 'c2fac6b7-486e-4218-a3f6-e097634ba2d2', 2, '2026-09-17 00:00:00', 'office', 'closed', '2026-09-17 05:20:00', '2026-09-17 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (95, 1, '84a8a32d-8150-4547-a267-35d27d45a87e', 3, '2026-09-17 00:00:00', 'remote', 'closed', '2026-09-17 05:36:00', '2026-09-17 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (96, 1, '492b712b-28ff-4b65-a7cb-345a9173ca1a', 4, '2026-09-17 00:00:00', 'office', 'closed', '2026-09-17 05:34:00', '2026-09-17 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (97, 1, 'a5bec0ab-c9cb-4af1-9b22-c631c5333a74', 5, '2026-09-17 00:00:00', 'office', 'closed', '2026-09-17 05:38:00', '2026-09-17 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (98, 1, '4c537379-f7ad-4359-878a-307ef01f0d24', 6, '2026-09-17 00:00:00', 'office', 'closed', '2026-09-17 05:30:00', '2026-09-17 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (99, 1, 'a1e496cb-a5c7-4c38-be75-ce0af1d65416', 7, '2026-09-17 00:00:00', 'office', 'marked', NULL, NULL, 0, 0, 0, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (100, 1, 'fe5878d3-bebc-4520-b512-306de34352de', 8, '2026-09-17 00:00:00', 'office', 'closed', '2026-09-17 05:25:00', '2026-09-17 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (101, 1, 'a92ed3d2-4a77-4c05-90b0-72f3d40e41a1', 9, '2026-09-17 00:00:00', 'office', 'closed', '2026-09-17 05:31:00', '2026-09-17 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (102, 1, 'c2117323-5a77-4c4b-ba63-3759b6874927', 2, '2026-09-19 00:00:00', 'office', 'closed', '2026-09-19 05:20:00', '2026-09-19 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:50'),
+    (103, 1, '91d9e337-7035-4804-822a-3af328d0b1ea', 3, '2026-09-19 00:00:00', 'remote', 'closed', '2026-09-19 05:36:00', '2026-09-19 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (104, 1, 'd499589c-7e8f-4a64-a3da-eabeb24d0637', 4, '2026-09-19 00:00:00', 'office', 'closed', '2026-09-19 05:34:00', '2026-09-19 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (105, 1, '52231481-ccd4-44bc-962f-71707e11fb13', 5, '2026-09-19 00:00:00', 'office', 'closed', '2026-09-19 05:58:00', '2026-09-19 13:35:00', 13, 397, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (106, 1, 'e656c595-52e0-4e4a-90f6-c6006ef3502d', 6, '2026-09-19 00:00:00', 'office', 'closed', '2026-09-19 05:30:00', '2026-09-19 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (107, 1, 'bdf15e52-e47d-41c2-acca-f40ea8bcb94e', 7, '2026-09-19 00:00:00', 'office', 'closed', '2026-09-19 05:42:00', '2026-09-19 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (108, 1, '81619ba2-bdae-4cd4-bc1c-0df95140cc43', 8, '2026-09-19 00:00:00', 'office', 'closed', '2026-09-19 05:25:00', '2026-09-19 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (109, 1, '58ae31f4-5a4e-46bd-82fe-dac572d15f1b', 9, '2026-09-19 00:00:00', 'office', 'closed', '2026-09-19 05:31:00', '2026-09-19 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (110, 1, 'da7563f7-6541-4576-adc5-f52b2541a6ff', 2, '2026-09-20 00:00:00', 'office', 'closed', '2026-09-20 05:20:00', '2026-09-20 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (111, 1, '53e70397-7a00-487a-bfe6-f40fce856fea', 3, '2026-09-20 00:00:00', 'remote', 'closed', '2026-09-20 05:36:00', '2026-09-20 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (112, 1, 'a29eda42-2b57-4775-9389-ed925c9f8067', 4, '2026-09-20 00:00:00', 'office', 'closed', '2026-09-20 05:34:00', '2026-09-20 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (113, 1, '60a63610-948f-424a-9f83-723811d97b3e', 5, '2026-09-20 00:00:00', 'office', 'closed', '2026-09-20 05:38:00', '2026-09-20 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (114, 1, 'ebae3e30-4c14-4d9e-994e-b792d873186a', 6, '2026-09-20 00:00:00', 'office', 'closed', '2026-09-20 05:30:00', '2026-09-20 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (115, 1, '865474ee-e473-4eef-a15f-6c31c229c4dc', 7, '2026-09-20 00:00:00', 'office', 'closed', '2026-09-20 05:42:00', '2026-09-20 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (116, 1, '28232be5-7535-47fd-9101-e907c1ad38ba', 8, '2026-09-20 00:00:00', 'office', 'closed', '2026-09-20 05:25:00', '2026-09-20 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (117, 1, 'f45c7788-1026-4932-92c1-4f5f01141a5f', 9, '2026-09-20 00:00:00', 'office', 'closed', '2026-09-20 05:31:00', '2026-09-20 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (118, 1, '454a865b-5de3-4087-8b1e-32af437637a6', 2, '2026-09-21 00:00:00', 'office', 'closed', '2026-09-21 05:20:00', '2026-09-21 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (119, 1, '963fb77f-63af-42ca-b96c-52b07a5c1b26', 3, '2026-09-21 00:00:00', 'remote', 'closed', '2026-09-21 05:36:00', '2026-09-21 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (120, 1, '59c0d78f-29fe-4e77-b41a-ca13029ce4b3', 4, '2026-09-21 00:00:00', 'office', 'closed', '2026-09-21 05:34:00', '2026-09-21 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50');
 
 INSERT INTO `attendance_days` (`id`, `company_id`, `uuid`, `user_id`, `work_date`, `location`, `day_status`, `check_in_at`, `check_out_at`, `late_minutes`, `worked_minutes`, `break_minutes`, `expected_minutes`, `excused`, `note`, `created_at`, `updated_at`) VALUES
-    (121, 1, '3c1c51f0-6905-4417-9be8-6b148f870d1b', 5, '2026-09-21 00:00:00', 'office', 'closed', '2026-09-21 05:38:00', '2026-09-21 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (122, 1, '1bf6c3e5-23c2-4312-8f9b-78afe127b2e2', 6, '2026-09-21 00:00:00', 'office', 'closed', '2026-09-21 05:30:00', '2026-09-21 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (123, 1, '6a4681ea-0acd-4ac7-84cf-ee9d2231aa72', 7, '2026-09-21 00:00:00', 'office', 'closed', '2026-09-21 05:42:00', '2026-09-21 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (124, 1, '559a0382-9096-4118-a796-15d2fc3d72b6', 8, '2026-09-21 00:00:00', 'office', 'closed', '2026-09-21 05:25:00', '2026-09-21 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (125, 1, 'b288ead5-8253-45e8-8dc4-39fa5d90e260', 9, '2026-09-21 00:00:00', 'office', 'closed', '2026-09-21 05:31:00', '2026-09-21 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (126, 1, '1a2ab6ef-a180-4b1c-b706-b4df8fca020b', 2, '2026-09-22 00:00:00', 'office', 'closed', '2026-09-22 05:20:00', '2026-09-22 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (127, 1, '5c7504cf-1209-4117-aa21-74be398d57ae', 3, '2026-09-22 00:00:00', 'remote', 'closed', '2026-09-22 05:58:00', '2026-09-22 13:50:00', 13, 417, 55, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (128, 1, '0e088b32-e057-4414-926f-9252a953268e', 4, '2026-09-22 00:00:00', 'office', 'closed', '2026-09-22 05:34:00', '2026-09-22 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (129, 1, 'c2a79944-549b-42da-a583-ed3d36517175', 5, '2026-09-22 00:00:00', 'office', 'closed', '2026-09-22 05:38:00', '2026-09-22 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (130, 1, '09a4653b-ee31-4799-b003-d457e969ce5c', 6, '2026-09-22 00:00:00', 'office', 'closed', '2026-09-22 05:30:00', '2026-09-22 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (131, 1, '4b6baabe-eb20-464c-916f-b08e5ee300ff', 7, '2026-09-22 00:00:00', 'office', 'closed', '2026-09-22 05:42:00', '2026-09-22 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (132, 1, '4aa614de-a1cd-4351-9ce6-5526119e7ac0', 8, '2026-09-22 00:00:00', 'office', 'closed', '2026-09-22 05:25:00', '2026-09-22 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (133, 1, '439ed287-8c74-4875-93f5-62914c1d26d4', 9, '2026-09-22 00:00:00', 'office', 'closed', '2026-09-22 05:31:00', '2026-09-22 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (134, 1, '43b11ece-4711-4b49-b488-a98c3e4f3d91', 2, '2026-09-23 00:00:00', 'office', 'closed', '2026-09-23 05:20:00', '2026-09-23 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (135, 1, '5b662cb0-d012-44b4-80aa-da2a0ed8c502', 3, '2026-09-23 00:00:00', 'remote', 'closed', '2026-09-23 05:36:00', '2026-09-23 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (136, 1, '233dd263-ff7b-47b0-9503-2b075267ba58', 4, '2026-09-23 00:00:00', 'office', 'closed', '2026-09-23 05:34:00', '2026-09-23 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (137, 1, '7967bd85-3b0f-4e61-833b-c2bb79fc4c68', 5, '2026-09-23 00:00:00', 'office', 'closed', '2026-09-23 05:58:00', '2026-09-23 13:35:00', 13, 397, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (138, 1, '30834456-708e-47d0-adf4-889bde434554', 6, '2026-09-23 00:00:00', 'office', 'closed', '2026-09-23 05:30:00', '2026-09-23 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (139, 1, 'b583cdc1-ee7d-48f3-bd10-6a60f299c854', 7, '2026-09-23 00:00:00', 'office', 'closed', '2026-09-23 05:42:00', '2026-09-23 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (140, 1, 'b45d86dd-01ab-4318-a2af-d0b92a607073', 8, '2026-09-23 00:00:00', 'office', 'closed', '2026-09-23 05:25:00', '2026-09-23 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (141, 1, '1bce653c-68a2-4773-9d26-9236d94731b3', 9, '2026-09-23 00:00:00', 'office', 'closed', '2026-09-23 05:31:00', '2026-09-23 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (142, 1, 'a8c00707-42d5-4c11-8793-2a019f4ae962', 2, '2026-09-24 00:00:00', 'office', 'closed', '2026-09-24 05:20:00', '2026-09-24 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (143, 1, 'fcbb9f67-0773-4e66-98bd-3fc313583884', 3, '2026-09-24 00:00:00', 'remote', 'closed', '2026-09-24 05:36:00', '2026-09-24 13:50:00', 0, 439, 55, 420, 0, 'اصلاح ساعت توسط مدیر', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (144, 1, 'eebb0efa-5bc9-458c-88b4-4db700fe0852', 4, '2026-09-24 00:00:00', 'office', 'closed', '2026-09-24 05:34:00', '2026-09-24 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (145, 1, 'e753b649-3e6a-46de-9211-3b8302e82f96', 5, '2026-09-24 00:00:00', 'office', 'closed', '2026-09-24 05:38:00', '2026-09-24 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (146, 1, 'fd01ed08-d597-4276-8101-66de826266ed', 6, '2026-09-24 00:00:00', 'office', 'closed', '2026-09-24 05:30:00', '2026-09-24 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (147, 1, '3557b70c-03ac-46f7-9f4b-1ddb7f3c7c59', 7, '2026-09-24 00:00:00', 'office', 'closed', '2026-09-24 05:42:00', '2026-09-24 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (148, 1, 'a08e6189-adb6-4021-993a-67a38fc5c109', 8, '2026-09-24 00:00:00', 'office', 'closed', '2026-09-24 05:25:00', '2026-09-24 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (149, 1, 'cb19a8d6-c553-458d-bff3-8e2e2615e901', 9, '2026-09-24 00:00:00', 'office', 'closed', '2026-09-24 05:31:00', '2026-09-24 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31');
+    (121, 1, '931042d3-ad7a-437c-8e57-189d2025f3b7', 5, '2026-09-21 00:00:00', 'office', 'closed', '2026-09-21 05:38:00', '2026-09-21 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (122, 1, '5718408c-7593-4fc8-bfbd-af59d69040da', 6, '2026-09-21 00:00:00', 'office', 'closed', '2026-09-21 05:30:00', '2026-09-21 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (123, 1, 'bc93483c-7d94-4b55-86de-735e7d164e02', 7, '2026-09-21 00:00:00', 'office', 'closed', '2026-09-21 05:42:00', '2026-09-21 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (124, 1, '0fe7e5ce-66c7-480f-839a-01e9c2cf74c3', 8, '2026-09-21 00:00:00', 'office', 'closed', '2026-09-21 05:25:00', '2026-09-21 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (125, 1, '66afd478-7b42-495a-acab-9b220b63e327', 9, '2026-09-21 00:00:00', 'office', 'closed', '2026-09-21 05:31:00', '2026-09-21 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (126, 1, '15637656-7295-44ec-8a83-264d1ac0a551', 2, '2026-09-22 00:00:00', 'office', 'closed', '2026-09-22 05:20:00', '2026-09-22 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (127, 1, 'a237e9ca-f0ce-4158-bb73-04317cd600d0', 3, '2026-09-22 00:00:00', 'remote', 'closed', '2026-09-22 05:58:00', '2026-09-22 13:50:00', 13, 417, 55, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (128, 1, '834985b2-81b0-41ac-91d4-5271751f1785', 4, '2026-09-22 00:00:00', 'office', 'closed', '2026-09-22 05:34:00', '2026-09-22 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (129, 1, 'fa36db13-2408-4e52-9a7f-9a9131253fa3', 5, '2026-09-22 00:00:00', 'office', 'closed', '2026-09-22 05:38:00', '2026-09-22 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (130, 1, 'f0224183-ca4c-466a-8e03-f5c5169bdee8', 6, '2026-09-22 00:00:00', 'office', 'closed', '2026-09-22 05:30:00', '2026-09-22 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (131, 1, 'aa776a3b-a81c-4862-bada-f305dd231ee9', 7, '2026-09-22 00:00:00', 'office', 'closed', '2026-09-22 05:42:00', '2026-09-22 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (132, 1, 'd3de0597-b1a2-439e-9af3-e0a1a256a1b6', 8, '2026-09-22 00:00:00', 'office', 'closed', '2026-09-22 05:25:00', '2026-09-22 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (133, 1, 'fbfd2313-0f6b-4926-bcfe-5b9b0f2d7dd5', 9, '2026-09-22 00:00:00', 'office', 'closed', '2026-09-22 05:31:00', '2026-09-22 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (134, 1, 'f95ef3d0-ffc6-4aab-a8a4-2c7f7457b4cc', 2, '2026-09-23 00:00:00', 'office', 'closed', '2026-09-23 05:20:00', '2026-09-23 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (135, 1, '49c9c9bf-2ec9-440d-9489-46107fe6b660', 3, '2026-09-23 00:00:00', 'remote', 'closed', '2026-09-23 05:36:00', '2026-09-23 13:50:00', 0, 439, 55, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (136, 1, '29e03a76-0098-4d26-8679-3967dc5d18bb', 4, '2026-09-23 00:00:00', 'office', 'closed', '2026-09-23 05:34:00', '2026-09-23 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (137, 1, 'd595bcdc-cd21-42e9-b824-f547005940bc', 5, '2026-09-23 00:00:00', 'office', 'closed', '2026-09-23 05:58:00', '2026-09-23 13:35:00', 13, 397, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (138, 1, '875143d8-4ce1-45c7-9ef8-9258ccca6ec3', 6, '2026-09-23 00:00:00', 'office', 'closed', '2026-09-23 05:30:00', '2026-09-23 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (139, 1, 'b9a2aa2f-fe7c-4398-b1c6-ca79bf206853', 7, '2026-09-23 00:00:00', 'office', 'closed', '2026-09-23 05:42:00', '2026-09-23 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (140, 1, '5d4a31de-9390-4ec8-a729-b232be2d3164', 8, '2026-09-23 00:00:00', 'office', 'closed', '2026-09-23 05:25:00', '2026-09-23 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (141, 1, 'a4f3b6c0-1340-4801-9496-ab2fd8815b9a', 9, '2026-09-23 00:00:00', 'office', 'closed', '2026-09-23 05:31:00', '2026-09-23 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (142, 1, 'e6a881fa-0fa2-47de-b27e-beeea05ca6d4', 2, '2026-09-24 00:00:00', 'office', 'closed', '2026-09-24 05:20:00', '2026-09-24 13:40:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (143, 1, 'ee16e4f5-5201-447c-9da8-29f35821448a', 3, '2026-09-24 00:00:00', 'remote', 'closed', '2026-09-24 05:36:00', '2026-09-24 13:50:00', 0, 439, 55, 420, 0, 'اصلاح ساعت توسط مدیر', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (144, 1, '7ae64f1c-a35f-4c04-b8de-c6c79b7147c4', 4, '2026-09-24 00:00:00', 'office', 'closed', '2026-09-24 05:34:00', '2026-09-24 13:30:00', 0, 416, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (145, 1, '78331b3d-f10e-4454-a881-bcb1a228f4a1', 5, '2026-09-24 00:00:00', 'office', 'closed', '2026-09-24 05:38:00', '2026-09-24 13:35:00', 0, 417, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (146, 1, 'a8fbee64-d654-4e00-b690-3140ed564006', 6, '2026-09-24 00:00:00', 'office', 'closed', '2026-09-24 05:30:00', '2026-09-24 13:10:00', 0, 415, 45, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (147, 1, '2acd7d32-ef1e-407e-b30a-c0ec44bc752a', 7, '2026-09-24 00:00:00', 'office', 'closed', '2026-09-24 05:42:00', '2026-09-24 13:30:00', 0, 408, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (148, 1, '5b557f7b-f6b5-4479-b73a-76bbeb7cfc10', 8, '2026-09-24 00:00:00', 'office', 'closed', '2026-09-24 05:25:00', '2026-09-24 13:45:00', 0, 440, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (149, 1, '97e9fd77-897e-4d51-993d-cab9de9829a2', 9, '2026-09-24 00:00:00', 'office', 'closed', '2026-09-24 05:31:00', '2026-09-24 13:30:00', 0, 419, 60, 420, 0, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50');
 
 ALTER TABLE `attendance_days` AUTO_INCREMENT = 150;
 
 -- attendance_events (571)
 INSERT INTO `attendance_events` (`id`, `company_id`, `uuid`, `attendance_day_id`, `user_id`, `type`, `occurred_at`, `location`, `status`, `note`, `source`, `actor_id`, `ip`, `created_at`, `updated_at`) VALUES
-    (1, 1, 'a9bdeae6-f357-4c3c-8920-36f32dbd834c', 1, 2, 'check_in', '2026-09-25 14:37:29', 'office', NULL, 'شروع روز در دفتر', 'self', 2, '127.0.0.1', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (2, 1, 'ba34c678-f4e1-4ff9-856c-967269090e88', 2, 3, 'check_in', '2026-09-25 14:37:29', 'remote', NULL, NULL, 'self', 3, '127.0.0.1', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (3, 1, '2bb8c19c-b3b3-462c-b982-9d775f30afda', 3, 4, 'check_in', '2026-09-25 14:37:29', 'office', NULL, NULL, 'self', 4, '127.0.0.1', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (4, 1, 'c211c926-be87-4a2c-ae49-978d174414bc', 3, 4, 'break_start', '2026-09-25 14:37:29', 'office', 'break', NULL, 'self', 4, '127.0.0.1', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (5, 1, '5d11306a-27de-4595-95a4-2a3ad17bd06e', 4, 6, 'status', '2026-09-25 14:37:29', 'office', 'mission', 'جلسه با مشتری', 'self', 6, '127.0.0.1', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (6, 1, 'beb1c3ef-5f55-4e97-97e0-e00df0c00649', 5, 9, 'status', '2026-09-25 14:37:29', 'office', 'leave', 'مرخصی ساعتی', 'self', 9, '127.0.0.1', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (7, 1, '67c9d387-2750-4a14-bdf4-148b84094f15', 6, 2, 'check_in', '2026-09-05 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (8, 1, '159371b2-52c7-459a-ae01-3d99c1f081f2', 6, 2, 'break_start', '2026-09-05 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (9, 1, '57e56836-7168-4097-a067-1fbe9fb470ee', 6, 2, 'break_end', '2026-09-05 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (10, 1, 'f420a2b9-2c7d-4a3c-aaa6-4908152e4117', 6, 2, 'check_out', '2026-09-05 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (11, 1, '4721fe4a-5ae0-432f-abb9-15094075a560', 7, 3, 'check_in', '2026-09-05 05:58:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (12, 1, '66d3fcaf-4f21-4ed2-86cc-be555137a37b', 7, 3, 'break_start', '2026-09-05 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (13, 1, '9841a6b2-a17e-426a-b887-1c39891991c0', 7, 3, 'break_end', '2026-09-05 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (14, 1, '5e554299-fe67-4a50-9852-749315ed07b8', 7, 3, 'check_out', '2026-09-05 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (15, 1, 'a6a346f0-d61b-4251-9d5b-3badeaa6d553', 8, 4, 'check_in', '2026-09-05 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (16, 1, '32dc3554-7f75-4b4a-a134-22afbc102f30', 8, 4, 'break_start', '2026-09-05 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (17, 1, '46555c95-12c9-4485-b904-049df634a086', 8, 4, 'break_end', '2026-09-05 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (18, 1, '8358468d-5ad1-41ee-8ed8-9b89b10b9b56', 8, 4, 'check_out', '2026-09-05 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (19, 1, '47f602d9-07b1-4ad2-b2f1-b73fb8871773', 9, 5, 'check_in', '2026-09-05 05:58:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (20, 1, 'f62c1774-7aeb-45a8-872a-c8f33737749e', 9, 5, 'break_start', '2026-09-05 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (21, 1, 'cf8c6c6a-c834-4623-8e44-dfa3c25e86ce', 9, 5, 'break_end', '2026-09-05 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (22, 1, 'ee70100f-a6dc-4b69-8c0c-90d1ee5bf5aa', 9, 5, 'check_out', '2026-09-05 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (23, 1, '8f556ef2-445d-4f49-87ef-43d15224dd27', 10, 6, 'check_in', '2026-09-05 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (24, 1, 'aa5d18ff-f9ab-483a-b40b-d8576413e9cd', 10, 6, 'break_start', '2026-09-05 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (25, 1, '7afcb13f-7073-4492-aa39-b49a91f3f237', 10, 6, 'break_end', '2026-09-05 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (26, 1, 'a20c8ae1-f20a-40d4-b978-0587e282a379', 10, 6, 'check_out', '2026-09-05 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (27, 1, '57ac1798-90c9-430e-9955-877ed628a9ae', 11, 7, 'check_in', '2026-09-05 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (28, 1, '8f519156-0276-46e6-ac01-662cf87e4724', 11, 7, 'break_start', '2026-09-05 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (29, 1, '0a9eb931-fbea-491d-bc51-75e68c1ea68b', 11, 7, 'break_end', '2026-09-05 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (30, 1, '186b408e-b24d-4544-a45c-dd873b8d9597', 11, 7, 'check_out', '2026-09-05 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (31, 1, '86cb1518-4c9f-4a4f-a0fb-4d39b84bdff4', 12, 8, 'check_in', '2026-09-05 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (32, 1, '834a1c71-3929-4ccb-9c58-89fe328d8951', 12, 8, 'break_start', '2026-09-05 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (33, 1, '6c3b276e-f91f-4014-82ef-a9b309f704cd', 12, 8, 'break_end', '2026-09-05 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (34, 1, '7e2f4f31-d159-4b55-8443-49b19fa7d3a5', 12, 8, 'check_out', '2026-09-05 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (35, 1, '1468883c-c528-4aad-b33b-97acc6276011', 13, 9, 'check_in', '2026-09-05 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (36, 1, '86fae820-91e8-4baf-aea6-a278195ce712', 13, 9, 'break_start', '2026-09-05 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (37, 1, 'e427963e-150f-459e-b71a-89877ba2850c', 13, 9, 'break_end', '2026-09-05 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (38, 1, 'ffa64c41-5402-422d-b14e-e26e9010d6c0', 13, 9, 'check_out', '2026-09-05 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (39, 1, 'ddef9af8-0887-44b0-bcbd-0a0f3c7143b5', 14, 2, 'check_in', '2026-09-06 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (40, 1, 'da7f3096-f547-4380-8799-7cedbe8c236b', 14, 2, 'break_start', '2026-09-06 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, '9ffee65f-24d7-45f8-9633-a5779d4888ab', 1, 2, 'check_in', '2026-09-25 21:32:48', 'office', NULL, 'شروع روز در دفتر', 'self', 2, '127.0.0.1', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (2, 1, 'e0b7316b-aa9b-476c-bee3-3f96623f909d', 2, 3, 'check_in', '2026-09-25 21:32:48', 'remote', NULL, NULL, 'self', 3, '127.0.0.1', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (3, 1, '64c959d1-ce9a-4a44-a040-c0bf1201c739', 3, 4, 'check_in', '2026-09-25 21:32:48', 'office', NULL, NULL, 'self', 4, '127.0.0.1', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (4, 1, 'f8662cd2-de26-4d9b-8934-82763091f4f8', 3, 4, 'break_start', '2026-09-25 21:32:48', 'office', 'break', NULL, 'self', 4, '127.0.0.1', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (5, 1, 'f687be7a-4d22-4bde-9e43-fb16459fdaa5', 4, 6, 'status', '2026-09-25 21:32:48', 'office', 'mission', 'جلسه با مشتری', 'self', 6, '127.0.0.1', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (6, 1, '8266c692-9b97-43a2-827a-85d79e60ba01', 5, 9, 'status', '2026-09-25 21:32:48', 'office', 'leave', 'مرخصی ساعتی', 'self', 9, '127.0.0.1', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (7, 1, 'd28ecb40-a378-41c8-8e3a-f08620a3a569', 6, 2, 'check_in', '2026-09-05 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (8, 1, '8fd96701-a60d-4a26-820a-1a78268de345', 6, 2, 'break_start', '2026-09-05 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (9, 1, 'd1ec1368-83ca-4ac1-91c0-e141f2873c66', 6, 2, 'break_end', '2026-09-05 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (10, 1, '1867859d-7519-4de4-bf5e-2b7c318f8454', 6, 2, 'check_out', '2026-09-05 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (11, 1, '9ef87030-4e5c-4f37-8b11-00abe318898c', 7, 3, 'check_in', '2026-09-05 05:58:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (12, 1, '41a94462-312c-4de4-833c-5e87c347a21b', 7, 3, 'break_start', '2026-09-05 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (13, 1, '71046386-5ed4-42a7-bfcf-fae0fec5e256', 7, 3, 'break_end', '2026-09-05 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (14, 1, '681647d1-a0f3-42b4-9a97-073f966acb70', 7, 3, 'check_out', '2026-09-05 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (15, 1, '24a61475-6a02-4853-8ded-4cf1734d027b', 8, 4, 'check_in', '2026-09-05 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (16, 1, '803f5edc-b82a-4291-9c46-78722d643b5d', 8, 4, 'break_start', '2026-09-05 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (17, 1, '37ee358b-c1e0-40fe-9728-cec943e96bf0', 8, 4, 'break_end', '2026-09-05 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (18, 1, '9f5e03c2-d051-4bda-9a39-85c550fe22ca', 8, 4, 'check_out', '2026-09-05 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (19, 1, '55f338eb-6ef3-4e6d-96c6-a45c3ecffbd1', 9, 5, 'check_in', '2026-09-05 05:58:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (20, 1, '4346b1bb-02ad-41e8-8b70-6deee064d532', 9, 5, 'break_start', '2026-09-05 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (21, 1, 'bbbb4197-29dc-42cd-bebc-a0625c56ee76', 9, 5, 'break_end', '2026-09-05 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (22, 1, 'd1722a0f-016f-4cce-b2e9-4937f088a1b9', 9, 5, 'check_out', '2026-09-05 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (23, 1, 'ff9993b0-48fc-4246-ac92-38fd5b67fd3f', 10, 6, 'check_in', '2026-09-05 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (24, 1, 'b7f79beb-fda6-49b7-a900-b0f6b10f6695', 10, 6, 'break_start', '2026-09-05 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (25, 1, '5c5f3f78-673b-4e35-bd75-00616ff791e1', 10, 6, 'break_end', '2026-09-05 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (26, 1, 'fb86ddfd-a80c-4b4b-8a45-f56acb5f641b', 10, 6, 'check_out', '2026-09-05 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (27, 1, 'fc5e10a1-f5da-44f1-acab-cf15895a9fb3', 11, 7, 'check_in', '2026-09-05 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (28, 1, '0640ee2e-2f70-4124-ad21-c4c8aafdd099', 11, 7, 'break_start', '2026-09-05 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (29, 1, '08bd762c-2240-45f7-9ea7-31beec96e2b0', 11, 7, 'break_end', '2026-09-05 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (30, 1, '9a5776b3-50b9-44b9-8667-f57b112c1bae', 11, 7, 'check_out', '2026-09-05 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (31, 1, 'ddce0a46-e946-4fde-82b3-d77d3e015624', 12, 8, 'check_in', '2026-09-05 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (32, 1, '2630fbd0-e711-4021-b970-3e771c8ad5d0', 12, 8, 'break_start', '2026-09-05 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (33, 1, '321a7053-a488-4383-be1a-5ac410d24c8a', 12, 8, 'break_end', '2026-09-05 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (34, 1, '2c97616d-67f0-4a7d-9cf5-ce8140efe058', 12, 8, 'check_out', '2026-09-05 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (35, 1, '7063c262-34d2-4e22-8cab-fd69aedf7d53', 13, 9, 'check_in', '2026-09-05 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (36, 1, '4a553610-4903-401c-94c3-cba0fb79fc70', 13, 9, 'break_start', '2026-09-05 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (37, 1, 'dd4f8d96-96d6-4faa-96f5-5a7398479475', 13, 9, 'break_end', '2026-09-05 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (38, 1, '4001c6fe-f5a7-4979-9487-e977174fc17e', 13, 9, 'check_out', '2026-09-05 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (39, 1, '53c69d0d-71fc-48c6-9d54-a3a93a1b349c', 14, 2, 'check_in', '2026-09-06 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (40, 1, '079b15fb-18fe-4858-af8c-4055c27e057b', 14, 2, 'break_start', '2026-09-06 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 INSERT INTO `attendance_events` (`id`, `company_id`, `uuid`, `attendance_day_id`, `user_id`, `type`, `occurred_at`, `location`, `status`, `note`, `source`, `actor_id`, `ip`, `created_at`, `updated_at`) VALUES
-    (41, 1, '6df29473-0e8c-4945-afd4-b2242e7ccaf7', 14, 2, 'break_end', '2026-09-06 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (42, 1, '3e01f48b-9f88-4364-b1c7-8e972e423df5', 14, 2, 'check_out', '2026-09-06 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (43, 1, 'f38453e9-ce9b-4f6b-87a7-031691a28dab', 15, 3, 'check_in', '2026-09-06 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (44, 1, '900ff40f-7013-44e0-ac5c-8379ee7956af', 15, 3, 'break_start', '2026-09-06 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (45, 1, '71ae6917-6f01-4923-aa1d-f59214c083f9', 15, 3, 'break_end', '2026-09-06 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (46, 1, '5ce7d9be-90f9-43ad-90d8-84bdcd9e415b', 15, 3, 'check_out', '2026-09-06 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (47, 1, 'b73ffb49-929a-406d-b648-c93d405161a0', 16, 4, 'check_in', '2026-09-06 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (48, 1, 'f1cb3a0e-d23c-4df6-988e-cf107c14ebde', 16, 4, 'break_start', '2026-09-06 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (49, 1, '666277d9-960f-4c08-a78c-5fc80a385297', 16, 4, 'break_end', '2026-09-06 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (50, 1, 'a37fbe7c-26b8-499f-abce-9ca21ffee02d', 16, 4, 'check_out', '2026-09-06 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (51, 1, 'b103774f-59ce-4b48-8f4c-7f1f9029973a', 17, 5, 'check_in', '2026-09-06 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (52, 1, '2ff65421-0252-48de-a247-3ab6dcee7645', 17, 5, 'break_start', '2026-09-06 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (53, 1, 'e5b65c8d-146f-4b5e-86e6-259ec12aac97', 17, 5, 'break_end', '2026-09-06 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (54, 1, '1d9b97d5-74a1-4680-958d-1c4d61a932ba', 17, 5, 'check_out', '2026-09-06 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (55, 1, '9b2ef240-835a-40c5-9ac2-74bf472954ff', 18, 6, 'check_in', '2026-09-06 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (56, 1, '183dae55-5d6a-44f7-82aa-26b85396ad89', 18, 6, 'break_start', '2026-09-06 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (57, 1, '65f8a1a0-ee3e-496b-a00e-8a44ba982326', 18, 6, 'break_end', '2026-09-06 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (58, 1, 'bad3c8a0-de47-461e-80f5-757351298711', 18, 6, 'check_out', '2026-09-06 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (59, 1, '33ca4c30-3fa0-4daa-993c-511bbbea3056', 19, 7, 'check_in', '2026-09-06 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (60, 1, 'e2eb6d13-a803-490c-8a31-1dfc00973cc1', 19, 7, 'break_start', '2026-09-06 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (61, 1, '50a58fd2-6b04-4b22-a9df-a2cfbef0cdd1', 19, 7, 'break_end', '2026-09-06 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (62, 1, 'fa1b6384-bce1-4c3b-9732-33b0e68202ab', 19, 7, 'check_out', '2026-09-06 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (63, 1, 'd29bdc7f-f748-4003-943b-b8cb9c745a9b', 20, 8, 'check_in', '2026-09-06 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (64, 1, 'cfe1702e-0b13-4b19-be87-3d60c060b926', 20, 8, 'break_start', '2026-09-06 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (65, 1, 'aa3aa621-78be-43de-94a3-c3cc3a007f6e', 20, 8, 'break_end', '2026-09-06 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (66, 1, '90e48b21-dfd5-499a-bdff-c532e70ec229', 20, 8, 'check_out', '2026-09-06 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (67, 1, 'e64fd544-0d51-48c6-919e-c5f8ea4a74d9', 21, 9, 'check_in', '2026-09-06 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (68, 1, '99240fbb-ddb9-408f-9455-93a26d088d2c', 21, 9, 'break_start', '2026-09-06 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (69, 1, 'fd5c7981-9eb0-418b-942c-7f2649fa2318', 21, 9, 'break_end', '2026-09-06 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (70, 1, '3aaf0fe6-148d-431a-ade0-f7e631b583e1', 21, 9, 'check_out', '2026-09-06 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (71, 1, '11d7ac0e-a512-4715-b543-07a488afbdd9', 22, 2, 'check_in', '2026-09-07 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (72, 1, '40e731f0-749f-4283-b969-491a6bf1e3c6', 22, 2, 'break_start', '2026-09-07 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (73, 1, 'a055b387-2b22-4307-a10d-df33da986c41', 22, 2, 'break_end', '2026-09-07 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (74, 1, 'ee3773a4-410d-497f-a93c-382e350ebde8', 22, 2, 'check_out', '2026-09-07 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (75, 1, '10043d6f-4032-43e9-9e12-4142f0f9d869', 23, 3, 'check_in', '2026-09-07 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (76, 1, 'e2fb0f62-ad41-44fb-b2ce-a0009dff2efd', 23, 3, 'break_start', '2026-09-07 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (77, 1, 'dd97ee23-badb-471a-a6e8-1b92b5a6c1d3', 23, 3, 'break_end', '2026-09-07 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (78, 1, '775aa69e-bc1d-4731-af1d-34e69b715382', 23, 3, 'check_out', '2026-09-07 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (79, 1, '13b6bb54-7c16-4855-83b5-abcd20d62f02', 24, 4, 'check_in', '2026-09-07 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (80, 1, '9a369633-30f5-4f81-9d8d-39c454dea35c', 24, 4, 'break_start', '2026-09-07 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (41, 1, '81654632-7bdb-4f01-bfb5-19a90ad48238', 14, 2, 'break_end', '2026-09-06 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (42, 1, 'f4d39061-9514-427a-ad0c-892b865503df', 14, 2, 'check_out', '2026-09-06 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (43, 1, '11f959df-8265-4b96-96b3-9eb3308d7360', 15, 3, 'check_in', '2026-09-06 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (44, 1, 'f449084d-f52d-48aa-8162-33fbc88dd9a0', 15, 3, 'break_start', '2026-09-06 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (45, 1, '1ed914fe-9435-47b8-ad73-550e05993ff6', 15, 3, 'break_end', '2026-09-06 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (46, 1, '3530896f-9e36-4095-8639-35808b5f8732', 15, 3, 'check_out', '2026-09-06 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (47, 1, '724d1309-5990-4d24-a4bc-0d878bf2e446', 16, 4, 'check_in', '2026-09-06 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (48, 1, '8086edad-af35-4044-9fdc-e1636f53de27', 16, 4, 'break_start', '2026-09-06 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (49, 1, 'f6f54d84-1740-42d0-bfc5-59b38f3447d8', 16, 4, 'break_end', '2026-09-06 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (50, 1, '920d64c4-33fd-4d03-a39b-69c72bc4a26d', 16, 4, 'check_out', '2026-09-06 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (51, 1, '075bd55a-2316-4f53-974c-f4d7b97a9956', 17, 5, 'check_in', '2026-09-06 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (52, 1, '07066eb7-d21f-43fd-aa44-121c0c036eac', 17, 5, 'break_start', '2026-09-06 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (53, 1, 'a76b5d5d-0c31-40c1-9a3a-2e02746c3186', 17, 5, 'break_end', '2026-09-06 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (54, 1, '6d2a1048-4f49-44b4-a17c-e69e94b938c3', 17, 5, 'check_out', '2026-09-06 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (55, 1, '464579f7-b1b6-4b4c-980c-1263b9cf3404', 18, 6, 'check_in', '2026-09-06 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (56, 1, '4e204649-89ed-4fea-99a6-977cc843a1d2', 18, 6, 'break_start', '2026-09-06 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (57, 1, '7292032a-340e-4d53-ad44-98284f1a9939', 18, 6, 'break_end', '2026-09-06 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (58, 1, '1e4bdab2-e348-4cdd-a76a-f5ac1c587365', 18, 6, 'check_out', '2026-09-06 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (59, 1, '9738fdad-9084-49db-a7dc-10bb7340e1c2', 19, 7, 'check_in', '2026-09-06 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (60, 1, '6a60b6de-80f3-4168-ab7c-522244ad1504', 19, 7, 'break_start', '2026-09-06 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (61, 1, 'de91a9dc-edd0-4c35-b76b-1372a03bad64', 19, 7, 'break_end', '2026-09-06 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (62, 1, '0338d63a-f691-4e58-bcb7-de050c6d7e2a', 19, 7, 'check_out', '2026-09-06 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (63, 1, 'a1866d6f-c919-4c68-a270-ea8fb166f2af', 20, 8, 'check_in', '2026-09-06 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (64, 1, '74a04fe4-705e-4100-b78f-5e0c83193fcb', 20, 8, 'break_start', '2026-09-06 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (65, 1, 'cc0847f3-f521-4ec9-b7b2-2b1ccd3f93ec', 20, 8, 'break_end', '2026-09-06 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (66, 1, 'fa481deb-2492-4811-801f-017c768bd17d', 20, 8, 'check_out', '2026-09-06 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (67, 1, 'af19a86e-4a05-45b6-b11d-fb0e482642e4', 21, 9, 'check_in', '2026-09-06 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (68, 1, 'ddd343bb-cfe1-488b-9a7d-0ae9d3b8da25', 21, 9, 'break_start', '2026-09-06 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (69, 1, '24695a58-1026-45fa-afad-493780e39a12', 21, 9, 'break_end', '2026-09-06 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (70, 1, 'abd346f4-be1e-4294-9131-f28a47cdb065', 21, 9, 'check_out', '2026-09-06 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (71, 1, 'cd601f5d-4d11-44ae-8f0d-832cdcbbddc7', 22, 2, 'check_in', '2026-09-07 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (72, 1, '19041869-2394-49be-a15d-2acccddd53f0', 22, 2, 'break_start', '2026-09-07 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (73, 1, '36817171-cd62-4645-a0ee-9e895b4f8380', 22, 2, 'break_end', '2026-09-07 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (74, 1, '1292a9a7-9258-4809-81ba-507f89824ba1', 22, 2, 'check_out', '2026-09-07 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (75, 1, '2d3c00bf-f091-4df7-be67-4e038af25abe', 23, 3, 'check_in', '2026-09-07 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (76, 1, 'abd6ca2c-9111-46cf-b26b-185567cc65ca', 23, 3, 'break_start', '2026-09-07 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (77, 1, 'da8ee5a1-ae46-4db4-98ed-3827522e2b97', 23, 3, 'break_end', '2026-09-07 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (78, 1, 'dbba7a7d-5c89-4713-aaad-efa367e19df2', 23, 3, 'check_out', '2026-09-07 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (79, 1, '1faa723f-c662-459b-828b-6c25b0385c71', 24, 4, 'check_in', '2026-09-07 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (80, 1, 'b41e894c-3a90-40ec-9b01-bc048018e41b', 24, 4, 'break_start', '2026-09-07 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 INSERT INTO `attendance_events` (`id`, `company_id`, `uuid`, `attendance_day_id`, `user_id`, `type`, `occurred_at`, `location`, `status`, `note`, `source`, `actor_id`, `ip`, `created_at`, `updated_at`) VALUES
-    (81, 1, '1db33469-2371-46d2-8715-1d39e96b1194', 24, 4, 'break_end', '2026-09-07 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (82, 1, '4567216b-db9b-440f-9af2-1048865102fb', 24, 4, 'check_out', '2026-09-07 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (83, 1, '33930611-f116-42e1-b346-5dc6dcd55436', 25, 5, 'check_in', '2026-09-07 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (84, 1, '4468fbc3-bf2c-4995-af5c-7ab2b64bb80c', 25, 5, 'break_start', '2026-09-07 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (85, 1, '571856ca-2a5d-4e30-bb0f-b628345cb276', 25, 5, 'break_end', '2026-09-07 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (86, 1, '7651f6b2-e2b5-4a68-92d1-6f66e4b48fd7', 25, 5, 'check_out', '2026-09-07 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (87, 1, 'a32a7083-4f81-498f-8511-02d7b3d3cc30', 26, 6, 'check_in', '2026-09-07 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (88, 1, '3ffe5622-0f1c-4ca8-97ff-adef35d3dffd', 26, 6, 'break_start', '2026-09-07 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (89, 1, '96fdee8d-2182-415a-bf78-0f22f056a94a', 26, 6, 'break_end', '2026-09-07 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (90, 1, 'bac55201-c1b1-4259-853e-1ce4520e79bd', 26, 6, 'check_out', '2026-09-07 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (91, 1, 'd880d24d-6990-4a20-9662-65eafd630cd0', 27, 7, 'check_in', '2026-09-07 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (92, 1, 'f1bf8f8a-d47a-4789-8bf2-e1c0df44e933', 27, 7, 'break_start', '2026-09-07 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (93, 1, '7dd599c2-3f73-415c-a5a9-702c20c53b19', 27, 7, 'break_end', '2026-09-07 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (94, 1, 'b4d12880-6515-4057-afff-76aa74427117', 27, 7, 'check_out', '2026-09-07 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (95, 1, 'bfe58ba4-8aa0-4f9b-8a80-4036c9736d01', 28, 8, 'check_in', '2026-09-07 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (96, 1, '87fe1b7d-183e-4901-b284-fa86461b0353', 28, 8, 'break_start', '2026-09-07 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (97, 1, 'ba8038e5-7d20-43b6-b9f4-d5eadd050cca', 28, 8, 'break_end', '2026-09-07 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (98, 1, '3732513c-a329-4ed4-9aab-f57f5b79d5b3', 28, 8, 'check_out', '2026-09-07 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (99, 1, '830dcb39-8f9e-4e81-a177-66db5228ebd8', 29, 9, 'check_in', '2026-09-07 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (100, 1, '963a55df-af48-43a6-85b7-2dcb864e6ae5', 29, 9, 'break_start', '2026-09-07 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (101, 1, '44f835db-8384-4c7e-b0ca-60c297d4a015', 29, 9, 'break_end', '2026-09-07 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (102, 1, '4776dc38-d9f5-4996-8a3a-29623b133fcf', 29, 9, 'check_out', '2026-09-07 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (103, 1, '3436a4d8-491d-4d6d-8c24-6187c259633c', 30, 2, 'check_in', '2026-09-08 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (104, 1, '0faeb68f-2fbb-4006-b2cb-a142160ebbe1', 30, 2, 'break_start', '2026-09-08 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (105, 1, '7ad44361-7f7f-4545-85ac-b862ddfb181d', 30, 2, 'break_end', '2026-09-08 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (106, 1, '2be32193-9965-4483-b58d-9ed8f4d8cf70', 30, 2, 'check_out', '2026-09-08 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (107, 1, 'fda6865e-8ea5-45a5-8eba-00e5b1179cbf', 31, 3, 'check_in', '2026-09-08 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (108, 1, '1831c8b6-c4b9-4d22-80d2-45d0b80a56b7', 31, 3, 'break_start', '2026-09-08 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (109, 1, 'f8b3a3a1-e34e-41f6-b217-9e8a3db1d516', 31, 3, 'break_end', '2026-09-08 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (110, 1, '18fd9e5f-8a28-4b08-88d7-f2c164840039', 31, 3, 'check_out', '2026-09-08 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (111, 1, 'c13b681a-be2a-45aa-a6d1-4dcf10874471', 32, 4, 'check_in', '2026-09-08 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (112, 1, '1083c622-cdac-4052-bc28-639fd727e46a', 32, 4, 'break_start', '2026-09-08 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (113, 1, '3778b50c-5cd9-4d29-a727-3a3c6f5bd6ce', 32, 4, 'break_end', '2026-09-08 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (114, 1, '2bc2e315-5e81-4d4f-96cb-76f226c632c7', 32, 4, 'check_out', '2026-09-08 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (115, 1, '86a84efc-092a-405d-9f16-5cef8361674e', 33, 5, 'check_in', '2026-09-08 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (116, 1, '98919be6-a1a9-4b83-b4b9-d4199ad013c9', 33, 5, 'break_start', '2026-09-08 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (117, 1, '1fddf05e-bc47-47c9-aa53-bef373ac19fa', 33, 5, 'break_end', '2026-09-08 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (118, 1, '47819454-5516-48ec-a6e1-8cd7c6b3e2f1', 33, 5, 'check_out', '2026-09-08 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (119, 1, '1fdc2ce4-036c-4cb4-b6a0-491ab4a5d175', 35, 7, 'check_in', '2026-09-08 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (120, 1, '1ca111c6-c74a-4ae4-8926-4615fd22af9b', 35, 7, 'break_start', '2026-09-08 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30');
+    (81, 1, 'cee25674-1716-4d0c-9980-9bf5214b84f1', 24, 4, 'break_end', '2026-09-07 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (82, 1, '14d99da3-21a0-42fb-b005-c3b595599744', 24, 4, 'check_out', '2026-09-07 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (83, 1, 'b9865aaa-6a81-4f45-82c9-92d879922338', 25, 5, 'check_in', '2026-09-07 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (84, 1, '97097c51-3241-411e-86b9-45705d86f3a3', 25, 5, 'break_start', '2026-09-07 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (85, 1, '63a49668-3f33-49a7-8059-d0a687fd0cfb', 25, 5, 'break_end', '2026-09-07 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (86, 1, 'e3671d02-4552-438d-b8d2-1977a708153c', 25, 5, 'check_out', '2026-09-07 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (87, 1, 'c95a64d0-c0ee-4062-86a2-0242c4ae05d3', 26, 6, 'check_in', '2026-09-07 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (88, 1, '7f095421-3a96-4d6c-ba13-9b42aac5e546', 26, 6, 'break_start', '2026-09-07 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (89, 1, '053e1bdb-38a8-4b16-9e74-b183fdbf8a74', 26, 6, 'break_end', '2026-09-07 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (90, 1, '537db7fa-c69f-4a8a-aae2-3469d8c71503', 26, 6, 'check_out', '2026-09-07 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (91, 1, '90f11699-b006-4ff7-acf6-2e73df198885', 27, 7, 'check_in', '2026-09-07 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (92, 1, 'c098534b-7fe5-421d-ab6f-4f35a648f242', 27, 7, 'break_start', '2026-09-07 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (93, 1, '6f88a7b5-37eb-4cf7-93db-7abb63865bb9', 27, 7, 'break_end', '2026-09-07 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (94, 1, 'a55d793b-47cb-4623-88ff-e1f68d54813b', 27, 7, 'check_out', '2026-09-07 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (95, 1, '9fadee70-a6d6-428b-8884-ad2f112d6f10', 28, 8, 'check_in', '2026-09-07 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (96, 1, '55f09897-dbf7-4087-82dd-6e543f3461ef', 28, 8, 'break_start', '2026-09-07 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (97, 1, '8c7f19ef-2a89-4a99-8f7d-fe9fde6995d1', 28, 8, 'break_end', '2026-09-07 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (98, 1, 'cae348a2-8e05-42bf-a2d4-541c2cf75b87', 28, 8, 'check_out', '2026-09-07 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (99, 1, '41cccb32-e9c7-47dd-9f84-efedc88a55dc', 29, 9, 'check_in', '2026-09-07 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (100, 1, '0649d7f6-d1c1-46fb-8b7c-a20a29bd7d2b', 29, 9, 'break_start', '2026-09-07 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (101, 1, '8d525f85-85a4-416f-a392-f641d517d616', 29, 9, 'break_end', '2026-09-07 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (102, 1, '792eed05-d859-49a7-bfe1-c5eeb8863d6b', 29, 9, 'check_out', '2026-09-07 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (103, 1, '9a15caca-6159-4af3-b98e-a632b24d5ab5', 30, 2, 'check_in', '2026-09-08 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (104, 1, 'fbd2e022-2bfe-43b8-9b01-4d80137837c2', 30, 2, 'break_start', '2026-09-08 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (105, 1, 'f90c338d-a8ad-4b25-9bf4-98f936c29468', 30, 2, 'break_end', '2026-09-08 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (106, 1, '6ae61c97-fb80-4e7f-9b1c-0238088b2009', 30, 2, 'check_out', '2026-09-08 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (107, 1, '2d8b1393-2a93-44c2-9bb6-3bc406d8bcd4', 31, 3, 'check_in', '2026-09-08 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (108, 1, '6143e785-5bea-4d5f-b331-d5da290d1960', 31, 3, 'break_start', '2026-09-08 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (109, 1, 'c4bc0adf-3c79-4bd5-9074-e08d1f578826', 31, 3, 'break_end', '2026-09-08 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (110, 1, 'c9e6ac05-485e-4af7-8a34-25e5cce2324d', 31, 3, 'check_out', '2026-09-08 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (111, 1, 'f5d4825f-aa19-4151-9a79-db52f2b3a4d4', 32, 4, 'check_in', '2026-09-08 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (112, 1, '3f54ec90-6a63-41dd-bcfd-d9a52f5261c8', 32, 4, 'break_start', '2026-09-08 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (113, 1, '3ab65ae3-024b-4eaa-bf77-c38b070d3281', 32, 4, 'break_end', '2026-09-08 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (114, 1, '865d6700-85bc-45ed-8018-417a65b7cd42', 32, 4, 'check_out', '2026-09-08 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (115, 1, '98dfdc2b-87dc-47df-8642-984f9e69c883', 33, 5, 'check_in', '2026-09-08 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (116, 1, 'be5cf05a-d991-481e-9809-35658985bc5f', 33, 5, 'break_start', '2026-09-08 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (117, 1, 'a3f9d7f4-257b-46e2-a8e5-ea7ff06d7847', 33, 5, 'break_end', '2026-09-08 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (118, 1, 'bccd00fd-eaeb-4092-80b0-cf542217bd57', 33, 5, 'check_out', '2026-09-08 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (119, 1, 'b6e0b7d2-a3e0-4bc6-8bcf-9e4554459ded', 35, 7, 'check_in', '2026-09-08 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (120, 1, '7e1a05d3-0e42-476d-8d31-a507be1f80ba', 35, 7, 'break_start', '2026-09-08 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 INSERT INTO `attendance_events` (`id`, `company_id`, `uuid`, `attendance_day_id`, `user_id`, `type`, `occurred_at`, `location`, `status`, `note`, `source`, `actor_id`, `ip`, `created_at`, `updated_at`) VALUES
-    (121, 1, 'c9416abc-049a-4f2c-9329-3e5ea77224dc', 35, 7, 'break_end', '2026-09-08 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (122, 1, '3b1bab0e-4317-43bc-a7d2-d90901f8e77c', 35, 7, 'check_out', '2026-09-08 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (123, 1, 'fb52e08a-8dae-4240-882a-0944f22f9c58', 36, 8, 'check_in', '2026-09-08 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (124, 1, '04622c62-1944-4bae-b331-e0b7addf6c8d', 36, 8, 'break_start', '2026-09-08 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (125, 1, 'efa2180c-bf84-4205-9777-f1cc4ac233ed', 36, 8, 'break_end', '2026-09-08 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (126, 1, '2c366096-420a-4582-9fa3-dd054db9e1b6', 36, 8, 'check_out', '2026-09-08 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (127, 1, 'fbadab7e-95e8-4347-8dfa-7391588d751e', 37, 9, 'check_in', '2026-09-08 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (128, 1, '03870b3d-74bb-40a5-8b89-4839cf1efa69', 37, 9, 'break_start', '2026-09-08 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (129, 1, '25377597-9bd2-40df-acd6-06e27eb74d17', 37, 9, 'break_end', '2026-09-08 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (130, 1, '3ef86479-28f3-49db-96d7-211cd2d3093a', 37, 9, 'check_out', '2026-09-08 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (131, 1, 'f637cdbd-4a05-4451-8ace-8a4ec990bb74', 38, 2, 'check_in', '2026-09-09 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (132, 1, '2b50b782-09b5-4eda-9253-7959d7673ffd', 38, 2, 'break_start', '2026-09-09 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (133, 1, '0ee41139-7c3e-433d-86bb-7347ba466aae', 38, 2, 'break_end', '2026-09-09 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (134, 1, '7987e850-828d-4cbd-880c-e7db31cc71b9', 38, 2, 'check_out', '2026-09-09 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (135, 1, 'ab312c24-db60-4776-9844-6c59f7fbca17', 39, 3, 'check_in', '2026-09-09 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (136, 1, '10e0e1be-d1f7-4f19-826b-7084a4f2f262', 39, 3, 'break_start', '2026-09-09 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (137, 1, 'e3bb2e2a-2768-431c-ab89-029f6fbb2cf4', 39, 3, 'break_end', '2026-09-09 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (138, 1, '8788c443-fa18-4221-8d46-3f87ee641501', 39, 3, 'check_out', '2026-09-09 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (139, 1, '64dd415e-b9a0-43ab-850e-ffbdd8428580', 40, 4, 'check_in', '2026-09-09 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (140, 1, '9d178084-9bf8-42ed-8e91-8fa286a9f557', 40, 4, 'break_start', '2026-09-09 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (141, 1, '330517b9-ba63-4a04-a7ed-ed9a376de215', 40, 4, 'break_end', '2026-09-09 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (142, 1, 'efc9da33-2254-4684-9539-e723ca1dbad2', 40, 4, 'check_out', '2026-09-09 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (143, 1, '33cac050-165c-49a1-8fb5-1f0b42d164ef', 41, 5, 'check_in', '2026-09-09 05:58:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (144, 1, 'b08e67ac-d558-4266-bc04-0094b12b0a6d', 41, 5, 'break_start', '2026-09-09 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (145, 1, 'cd6077cb-29d0-466e-9f81-6e2306329f00', 41, 5, 'break_end', '2026-09-09 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (146, 1, 'ca347e69-7d9d-445d-8690-4ef4e2bca024', 41, 5, 'check_out', '2026-09-09 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (147, 1, '0180f703-edad-4464-baea-87952fc25225', 42, 6, 'check_in', '2026-09-09 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (148, 1, '92e9c562-a645-493e-86d4-6a78aed7d23d', 42, 6, 'break_start', '2026-09-09 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (149, 1, '72bad265-ae04-4f52-8c20-422c6de43a23', 42, 6, 'break_end', '2026-09-09 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (150, 1, 'b2443767-b675-40bb-a865-4ef49e0f355b', 42, 6, 'check_out', '2026-09-09 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (151, 1, '7f7ea2f8-9de9-4593-afdd-c249bad7c1cf', 43, 7, 'check_in', '2026-09-09 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (152, 1, '3562e935-2049-4ff9-a0b8-cdad354ed3ef', 43, 7, 'break_start', '2026-09-09 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (153, 1, '4aff3a8d-ef0f-4db6-a898-c0b940b960dd', 43, 7, 'break_end', '2026-09-09 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (154, 1, 'f2e9f611-3dd6-4888-9d31-90d8f5c7b99d', 43, 7, 'check_out', '2026-09-09 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (155, 1, 'c269e7b4-4f01-467b-b547-2524b5cd5d87', 44, 8, 'check_in', '2026-09-09 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (156, 1, '96c21a1b-9ea8-4106-ab70-6cfbf6721598', 44, 8, 'break_start', '2026-09-09 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (157, 1, 'a534c7cc-c11d-42c5-80e8-6c9d5a47a9a7', 44, 8, 'break_end', '2026-09-09 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (158, 1, 'bbf272cc-ba4c-47bb-9d32-e6d9f69d8294', 44, 8, 'check_out', '2026-09-09 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (159, 1, '28e2a067-129c-42a9-a7a6-7c2ad85a7ce9', 45, 9, 'check_in', '2026-09-09 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (160, 1, '49c0fe57-6db7-4dab-b481-16200fd3ffbb', 45, 9, 'break_start', '2026-09-09 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30');
+    (121, 1, '1787c2da-1f2c-4eb8-a356-91707d4c71a7', 35, 7, 'break_end', '2026-09-08 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (122, 1, '84c02d8e-0530-4cb6-b0fa-dba62aaee178', 35, 7, 'check_out', '2026-09-08 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (123, 1, '728f6b39-256c-4752-a20f-abfec26d2c57', 36, 8, 'check_in', '2026-09-08 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (124, 1, 'ef2d8f9f-fc00-4bea-a32e-1e2d6363afbb', 36, 8, 'break_start', '2026-09-08 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (125, 1, 'e8d70f45-a6b4-4019-91e2-13ea2b829fe0', 36, 8, 'break_end', '2026-09-08 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (126, 1, '29bc48e7-f5c3-4a8f-ae38-6981027b6ffc', 36, 8, 'check_out', '2026-09-08 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (127, 1, '6108958a-bc29-49cf-a50f-0c1100889994', 37, 9, 'check_in', '2026-09-08 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (128, 1, 'c7300e06-ec7d-4c93-b028-9b13a55bcbbc', 37, 9, 'break_start', '2026-09-08 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (129, 1, 'f56e2093-1d8e-4332-932a-f5f83960d070', 37, 9, 'break_end', '2026-09-08 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (130, 1, 'e1c1782a-c12e-4d0d-b0e4-d9f803bbcb83', 37, 9, 'check_out', '2026-09-08 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (131, 1, '376bb2bc-4a3f-492e-ad08-cde6e266e911', 38, 2, 'check_in', '2026-09-09 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (132, 1, '35922ab2-54ba-484a-ad3f-423487a28a72', 38, 2, 'break_start', '2026-09-09 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (133, 1, '2a345ccb-4e79-497f-a7cf-196b60ba45c3', 38, 2, 'break_end', '2026-09-09 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (134, 1, 'c3fa67f9-c2cd-427a-b1ad-10d4ebb6423a', 38, 2, 'check_out', '2026-09-09 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (135, 1, 'bdd02e84-5b59-4261-9878-c33d8ab64ff1', 39, 3, 'check_in', '2026-09-09 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (136, 1, '190cce0f-6f05-478b-aac6-2d8d69dcf953', 39, 3, 'break_start', '2026-09-09 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (137, 1, 'e9fe0305-bed2-4a91-a63b-4a2a1f60ccc0', 39, 3, 'break_end', '2026-09-09 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (138, 1, 'f273f242-fe58-4c32-996e-11e15162ac3c', 39, 3, 'check_out', '2026-09-09 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (139, 1, 'a800000c-40ba-4660-a135-d1b15eb30387', 40, 4, 'check_in', '2026-09-09 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (140, 1, 'fa13abaf-46d5-4abb-b8ff-5cb1b8a87766', 40, 4, 'break_start', '2026-09-09 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (141, 1, '31dd356f-0cad-42b9-8d5d-1d07e9545262', 40, 4, 'break_end', '2026-09-09 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (142, 1, '21d6b1ba-2238-43d1-80e3-c9e3cf0b18e0', 40, 4, 'check_out', '2026-09-09 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (143, 1, '99e57c55-1a3b-473a-9e85-2a511e563b28', 41, 5, 'check_in', '2026-09-09 05:58:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (144, 1, '876f52de-30a6-4628-8b8b-e96b626aed7a', 41, 5, 'break_start', '2026-09-09 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (145, 1, '635a20fd-a394-47ba-b32f-3233a5f51832', 41, 5, 'break_end', '2026-09-09 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (146, 1, '1bcfba87-a72e-4d1a-8f3c-783d3c9c8072', 41, 5, 'check_out', '2026-09-09 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (147, 1, '7bd478f7-d458-4c4b-a69b-e52575cd18ef', 42, 6, 'check_in', '2026-09-09 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (148, 1, '2ec7f724-cf7c-4d0e-8b89-b45d01a52121', 42, 6, 'break_start', '2026-09-09 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (149, 1, '68ac4d0e-ca87-4911-b4af-2a1d7554e202', 42, 6, 'break_end', '2026-09-09 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (150, 1, '477ebe0c-339c-45bf-a963-bdc9d64ae410', 42, 6, 'check_out', '2026-09-09 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (151, 1, '9ca03ac0-dc0c-4beb-a9da-7b55ac4f4ad4', 43, 7, 'check_in', '2026-09-09 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (152, 1, '29354ba3-ac05-42a5-ba11-d26323aa5ba1', 43, 7, 'break_start', '2026-09-09 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (153, 1, 'b2d32f75-1b30-4575-85d4-bd75be093a81', 43, 7, 'break_end', '2026-09-09 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (154, 1, 'a12d1cd2-c077-4c2e-a300-ff71051eec94', 43, 7, 'check_out', '2026-09-09 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (155, 1, 'ca9eb73e-26f9-4cc4-9129-817219e095a6', 44, 8, 'check_in', '2026-09-09 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (156, 1, 'c45c5997-787b-46b1-bbf2-9ca4779a1e11', 44, 8, 'break_start', '2026-09-09 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (157, 1, '7daff90b-ad68-4842-aa2c-ba6a06ca7a2e', 44, 8, 'break_end', '2026-09-09 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (158, 1, '0ec9c190-1031-43b1-a8ac-1905ab85697b', 44, 8, 'check_out', '2026-09-09 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (159, 1, 'ee03227d-c5a1-4dd2-b882-6b0550181c05', 45, 9, 'check_in', '2026-09-09 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (160, 1, '051c73aa-51ff-45ac-b31f-cc90a688a9db', 45, 9, 'break_start', '2026-09-09 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49');
 
 INSERT INTO `attendance_events` (`id`, `company_id`, `uuid`, `attendance_day_id`, `user_id`, `type`, `occurred_at`, `location`, `status`, `note`, `source`, `actor_id`, `ip`, `created_at`, `updated_at`) VALUES
-    (161, 1, '7fa47c7b-cb37-48fb-9d7e-613608eb4add', 45, 9, 'break_end', '2026-09-09 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (162, 1, '238243cb-c6e0-484d-936d-349e67320c01', 45, 9, 'check_out', '2026-09-09 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (163, 1, '3938a4c5-c3aa-48ff-abc5-abd353bc1595', 46, 2, 'check_in', '2026-09-10 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (164, 1, '089f79c3-b495-42b5-b62a-eac63b0ebbb8', 46, 2, 'break_start', '2026-09-10 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (165, 1, '8dfb4c10-4827-4327-ad96-bb7212f3510c', 46, 2, 'break_end', '2026-09-10 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (166, 1, '177d0df9-23c0-40e5-a46e-95daf8f24934', 46, 2, 'check_out', '2026-09-10 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (167, 1, '33ffbdbd-05aa-4f47-8431-4eab4e189410', 47, 3, 'check_in', '2026-09-10 05:58:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (168, 1, '6ac1d060-6b0a-4996-a859-f3901441bf9d', 47, 3, 'break_start', '2026-09-10 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (169, 1, '5d635c1d-de27-45aa-82c1-2490759cebf6', 47, 3, 'break_end', '2026-09-10 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (170, 1, '813e1f7f-3911-4b7c-b8d7-fde8ea6afe7e', 47, 3, 'check_out', '2026-09-10 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (171, 1, 'e4c58cd1-a1fc-4627-80e9-cb7e9afc8cb3', 48, 4, 'check_in', '2026-09-10 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (172, 1, 'a15fb00d-c49a-498b-979c-6cf765db42f2', 48, 4, 'break_start', '2026-09-10 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (173, 1, '87045dbf-2caf-41eb-85df-47411c904aa7', 48, 4, 'break_end', '2026-09-10 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (174, 1, '766f7590-5159-4500-a150-3b5f9074f8a0', 48, 4, 'check_out', '2026-09-10 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (175, 1, '6c7827ee-25f8-4081-96ae-d040cd25c2cb', 49, 5, 'check_in', '2026-09-10 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (176, 1, 'fd762b39-08e7-4e88-86e4-ea387c1e17c8', 49, 5, 'break_start', '2026-09-10 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (177, 1, '11137df3-5e60-4749-b78a-4f9369526e4c', 49, 5, 'break_end', '2026-09-10 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (178, 1, '76699e93-1fe7-412d-ab3c-a1f6b0a2b9ef', 49, 5, 'check_out', '2026-09-10 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (179, 1, 'd3f42eed-85b4-4354-9ce7-3fcb89e83229', 50, 6, 'check_in', '2026-09-10 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (180, 1, 'cb8fea46-1750-4586-b4a5-892ab2fcf814', 50, 6, 'break_start', '2026-09-10 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (181, 1, 'da7e9a53-7b5c-49de-9b57-4cf74b6388b1', 50, 6, 'break_end', '2026-09-10 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (182, 1, '58176b89-8c55-42b6-936b-56b3f4606e1e', 50, 6, 'check_out', '2026-09-10 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (183, 1, 'fd0ac859-235d-4b5a-ad54-9703fa82bf8b', 51, 7, 'check_in', '2026-09-10 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (184, 1, '64130f16-8659-42f8-84d3-56d39ce9a832', 51, 7, 'break_start', '2026-09-10 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (185, 1, 'd9512df3-a35e-40f4-9a1b-c1dbe75772e7', 51, 7, 'break_end', '2026-09-10 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (186, 1, '71cb6290-964c-45a1-8718-0e15f6f08b6e', 51, 7, 'check_out', '2026-09-10 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (187, 1, '1fcf432b-ce7f-4f68-bab1-42e90ec35dfa', 52, 8, 'check_in', '2026-09-10 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (188, 1, 'dad573ef-ee4d-4a07-88a7-ec832ea4f6fb', 52, 8, 'break_start', '2026-09-10 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (189, 1, '8d26da1c-400f-47d1-a6ec-352aa1bbb94d', 52, 8, 'break_end', '2026-09-10 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (190, 1, '5127a1aa-48d2-4ce0-963a-ebd6a497a1af', 52, 8, 'check_out', '2026-09-10 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (191, 1, '066f2f4e-9e21-4a96-bc1b-4d31db8c8196', 53, 9, 'check_in', '2026-09-10 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (192, 1, '1ebcf6cf-962d-498f-a3ca-3415830e7a20', 53, 9, 'break_start', '2026-09-10 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (193, 1, '5134cdd8-0294-4a6f-96cc-f1bd2e812258', 53, 9, 'break_end', '2026-09-10 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (194, 1, '76d2df51-b307-4e57-b0dc-9fd7b3e78028', 53, 9, 'check_out', '2026-09-10 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (195, 1, '249c5b9f-5420-4fff-a4b7-6a4640cf398b', 54, 2, 'check_in', '2026-09-12 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (196, 1, 'bbd26b54-a206-4faa-b174-b8867e9400aa', 54, 2, 'break_start', '2026-09-12 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (197, 1, '07f145c8-d419-4196-a835-9f6b91a0bd37', 54, 2, 'break_end', '2026-09-12 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (198, 1, '24b86c99-2f83-4ead-a232-fcb9490019da', 54, 2, 'check_out', '2026-09-12 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (199, 1, 'f1ecb5b2-b198-49a1-a149-f8dea8dc0fa6', 55, 3, 'check_in', '2026-09-12 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (200, 1, '4bad990d-97df-4c59-a3f4-dc596a4b59cc', 55, 3, 'break_start', '2026-09-12 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30');
+    (161, 1, 'f16c786a-d1de-4a9d-a539-32e7e4be05c6', 45, 9, 'break_end', '2026-09-09 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (162, 1, 'd7766059-3dac-4e6b-8d25-41de39aed2c7', 45, 9, 'check_out', '2026-09-09 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (163, 1, '921513de-a656-4aea-9f20-cc894638a66b', 46, 2, 'check_in', '2026-09-10 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (164, 1, '7c41b92c-837a-40e2-9b56-7dbcdffe48f1', 46, 2, 'break_start', '2026-09-10 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (165, 1, '2c3de53b-9f72-45fa-93e8-545173254ce8', 46, 2, 'break_end', '2026-09-10 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (166, 1, '4ca94daf-a83f-4504-baba-84f12d50d51c', 46, 2, 'check_out', '2026-09-10 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (167, 1, 'd734bdf2-9ff1-423c-a429-f67608a93770', 47, 3, 'check_in', '2026-09-10 05:58:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (168, 1, 'ef359b75-d244-46a4-967b-9f0153ad094a', 47, 3, 'break_start', '2026-09-10 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (169, 1, '9219e5d8-87ee-445a-92ff-f49bc804e761', 47, 3, 'break_end', '2026-09-10 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (170, 1, '8b675625-2983-443f-8301-86a903813e0f', 47, 3, 'check_out', '2026-09-10 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (171, 1, 'a05722a9-aba8-4152-90bb-121dcd78ad0d', 48, 4, 'check_in', '2026-09-10 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (172, 1, '35814817-ebdd-4ca3-a1fe-1682fd95f8f8', 48, 4, 'break_start', '2026-09-10 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (173, 1, '6f2fe451-ce9e-471f-8c84-239a853ba4f2', 48, 4, 'break_end', '2026-09-10 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (174, 1, '1bfc7f13-0ad2-482c-97e2-516dbb55a577', 48, 4, 'check_out', '2026-09-10 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (175, 1, 'dbfb34cb-4045-453c-aebc-9337aad54c5a', 49, 5, 'check_in', '2026-09-10 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (176, 1, '2abb52bb-05fc-48f1-83f7-90fd6ead9e3f', 49, 5, 'break_start', '2026-09-10 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (177, 1, '54c294da-f64c-467c-a656-b34f964fcde1', 49, 5, 'break_end', '2026-09-10 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (178, 1, 'e3d7640a-2b66-4a1e-b061-99fdbb6c29ed', 49, 5, 'check_out', '2026-09-10 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (179, 1, '80b500b8-7254-4da1-828b-4965410d4f5f', 50, 6, 'check_in', '2026-09-10 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (180, 1, '6836ea7a-f713-4cc2-8522-7cff4a0f8191', 50, 6, 'break_start', '2026-09-10 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (181, 1, '3453f880-2b98-4dcd-a7aa-28ffd5acd515', 50, 6, 'break_end', '2026-09-10 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (182, 1, 'dc8a5f7d-7423-42e2-a866-c2ee598afab2', 50, 6, 'check_out', '2026-09-10 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (183, 1, '89fc55ae-a5f2-4f35-8d63-1ede37a75e2a', 51, 7, 'check_in', '2026-09-10 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (184, 1, '26fa55b6-804f-4f1c-bb8c-8f26948c5d98', 51, 7, 'break_start', '2026-09-10 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (185, 1, 'a1250fd5-657c-4fad-9e82-1923c656a3a4', 51, 7, 'break_end', '2026-09-10 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (186, 1, '6e638e41-387b-4c63-a4c1-4ea9c885611d', 51, 7, 'check_out', '2026-09-10 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (187, 1, 'd2b0c1f6-ad53-4c76-b539-04ff7fe2066e', 52, 8, 'check_in', '2026-09-10 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (188, 1, 'db2501d1-02ab-49a6-91c9-5d3586cc8e87', 52, 8, 'break_start', '2026-09-10 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (189, 1, '319c411e-db8a-45ac-904c-0cc73c2b73ed', 52, 8, 'break_end', '2026-09-10 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (190, 1, 'ff4e519e-7825-4539-bb99-2eea83773fc6', 52, 8, 'check_out', '2026-09-10 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (191, 1, '4337b489-7112-47a6-9245-7512468d0a24', 53, 9, 'check_in', '2026-09-10 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (192, 1, '75d6fe20-c93e-4d39-acc9-4a71ef3cc90b', 53, 9, 'break_start', '2026-09-10 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (193, 1, '12412ee2-fbb6-4a85-89e8-931a12db92f8', 53, 9, 'break_end', '2026-09-10 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (194, 1, '7d3b8dde-7256-436e-ac04-1741c8e937ab', 53, 9, 'check_out', '2026-09-10 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (195, 1, '1b037626-7eda-4879-ad42-b2eb76fe4669', 54, 2, 'check_in', '2026-09-12 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (196, 1, '5dcd177c-da41-4703-a122-b16f9f186a78', 54, 2, 'break_start', '2026-09-12 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (197, 1, 'd8a03bf6-7c77-4748-a993-d6523172caa8', 54, 2, 'break_end', '2026-09-12 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (198, 1, '502c8635-ecfc-4014-a861-55f69c2624a9', 54, 2, 'check_out', '2026-09-12 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (199, 1, 'e91769d1-950e-4a47-80b6-04d83fcd1dae', 55, 3, 'check_in', '2026-09-12 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (200, 1, '486608fe-29f9-49e7-9390-67f3a92c9b65', 55, 3, 'break_start', '2026-09-12 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49');
 
 INSERT INTO `attendance_events` (`id`, `company_id`, `uuid`, `attendance_day_id`, `user_id`, `type`, `occurred_at`, `location`, `status`, `note`, `source`, `actor_id`, `ip`, `created_at`, `updated_at`) VALUES
-    (201, 1, '30a1e834-31db-444f-b6f0-cb0e771faa33', 55, 3, 'break_end', '2026-09-12 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (202, 1, '6c9374ee-f5cc-43cf-9bc8-635aa34c73c3', 55, 3, 'check_out', '2026-09-12 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (203, 1, '5474909e-d0e2-47ae-9dff-e3714e86d0b8', 56, 4, 'check_in', '2026-09-12 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (204, 1, 'd9bf6e0e-4e11-4138-8585-143804021eab', 56, 4, 'break_start', '2026-09-12 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (205, 1, '8644be5f-4291-49f1-821e-c105c0667ea6', 56, 4, 'break_end', '2026-09-12 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (206, 1, 'c52c954c-6afb-4fc9-a806-b0d2bfb88506', 56, 4, 'check_out', '2026-09-12 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (207, 1, '28a83af4-bc31-42c7-a221-05b1b6107eea', 57, 5, 'check_in', '2026-09-12 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (208, 1, 'e9839b03-7802-40ca-9de5-048608e8c5d4', 57, 5, 'break_start', '2026-09-12 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (209, 1, 'f779ceb2-f8f8-4c96-b0ad-02a1e055256a', 57, 5, 'break_end', '2026-09-12 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (210, 1, '2f8294b1-8a50-497b-a1d0-be9326831e06', 57, 5, 'check_out', '2026-09-12 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (211, 1, '172ac6c1-5ba5-440e-a77b-ef57c05c2734', 58, 6, 'check_in', '2026-09-12 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (212, 1, '6fb56af6-3b68-4439-bc44-6fb064d14f97', 58, 6, 'break_start', '2026-09-12 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (213, 1, '09d22f7c-09d8-410f-9d24-395b62b0a22f', 58, 6, 'break_end', '2026-09-12 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (214, 1, '72310a79-aa1f-41e8-aee5-8ae374811160', 58, 6, 'check_out', '2026-09-12 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (215, 1, '3115a637-d4eb-4056-bc4a-c7be420d02d7', 59, 7, 'check_in', '2026-09-12 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (216, 1, 'c1b87251-20bf-4a85-a0d2-c3e300b32fb7', 59, 7, 'break_start', '2026-09-12 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (217, 1, '535f0b5e-5907-4c41-8e4a-1d46ab7975fa', 59, 7, 'break_end', '2026-09-12 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (218, 1, '3e7bc0d4-1d9e-4b67-a720-592fa41147bf', 59, 7, 'check_out', '2026-09-12 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (219, 1, 'd292c0c2-c4ad-4ef9-bb77-c4263c80b85b', 60, 8, 'check_in', '2026-09-12 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (220, 1, '651f9417-1768-4cf5-a73d-e6c9583f2e65', 60, 8, 'break_start', '2026-09-12 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (221, 1, '1755d4d1-e41f-4b60-8878-93dec1909a02', 60, 8, 'break_end', '2026-09-12 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (222, 1, 'd991916a-7446-4928-b618-a34468361a13', 60, 8, 'check_out', '2026-09-12 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (223, 1, 'c14c1508-9882-4255-ba59-7ea4b8a839a1', 61, 9, 'check_in', '2026-09-12 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (224, 1, 'a96bd7e1-d2d6-4bb4-9480-13a3b7c87547', 61, 9, 'break_start', '2026-09-12 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (225, 1, 'a6d56750-90dd-441a-81de-489a93c6d251', 61, 9, 'break_end', '2026-09-12 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (226, 1, '5cf3ddeb-a54c-4117-8dab-4aeccfe76ac0', 61, 9, 'check_out', '2026-09-12 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (227, 1, 'b57204e6-b4db-404a-8676-778c675770b0', 62, 2, 'check_in', '2026-09-13 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (228, 1, 'b7e9e8b4-d1cf-4aa8-a24f-07c832eb7636', 62, 2, 'break_start', '2026-09-13 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (229, 1, '8696b74c-192f-47b1-90bf-2fba7e0072e8', 62, 2, 'break_end', '2026-09-13 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (230, 1, '59a0f500-86bc-4334-85ef-edac784dd8cf', 62, 2, 'check_out', '2026-09-13 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (231, 1, 'c04c41f7-60ff-4d8c-96fc-b0475d1d7955', 63, 3, 'check_in', '2026-09-13 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (232, 1, 'ed5dbfe3-d151-46fe-94e0-92c81aff4bfe', 63, 3, 'break_start', '2026-09-13 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (233, 1, '01356cba-6742-4a71-a802-7f334cb4e65a', 63, 3, 'break_end', '2026-09-13 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (234, 1, '3a9323b7-d369-45a9-933b-d53115d2867d', 63, 3, 'check_out', '2026-09-13 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (235, 1, 'bef85c99-b9dc-46fc-bcb3-fe0805b82ef8', 65, 5, 'check_in', '2026-09-13 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (236, 1, 'fba62e82-374b-4c5c-9007-67e929d83edd', 65, 5, 'break_start', '2026-09-13 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (237, 1, 'e0bc585f-fdf7-4e48-b105-5c4bff8944f6', 65, 5, 'break_end', '2026-09-13 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (238, 1, 'ae6336b3-f7a1-459a-b011-cd15edc1e286', 65, 5, 'check_out', '2026-09-13 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (239, 1, 'b2a8c7b2-b7f5-48c1-a4cc-34f2d0430053', 66, 6, 'check_in', '2026-09-13 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (240, 1, '8616a21b-0144-40c0-8888-bbd76fc55e9a', 66, 6, 'break_start', '2026-09-13 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30');
+    (201, 1, '75c02d16-1bfc-4ec0-a131-6aa4074c53df', 55, 3, 'break_end', '2026-09-12 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (202, 1, 'db7ac3f3-8855-486c-8cdb-c7e568532628', 55, 3, 'check_out', '2026-09-12 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (203, 1, '794cac62-75e8-4bb4-98bf-cbb67135adf4', 56, 4, 'check_in', '2026-09-12 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (204, 1, '3c020833-3c74-45fb-875d-7e0c359865bc', 56, 4, 'break_start', '2026-09-12 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (205, 1, 'fdde4c1f-45d6-4345-88b5-5090b5dd01dd', 56, 4, 'break_end', '2026-09-12 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (206, 1, '9fcd579d-fd8a-4089-8f7c-7a75c1840a5a', 56, 4, 'check_out', '2026-09-12 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (207, 1, '1a44e2ae-c332-4192-b227-d0df3d8592fb', 57, 5, 'check_in', '2026-09-12 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (208, 1, '116bb7b2-0cd2-484e-80d9-07f9a313fb3a', 57, 5, 'break_start', '2026-09-12 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (209, 1, '126a4efb-cd98-4f6c-9ffb-fde103a95b44', 57, 5, 'break_end', '2026-09-12 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (210, 1, 'b2049230-d9ba-4041-94fd-67a92da0a67c', 57, 5, 'check_out', '2026-09-12 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (211, 1, 'e3d1c9d2-d3fc-46ac-82c1-e21f7d3fe149', 58, 6, 'check_in', '2026-09-12 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (212, 1, '003ae050-6223-4a15-b00c-1e10ca81b108', 58, 6, 'break_start', '2026-09-12 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (213, 1, 'f0c74571-6f89-437c-960e-b590888abfc0', 58, 6, 'break_end', '2026-09-12 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (214, 1, 'b0e61731-f58a-4b67-8ddf-caf493603e20', 58, 6, 'check_out', '2026-09-12 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (215, 1, 'd1b18c0a-863e-4904-9aa3-3fd168d91d29', 59, 7, 'check_in', '2026-09-12 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (216, 1, '64bf9fcb-20f8-4cb8-8619-fcaf6de828f0', 59, 7, 'break_start', '2026-09-12 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (217, 1, '74f2d621-29d6-4543-977c-d3060275d997', 59, 7, 'break_end', '2026-09-12 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (218, 1, '5fc1353d-70f6-490b-b49e-9f0a44d8357c', 59, 7, 'check_out', '2026-09-12 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (219, 1, 'b0ef4575-7297-4c53-afbc-9b96b67a03a8', 60, 8, 'check_in', '2026-09-12 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (220, 1, '844a960a-5241-4134-b2cc-8eeba5d6e6d4', 60, 8, 'break_start', '2026-09-12 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (221, 1, '2971101f-a59b-4a39-842d-0e7160c7a304', 60, 8, 'break_end', '2026-09-12 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (222, 1, '6e23a104-d861-4573-a18d-7de6ea0a0d2e', 60, 8, 'check_out', '2026-09-12 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (223, 1, '87f82d44-a004-46e0-b2f2-3ecc942e4f24', 61, 9, 'check_in', '2026-09-12 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (224, 1, '4b458c3c-5b87-4cb9-bb81-14dc6859b392', 61, 9, 'break_start', '2026-09-12 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (225, 1, '03a6ea44-6342-4792-b41d-e696c8d192cd', 61, 9, 'break_end', '2026-09-12 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (226, 1, '6355a438-35e9-4ef4-aae3-9661840828d4', 61, 9, 'check_out', '2026-09-12 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (227, 1, 'e0d5d2bd-71f3-48af-850b-628bf39dc5cb', 62, 2, 'check_in', '2026-09-13 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (228, 1, 'cb71342b-7ea4-4f0e-8d07-4bb3ad341b74', 62, 2, 'break_start', '2026-09-13 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (229, 1, '366e278a-c12d-4e30-8c03-1f9f4d879e78', 62, 2, 'break_end', '2026-09-13 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (230, 1, '08376ce3-b0d7-47f1-8ebe-f9b4a8faca8e', 62, 2, 'check_out', '2026-09-13 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (231, 1, 'c8e3a4fb-5322-4caf-b3b7-257bb31a2a1b', 63, 3, 'check_in', '2026-09-13 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (232, 1, '19c864f1-4ae8-4edb-85f0-6424f4fe8f86', 63, 3, 'break_start', '2026-09-13 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (233, 1, 'f5a37284-3f74-4889-9eb1-73a126f835cf', 63, 3, 'break_end', '2026-09-13 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (234, 1, '6ae687dc-cbba-4458-a45c-ab90a4b278ad', 63, 3, 'check_out', '2026-09-13 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (235, 1, '6c3733ce-1b74-451d-b44b-c7f3a4b1e392', 65, 5, 'check_in', '2026-09-13 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (236, 1, '3e09d07d-4d78-4dc8-b69f-1883224bbdde', 65, 5, 'break_start', '2026-09-13 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (237, 1, '323e5ded-bbf6-440d-9f9f-1eb80e4664f0', 65, 5, 'break_end', '2026-09-13 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (238, 1, '994cf294-9aa9-4fcc-be54-534b511ac7cb', 65, 5, 'check_out', '2026-09-13 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (239, 1, 'b7a25a94-268d-4ba0-88da-3cefd6789550', 66, 6, 'check_in', '2026-09-13 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (240, 1, '560eea5a-3c56-448d-9f8a-07eeefbab52a', 66, 6, 'break_start', '2026-09-13 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49');
 
 INSERT INTO `attendance_events` (`id`, `company_id`, `uuid`, `attendance_day_id`, `user_id`, `type`, `occurred_at`, `location`, `status`, `note`, `source`, `actor_id`, `ip`, `created_at`, `updated_at`) VALUES
-    (241, 1, 'a8476f47-ad4d-41f9-93c2-358ec8b71665', 66, 6, 'break_end', '2026-09-13 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (242, 1, '3bdf85dc-ba19-4cb0-ab6b-169890bf34f6', 66, 6, 'check_out', '2026-09-13 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (243, 1, 'e70af7d7-71fe-49e9-98db-f1a9690a2784', 67, 7, 'check_in', '2026-09-13 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (244, 1, '7aec2c89-1d88-47f9-9542-bf9268ed9cec', 67, 7, 'break_start', '2026-09-13 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (245, 1, '68670d11-2c24-480c-bf39-ed80f29542fd', 67, 7, 'break_end', '2026-09-13 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (246, 1, 'd30831a9-04a4-4503-9bdf-f7df07a678c3', 67, 7, 'check_out', '2026-09-13 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (247, 1, '7400cc4a-a40c-474f-8c20-95957a075fcf', 68, 8, 'check_in', '2026-09-13 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (248, 1, 'db9eb210-25eb-4851-bdc1-8e51855f9ac3', 68, 8, 'break_start', '2026-09-13 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (249, 1, '103acd0a-8a47-483c-9c7b-f56fe5d2d15e', 68, 8, 'break_end', '2026-09-13 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (250, 1, 'e571960d-8aca-4e66-950c-4b91d78ff6be', 68, 8, 'check_out', '2026-09-13 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (251, 1, '4120f7fa-8d5c-4805-bd56-ba9cc0e254c6', 69, 9, 'check_in', '2026-09-13 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (252, 1, '78c6d5fb-caa8-480c-9954-f74fff545939', 69, 9, 'break_start', '2026-09-13 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (253, 1, '281f15f9-40f7-45db-956a-36c0ac5daf2f', 69, 9, 'break_end', '2026-09-13 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (254, 1, '9a3061f3-5c3e-436c-a66c-ac065d784a11', 69, 9, 'check_out', '2026-09-13 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (255, 1, 'c6239cb6-647c-41fe-a185-bd9123e98937', 70, 2, 'check_in', '2026-09-14 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (256, 1, 'c89e977e-ecbe-48c7-bd2f-cc4f522b3db6', 70, 2, 'break_start', '2026-09-14 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (257, 1, '455c7a77-e950-408e-9d5a-2d5594acf359', 70, 2, 'break_end', '2026-09-14 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (258, 1, '5b03b54d-3ec0-4829-b77c-a1597c5f4d1f', 70, 2, 'check_out', '2026-09-14 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (259, 1, '999ccd6a-d817-4f7f-aee0-422df6c79e84', 71, 3, 'check_in', '2026-09-14 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (260, 1, 'c64b838e-59bb-4d59-ac56-e9d0f21945b0', 71, 3, 'break_start', '2026-09-14 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (261, 1, '0f6459c4-486c-444e-b8a3-64a63913dddd', 71, 3, 'break_end', '2026-09-14 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (262, 1, '61878c9a-877c-408b-8449-2b52fd05163d', 71, 3, 'check_out', '2026-09-14 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (263, 1, '2254edb5-85cd-452e-b3a4-60c62e0b4bb0', 72, 4, 'check_in', '2026-09-14 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (264, 1, 'd4b9d5c6-3df2-42d2-823a-5099855e8fb0', 72, 4, 'break_start', '2026-09-14 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (265, 1, 'b1851fa0-37e2-4356-9358-e8ab9fb0cecf', 72, 4, 'break_end', '2026-09-14 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (266, 1, '2b6bf3a9-b05d-4452-ae64-e77b1c4f959d', 72, 4, 'check_out', '2026-09-14 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (267, 1, 'adbf9997-0078-4a0e-8e46-b4bfd9aa8764', 73, 5, 'check_in', '2026-09-14 05:58:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (268, 1, 'fae8d200-0814-4612-8d03-258f6a81a976', 73, 5, 'break_start', '2026-09-14 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (269, 1, '8700e344-4b76-4e2a-ba8e-a8a3ed681b55', 73, 5, 'break_end', '2026-09-14 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (270, 1, '3471daf2-10fe-48c6-b072-f686c5412558', 73, 5, 'check_out', '2026-09-14 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (271, 1, '74e85dc4-cf2e-45e4-920e-392f2bb46ed5', 74, 6, 'check_in', '2026-09-14 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (272, 1, '5e28bacd-daa1-4480-a25e-223a86618098', 74, 6, 'break_start', '2026-09-14 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (273, 1, 'af581577-9427-424a-a834-e2d37ee4054e', 74, 6, 'break_end', '2026-09-14 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (274, 1, 'ae0493f8-43f8-47e5-a7b8-cad6633f881b', 74, 6, 'check_out', '2026-09-14 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (275, 1, '992ba2d4-8578-4b8b-a6a5-ab63182bf875', 75, 7, 'check_in', '2026-09-14 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (276, 1, 'afa0324d-054a-4304-b92a-34d8ddc82329', 75, 7, 'break_start', '2026-09-14 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (277, 1, 'da221f71-28c3-465b-bd10-00307428c48f', 75, 7, 'break_end', '2026-09-14 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (278, 1, '22206767-ede1-4c1c-9a65-94313040d0bb', 75, 7, 'check_out', '2026-09-14 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (279, 1, 'd927bb24-c6c3-4ba4-addf-41e17bc0a940', 76, 8, 'check_in', '2026-09-14 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (280, 1, 'ecc19c9d-d2cc-48c3-866a-9698ef3d192c', 76, 8, 'break_start', '2026-09-14 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30');
+    (241, 1, 'c7294e42-3221-453c-a384-f3bf94d4853d', 66, 6, 'break_end', '2026-09-13 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (242, 1, '1c972133-f1e6-4aa1-b168-3da36f576f76', 66, 6, 'check_out', '2026-09-13 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (243, 1, '3dd64b87-94e6-4c32-84ec-d85e4c78ba1d', 67, 7, 'check_in', '2026-09-13 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (244, 1, '20e15ee6-91e9-4829-960e-e19cb588c77e', 67, 7, 'break_start', '2026-09-13 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (245, 1, '7c094627-46e0-4990-a857-c0974be286ae', 67, 7, 'break_end', '2026-09-13 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (246, 1, '1f8c8ddc-3402-45ed-a1c1-4c3c3651fb01', 67, 7, 'check_out', '2026-09-13 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (247, 1, '5e04030a-6c62-4a88-a62c-ba2375450fe9', 68, 8, 'check_in', '2026-09-13 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (248, 1, 'ae888548-15a8-4eeb-860d-b45d52c3e8c4', 68, 8, 'break_start', '2026-09-13 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (249, 1, '304aeb8d-bdb0-471b-bc96-64e2642d2663', 68, 8, 'break_end', '2026-09-13 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (250, 1, '4d62715c-85d9-4502-a72e-aa7b25c39453', 68, 8, 'check_out', '2026-09-13 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (251, 1, '67db9dfd-928b-4a48-bc2d-1f682bc486f3', 69, 9, 'check_in', '2026-09-13 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (252, 1, '152664f5-5606-4cb7-b8a4-cb1687aa4a72', 69, 9, 'break_start', '2026-09-13 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (253, 1, 'c979bfef-0622-4ac5-9204-b9c7e6a1a5fb', 69, 9, 'break_end', '2026-09-13 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (254, 1, '546a5b5e-6b31-457a-ab00-39707f485177', 69, 9, 'check_out', '2026-09-13 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (255, 1, 'de3b5218-5f8f-4b7e-ae13-808cc04f1e1a', 70, 2, 'check_in', '2026-09-14 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (256, 1, '5346dfc5-d5f9-48a8-820c-734d3f437b29', 70, 2, 'break_start', '2026-09-14 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (257, 1, '0b1675ba-7f7b-4037-8304-7aae1ac179e1', 70, 2, 'break_end', '2026-09-14 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (258, 1, '61bbaa43-e881-4205-9767-716daccd9f95', 70, 2, 'check_out', '2026-09-14 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (259, 1, '0d77f9bf-d851-49ba-8d6a-324ff6d7306c', 71, 3, 'check_in', '2026-09-14 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (260, 1, '8e0182ed-7913-4334-b512-547900f48d9f', 71, 3, 'break_start', '2026-09-14 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (261, 1, 'c346a47f-2de5-4e33-9902-45378f489cd3', 71, 3, 'break_end', '2026-09-14 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (262, 1, 'd0ae6ee6-58ff-4c27-b030-1267db193e4a', 71, 3, 'check_out', '2026-09-14 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (263, 1, 'e3ff24e2-05a2-43d1-9c92-a31d40e14e2f', 72, 4, 'check_in', '2026-09-14 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (264, 1, '10f4c340-9dd3-4e14-bad6-4a01ce0a1c95', 72, 4, 'break_start', '2026-09-14 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (265, 1, '737d1c9a-62af-463f-a14a-1a0f01a315b2', 72, 4, 'break_end', '2026-09-14 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (266, 1, 'ad5f6e46-8cec-4430-b5d9-675ef993bfca', 72, 4, 'check_out', '2026-09-14 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (267, 1, 'ecedcb05-936c-4078-bde5-cfdf5640a2c3', 73, 5, 'check_in', '2026-09-14 05:58:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (268, 1, 'bc70273e-f48b-43b2-b2c0-eaf0c3ee5be7', 73, 5, 'break_start', '2026-09-14 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (269, 1, '2e2decf3-b775-4118-ad84-8da132ae867e', 73, 5, 'break_end', '2026-09-14 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (270, 1, '0069a8b2-af34-4540-ae1d-b354b571d624', 73, 5, 'check_out', '2026-09-14 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (271, 1, 'b54eefe4-7fd8-4e48-8687-feb75b8bf8bd', 74, 6, 'check_in', '2026-09-14 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (272, 1, '9cb965de-43be-4357-ad4f-b38abb16e2cd', 74, 6, 'break_start', '2026-09-14 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (273, 1, '9ee26a22-61e9-4310-97ae-30512e28e182', 74, 6, 'break_end', '2026-09-14 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (274, 1, '056ab361-d077-4314-a239-57b93e4a4f01', 74, 6, 'check_out', '2026-09-14 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (275, 1, '95406f90-cd52-4fe6-9ff9-8bd8d564a295', 75, 7, 'check_in', '2026-09-14 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (276, 1, 'e5bf225a-f2e8-4afc-aa9f-f2053ba38aca', 75, 7, 'break_start', '2026-09-14 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (277, 1, '3f8edca2-d920-47b1-9b03-bcba1a835911', 75, 7, 'break_end', '2026-09-14 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (278, 1, 'd0e4709a-5b43-40cc-b620-5dbbb51308c9', 75, 7, 'check_out', '2026-09-14 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (279, 1, '0a311155-9541-4126-bfd7-aee3d65ba7e8', 76, 8, 'check_in', '2026-09-14 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (280, 1, 'f29c1ac3-affc-4eb6-8007-7dba3aa0929b', 76, 8, 'break_start', '2026-09-14 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49');
 
 INSERT INTO `attendance_events` (`id`, `company_id`, `uuid`, `attendance_day_id`, `user_id`, `type`, `occurred_at`, `location`, `status`, `note`, `source`, `actor_id`, `ip`, `created_at`, `updated_at`) VALUES
-    (281, 1, 'fdfc1723-dc98-4afd-a690-c3075faa1cc3', 76, 8, 'break_end', '2026-09-14 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (282, 1, 'babe69e8-968b-4ee4-bffc-a76e20b977d2', 76, 8, 'check_out', '2026-09-14 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (283, 1, '93767070-3f0b-4e0a-8ed3-8314d86c2664', 77, 9, 'check_in', '2026-09-14 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (284, 1, 'a3c6ddcb-1745-464c-82b8-9d611f1afa42', 77, 9, 'break_start', '2026-09-14 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (285, 1, 'ec6c50db-163f-446e-a423-0645c91ba6a7', 77, 9, 'break_end', '2026-09-14 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (286, 1, 'f8d03198-2061-475b-b455-16ff10fd12bd', 77, 9, 'check_out', '2026-09-14 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (287, 1, '108b293a-0a34-4347-bfa6-6ce746cdc9d9', 78, 2, 'check_in', '2026-09-15 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (288, 1, 'e852ae6f-3ad2-4d1e-a5eb-e38e49b570a1', 78, 2, 'break_start', '2026-09-15 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (289, 1, '32fb5118-43e1-4e66-b75d-640b34365411', 78, 2, 'break_end', '2026-09-15 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (290, 1, 'e7b642cd-8a41-42cd-921f-41df6c268ea4', 78, 2, 'check_out', '2026-09-15 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (291, 1, 'cb246b96-f8dc-4309-950b-53d2892699d7', 79, 3, 'check_in', '2026-09-15 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (292, 1, '2ba0670f-d2a5-4beb-879a-eb7e85e6ea68', 79, 3, 'break_start', '2026-09-15 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (293, 1, '3f924159-2b6d-4d12-ba1d-100da05f7560', 79, 3, 'break_end', '2026-09-15 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (294, 1, 'b216409d-366f-4e28-9b45-c19989307c2f', 79, 3, 'check_out', '2026-09-15 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (295, 1, '6e9f4d1f-26e3-4f82-aacb-3ac1b6ee817f', 80, 4, 'check_in', '2026-09-15 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (296, 1, 'f00a67f1-4420-403d-aad8-177edc9ffec2', 80, 4, 'break_start', '2026-09-15 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (297, 1, '92184876-1cc0-4b2e-b30d-9b766b222510', 80, 4, 'break_end', '2026-09-15 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (298, 1, '98c4d9da-63ab-4fc0-80d5-aeab68ab9e5a', 80, 4, 'check_out', '2026-09-15 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (299, 1, 'bd6d81c8-e9a4-4161-a3a1-60096511dcbf', 81, 5, 'check_in', '2026-09-15 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (300, 1, 'd0618ec8-4ce6-4b8c-9b2d-7ce4c89a997a', 81, 5, 'break_start', '2026-09-15 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (301, 1, 'a3d7dc81-faf5-4571-a865-e03211e5cb87', 81, 5, 'break_end', '2026-09-15 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (302, 1, '44637e27-8fc6-4bf6-8fc3-733d7be65f9f', 81, 5, 'check_out', '2026-09-15 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (303, 1, '4f763483-d58b-4fb4-b907-0ec73a7ed46d', 82, 6, 'check_in', '2026-09-15 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (304, 1, '0f1a8ca4-32c1-471a-ab35-89b34b2ffc57', 82, 6, 'break_start', '2026-09-15 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (305, 1, '5be884a0-9811-47bb-83ae-965808f11605', 82, 6, 'break_end', '2026-09-15 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (306, 1, '4a401ba4-f89e-4da7-86f9-9566b97cda85', 82, 6, 'check_out', '2026-09-15 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (307, 1, '92292095-96d5-481d-87e9-c716891490b9', 83, 7, 'check_in', '2026-09-15 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (308, 1, '8cfaeafa-7445-4a1f-9d2c-4cb561765a13', 83, 7, 'break_start', '2026-09-15 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (309, 1, '6341c4e7-9200-4bf1-aae7-9184982a6c71', 83, 7, 'break_end', '2026-09-15 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (310, 1, '96c7f527-d2f6-4ca0-a8ad-a1b8ebfd974f', 83, 7, 'check_out', '2026-09-15 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (311, 1, '67e49bb4-dece-4fa0-a2b2-9068e4de53b7', 84, 8, 'check_in', '2026-09-15 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (312, 1, '837663ee-8d28-412c-ad55-5c2715a6a0b8', 84, 8, 'break_start', '2026-09-15 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (313, 1, '1cde07a6-f9b3-488f-a429-303681cfaba1', 84, 8, 'break_end', '2026-09-15 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (314, 1, 'f1b7dd1a-d810-4f8f-ba6f-205957080de5', 84, 8, 'check_out', '2026-09-15 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (315, 1, '0d02a3c4-c8ad-466b-bb24-0055f05d4ebb', 85, 9, 'check_in', '2026-09-15 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (316, 1, '086449c3-1cb2-4a44-b835-330cdb137faa', 85, 9, 'break_start', '2026-09-15 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (317, 1, 'fbb7bf25-8f30-44f2-825b-6fc29ea55506', 85, 9, 'break_end', '2026-09-15 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (318, 1, 'eb66501d-5129-4ced-b449-93e33083282c', 85, 9, 'check_out', '2026-09-15 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (319, 1, 'eac6ac11-ed57-4bcf-b112-2f5a6cc28e01', 86, 2, 'check_in', '2026-09-16 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (320, 1, '76686695-c431-482b-9063-63220059e75e', 86, 2, 'break_start', '2026-09-16 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30');
+    (281, 1, '5309d51e-041a-4b20-9398-c46bb3cdcc7c', 76, 8, 'break_end', '2026-09-14 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (282, 1, '8dacd78d-b28f-4874-9aae-045b4bc9cb9d', 76, 8, 'check_out', '2026-09-14 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (283, 1, 'a536c81d-5708-48ff-96b1-283ab44b920a', 77, 9, 'check_in', '2026-09-14 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (284, 1, '09ddc766-a685-4433-a74c-ab7e1895cece', 77, 9, 'break_start', '2026-09-14 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (285, 1, 'cd9ddcc1-787d-40d8-8347-ac8b91850760', 77, 9, 'break_end', '2026-09-14 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (286, 1, 'ff947afe-c737-464e-9ee3-9b833cec66ad', 77, 9, 'check_out', '2026-09-14 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (287, 1, '8af12dd7-e80e-429b-b3a6-c3bc1ae4e117', 78, 2, 'check_in', '2026-09-15 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (288, 1, '7178421d-b889-44fc-97d6-381c3757ad2c', 78, 2, 'break_start', '2026-09-15 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (289, 1, '8037f86b-3186-4237-a075-b16496b909fc', 78, 2, 'break_end', '2026-09-15 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (290, 1, 'a761c596-deb0-4421-a370-f78ae01141e8', 78, 2, 'check_out', '2026-09-15 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (291, 1, 'c77dc6b8-61f3-4f2c-a7be-3a15c909a006', 79, 3, 'check_in', '2026-09-15 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (292, 1, 'b96e22d0-ad97-4288-b87a-09814ec63be8', 79, 3, 'break_start', '2026-09-15 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (293, 1, '3352ec79-8a10-4490-91b3-08e256b8239c', 79, 3, 'break_end', '2026-09-15 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (294, 1, 'a32ee8be-be4d-4368-a2ee-dc13bb642a40', 79, 3, 'check_out', '2026-09-15 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (295, 1, 'a0fa63b7-881b-445a-b677-d2153029e491', 80, 4, 'check_in', '2026-09-15 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (296, 1, 'badca79c-1f22-4614-bf50-81360f886976', 80, 4, 'break_start', '2026-09-15 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (297, 1, 'd8d6b27b-10e3-42a3-889f-7e69aa95772d', 80, 4, 'break_end', '2026-09-15 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (298, 1, '9b84c3d5-8127-4b41-9f23-0d9f45285aa3', 80, 4, 'check_out', '2026-09-15 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (299, 1, '8bf6cfda-5ae8-424f-8113-2360eb98f182', 81, 5, 'check_in', '2026-09-15 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (300, 1, 'c4155c5e-ac24-4aa7-8f1c-5f9b717df502', 81, 5, 'break_start', '2026-09-15 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (301, 1, '0f28fb12-def1-4a23-8d45-16ec0dcc98ac', 81, 5, 'break_end', '2026-09-15 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (302, 1, 'a6ebda65-efb1-46de-99ef-6f8d58a07d1e', 81, 5, 'check_out', '2026-09-15 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (303, 1, 'c6c1decc-fc92-43fa-bd15-53e136225449', 82, 6, 'check_in', '2026-09-15 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (304, 1, '8053138b-12ed-41ae-99d3-ab1a12cc28e0', 82, 6, 'break_start', '2026-09-15 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (305, 1, '90a5dd0a-7e24-4690-8501-6e1cf53c4846', 82, 6, 'break_end', '2026-09-15 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (306, 1, 'f23625bd-669a-4fbb-9fb1-dfe21ad7c231', 82, 6, 'check_out', '2026-09-15 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (307, 1, 'bfdc6d86-bc25-4ceb-9571-bb2259a48740', 83, 7, 'check_in', '2026-09-15 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (308, 1, '728c9641-ee9e-4342-a754-c6517b3f1524', 83, 7, 'break_start', '2026-09-15 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (309, 1, 'a92ed84f-cbd7-4d24-b81e-ac9a6208da1a', 83, 7, 'break_end', '2026-09-15 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (310, 1, '358118c0-af23-4480-a889-66c68f1f5277', 83, 7, 'check_out', '2026-09-15 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (311, 1, 'a43a97ea-3fdd-40cd-9451-262cc6fd34ec', 84, 8, 'check_in', '2026-09-15 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (312, 1, '891c9d4a-521f-4b8a-8467-669cb550cf4d', 84, 8, 'break_start', '2026-09-15 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (313, 1, '6901dad9-19bf-49b7-8eb7-7c0c975eff6c', 84, 8, 'break_end', '2026-09-15 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (314, 1, '52dbdacd-df10-4475-881a-e3598eb7eaa2', 84, 8, 'check_out', '2026-09-15 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (315, 1, 'f2d3711b-05ff-4df4-b935-f6ecb8bcc38d', 85, 9, 'check_in', '2026-09-15 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (316, 1, '9c51fc0a-bc23-4167-b905-c5c0f7afafd0', 85, 9, 'break_start', '2026-09-15 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (317, 1, '9c9d5416-e761-4796-b798-3277056d6e8a', 85, 9, 'break_end', '2026-09-15 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (318, 1, '3f6e4beb-9f0f-466c-a461-7c24f0396a0d', 85, 9, 'check_out', '2026-09-15 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (319, 1, 'cabbbd75-c324-46b1-b0b4-58d87fada33a', 86, 2, 'check_in', '2026-09-16 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (320, 1, '46e95c77-7aa3-48ab-a7f9-af88daf6d1a4', 86, 2, 'break_start', '2026-09-16 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49');
 
 INSERT INTO `attendance_events` (`id`, `company_id`, `uuid`, `attendance_day_id`, `user_id`, `type`, `occurred_at`, `location`, `status`, `note`, `source`, `actor_id`, `ip`, `created_at`, `updated_at`) VALUES
-    (321, 1, '6d9b5f3f-140b-4b5e-9644-cc008f258b45', 86, 2, 'break_end', '2026-09-16 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (322, 1, '65ade1b3-a5c6-4c3a-8b79-fca4a397ebfd', 86, 2, 'check_out', '2026-09-16 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (323, 1, '0b92af00-764c-4744-8a74-deee6ab5b828', 87, 3, 'check_in', '2026-09-16 05:58:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (324, 1, '48ce72cb-665a-4838-988d-22b4c4822c9c', 87, 3, 'break_start', '2026-09-16 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (325, 1, 'a32091fa-994f-4406-8ec4-78814d5c745a', 87, 3, 'break_end', '2026-09-16 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (326, 1, 'a49b12a6-f8ab-4a4a-81fb-903766dbab20', 87, 3, 'check_out', '2026-09-16 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (327, 1, '007ce552-fb5d-4783-afd9-220a3d66dd98', 88, 4, 'check_in', '2026-09-16 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (328, 1, '09f563ca-82bd-4706-af27-63060a66785d', 88, 4, 'break_start', '2026-09-16 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (329, 1, '1a9a0c77-44e4-4672-8a22-c1a85171944f', 88, 4, 'break_end', '2026-09-16 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (330, 1, '24d7e6ea-dea7-413b-95dd-97aaec78d109', 88, 4, 'check_out', '2026-09-16 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (331, 1, '3d78ada2-ac00-4ee1-bd8b-ba696acfc605', 89, 5, 'check_in', '2026-09-16 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (332, 1, '74042523-afa9-4618-aa4b-cc5af543a63b', 89, 5, 'break_start', '2026-09-16 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (333, 1, '584d39e6-bbb9-4dc4-8c61-f03bd399c0d0', 89, 5, 'break_end', '2026-09-16 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (334, 1, 'c2e1669a-b516-4d82-99b8-d4d90bd62151', 89, 5, 'check_out', '2026-09-16 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (335, 1, '94a80f77-6410-444d-9fca-cc4ad41ad1b6', 90, 6, 'check_in', '2026-09-16 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (336, 1, 'b12ff7cb-8e48-4e9e-8bb2-2fd32fa39e70', 90, 6, 'break_start', '2026-09-16 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (337, 1, '47a96b62-d78f-44f1-ba86-61f58bd26893', 90, 6, 'break_end', '2026-09-16 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (338, 1, '9304fd94-de4e-4d88-8eeb-396b1a5e9e9c', 90, 6, 'check_out', '2026-09-16 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (339, 1, '0bbef971-3337-46a4-8aa9-60f4bde223c3', 91, 7, 'check_in', '2026-09-16 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (340, 1, 'ecdf494b-84c8-45ab-a833-5cad70c3f6dc', 91, 7, 'break_start', '2026-09-16 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (341, 1, '6a0ceb46-a1b4-4780-af30-261309ffb0dc', 91, 7, 'break_end', '2026-09-16 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (342, 1, '9214ea69-d38d-497d-ba8d-24bac789a5e8', 91, 7, 'check_out', '2026-09-16 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (343, 1, '3b7aa870-f63e-462d-8bb7-23d8110afabe', 92, 8, 'check_in', '2026-09-16 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (344, 1, 'bf932ca1-ac1f-4e79-ab8f-cc466aae60f3', 92, 8, 'break_start', '2026-09-16 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (345, 1, '72f0a2ad-3204-45e1-a772-d2d32f473a32', 92, 8, 'break_end', '2026-09-16 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (346, 1, '23f6d17e-cb94-40bf-b575-145cccbd6096', 92, 8, 'check_out', '2026-09-16 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (347, 1, '99a9cf73-ef57-47ef-b324-09b0d1ddc22b', 93, 9, 'check_in', '2026-09-16 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (348, 1, 'c922b048-84c7-42d4-bd5b-f69614f8baf6', 93, 9, 'break_start', '2026-09-16 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (349, 1, '29fee4cc-fc95-4bf9-9ffa-ebac029b3660', 93, 9, 'break_end', '2026-09-16 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (350, 1, '119ffd0b-e6be-482f-8b5a-95341a74dd72', 93, 9, 'check_out', '2026-09-16 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (351, 1, '547a8727-975f-4d4e-b7f1-063b9a16db3c', 94, 2, 'check_in', '2026-09-17 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (352, 1, '5b335f6c-84c5-4ab9-bea2-1eadbdb0a935', 94, 2, 'break_start', '2026-09-17 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (353, 1, 'd5828992-447c-489c-aa02-acbbfacbeda7', 94, 2, 'break_end', '2026-09-17 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (354, 1, '442eb9fb-a619-43ae-add1-b654e32d2acd', 94, 2, 'check_out', '2026-09-17 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (355, 1, '5249d8e4-7f60-43b3-a982-0c8e0e6ce971', 95, 3, 'check_in', '2026-09-17 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (356, 1, '7ca9e572-9725-4784-a51d-268bea925a86', 95, 3, 'break_start', '2026-09-17 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (357, 1, 'f59ea364-ad5d-4c79-95fb-ad5f0d17bf89', 95, 3, 'break_end', '2026-09-17 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (358, 1, '9515b47b-7d16-45de-94cf-d031f4836fb4', 95, 3, 'check_out', '2026-09-17 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (359, 1, '67ddba86-cef3-4e72-b3c3-77a8f9893e75', 96, 4, 'check_in', '2026-09-17 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (360, 1, '626a41c5-b02d-44a8-982e-d6dd0e110104', 96, 4, 'break_start', '2026-09-17 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30');
+    (321, 1, '6101fc14-1d43-4f02-88b7-4f642ab78a0c', 86, 2, 'break_end', '2026-09-16 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (322, 1, 'ade6a928-b742-44e8-8a54-d88442f6fed5', 86, 2, 'check_out', '2026-09-16 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (323, 1, '8af37fb7-c8a8-4a0d-9c91-9da87bd4fa10', 87, 3, 'check_in', '2026-09-16 05:58:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (324, 1, '581b739c-f22b-4c33-8122-bb45cffc3f0a', 87, 3, 'break_start', '2026-09-16 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (325, 1, 'f35a3ed4-65e3-4b16-be2f-ab4db453c1fd', 87, 3, 'break_end', '2026-09-16 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (326, 1, '49ee857a-4a73-47d0-bb08-d02c9e56dca0', 87, 3, 'check_out', '2026-09-16 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (327, 1, '7da1f0f1-6fd9-46b3-8a50-82815eeda4e3', 88, 4, 'check_in', '2026-09-16 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (328, 1, '555548e2-8e35-41a7-b730-ae145eb173b7', 88, 4, 'break_start', '2026-09-16 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (329, 1, 'ca0df0c5-5088-4346-bf92-4f92edc4b676', 88, 4, 'break_end', '2026-09-16 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (330, 1, '11501db5-dedf-4066-a3b2-bdd77e1caffe', 88, 4, 'check_out', '2026-09-16 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (331, 1, 'a57e21a9-7f56-45ec-b799-2f2e7061d7b9', 89, 5, 'check_in', '2026-09-16 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (332, 1, 'c1581838-9c1f-44b8-8535-03405380ff6a', 89, 5, 'break_start', '2026-09-16 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (333, 1, 'c8ab3ba6-a418-4b1e-a960-fa3a269e3344', 89, 5, 'break_end', '2026-09-16 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (334, 1, '76ecf459-5905-42f2-97f1-5f10fa95ea47', 89, 5, 'check_out', '2026-09-16 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (335, 1, '3f07782a-a601-4d64-bf6d-797134370b1b', 90, 6, 'check_in', '2026-09-16 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (336, 1, '8ff039e1-8abf-4872-945c-fe74b5f65751', 90, 6, 'break_start', '2026-09-16 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (337, 1, '38e08e2d-4a7e-4d69-895c-0efa3f3cfa5d', 90, 6, 'break_end', '2026-09-16 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (338, 1, '63f00f53-6382-49f5-934c-16bcd1b189bf', 90, 6, 'check_out', '2026-09-16 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (339, 1, 'b1de409c-a1a6-4a67-ad4e-613d61f2210d', 91, 7, 'check_in', '2026-09-16 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (340, 1, '36fe05d7-cbb8-4b88-8c0f-04f59583bd52', 91, 7, 'break_start', '2026-09-16 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (341, 1, '0772e075-d2a6-49e0-92fc-4fa71978c632', 91, 7, 'break_end', '2026-09-16 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (342, 1, 'ebba9f51-8549-4e01-934b-259bc108752c', 91, 7, 'check_out', '2026-09-16 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (343, 1, '9b81a407-224c-477f-bfbd-4d72d2a05a0b', 92, 8, 'check_in', '2026-09-16 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (344, 1, '1e745d66-a469-46a2-9cdb-5c5f7a2c9e28', 92, 8, 'break_start', '2026-09-16 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (345, 1, '7e571688-d1de-4f84-ba2c-8e957c8fdd7c', 92, 8, 'break_end', '2026-09-16 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (346, 1, '7f4d9ca3-aae2-41e5-95e8-be7054f314ec', 92, 8, 'check_out', '2026-09-16 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (347, 1, '8b1165a1-59a5-4a20-b232-a5c19860ac8b', 93, 9, 'check_in', '2026-09-16 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (348, 1, '955e44ce-0414-4223-8dcf-24f34fdbcfca', 93, 9, 'break_start', '2026-09-16 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (349, 1, 'b0388fb1-67b0-4a6c-87e2-4e8244d93b57', 93, 9, 'break_end', '2026-09-16 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (350, 1, '96ccccda-2bb3-4451-b855-5d9133726749', 93, 9, 'check_out', '2026-09-16 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (351, 1, '3aa2315a-2bd3-49d7-ae2e-eb04daaa7ef7', 94, 2, 'check_in', '2026-09-17 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (352, 1, '6054229e-1f22-4654-b3cb-f3f6fb7398bd', 94, 2, 'break_start', '2026-09-17 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (353, 1, '941e2bdd-db24-4291-861d-44322c4c50fa', 94, 2, 'break_end', '2026-09-17 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (354, 1, 'b2d5a96c-8521-4171-b289-5e9f5adcd395', 94, 2, 'check_out', '2026-09-17 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (355, 1, '552c96ad-e18e-4d36-8cbe-7081021a1259', 95, 3, 'check_in', '2026-09-17 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (356, 1, '4fea3e4b-6b19-4ecf-a152-e5134ff480ec', 95, 3, 'break_start', '2026-09-17 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (357, 1, 'c32ed2b3-3807-49ff-9afd-8a69a2e4786d', 95, 3, 'break_end', '2026-09-17 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (358, 1, '7cee2ff9-4f7c-40fb-b8ac-0df07b6afe21', 95, 3, 'check_out', '2026-09-17 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (359, 1, '7ec8d24c-b3f0-45b6-8db9-24ac26d41cc8', 96, 4, 'check_in', '2026-09-17 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (360, 1, 'f9cee65b-a132-495b-ad70-da7221065357', 96, 4, 'break_start', '2026-09-17 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49');
 
 INSERT INTO `attendance_events` (`id`, `company_id`, `uuid`, `attendance_day_id`, `user_id`, `type`, `occurred_at`, `location`, `status`, `note`, `source`, `actor_id`, `ip`, `created_at`, `updated_at`) VALUES
-    (361, 1, 'f5bf4393-e3b8-4056-b6e2-4dd6e5cccbf0', 96, 4, 'break_end', '2026-09-17 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (362, 1, '9739e7c7-1760-42da-8391-6efe04878cc1', 96, 4, 'check_out', '2026-09-17 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (363, 1, '571c0dcf-070b-435f-81b9-cbf8fcede612', 97, 5, 'check_in', '2026-09-17 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (364, 1, '1fb2e4e9-1e7b-4011-a8da-a3fb09643547', 97, 5, 'break_start', '2026-09-17 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (365, 1, '0e1721a4-c527-4682-9115-e27196e931bc', 97, 5, 'break_end', '2026-09-17 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (366, 1, 'd21241e3-e276-403c-8c1e-1545da8f8b0c', 97, 5, 'check_out', '2026-09-17 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (367, 1, 'aa927c73-7365-45fb-a54a-a0d77d2ea1f6', 98, 6, 'check_in', '2026-09-17 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (368, 1, '9c9c8aba-eda3-4f62-9b6a-cfe56303cda1', 98, 6, 'break_start', '2026-09-17 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (369, 1, '51a10d09-0eaf-4e16-acbb-7726564cd9b4', 98, 6, 'break_end', '2026-09-17 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (370, 1, 'fc061053-d65b-42bb-bca7-7bf5c00354f2', 98, 6, 'check_out', '2026-09-17 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (371, 1, '9aa686d5-0500-4a43-9a84-28fa0b8e711f', 100, 8, 'check_in', '2026-09-17 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (372, 1, '9f42bc6e-b1c1-4907-9e53-db6f3852376b', 100, 8, 'break_start', '2026-09-17 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (373, 1, '6b86826e-30d4-4093-9101-6db343e58d0b', 100, 8, 'break_end', '2026-09-17 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (374, 1, 'f53ffa2d-460e-4d98-b724-eca5676721c5', 100, 8, 'check_out', '2026-09-17 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (375, 1, '4551e6cc-f457-45c2-9a60-a2210fa915d8', 101, 9, 'check_in', '2026-09-17 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (376, 1, '474f0630-f802-48bf-8d46-c12bdd76c427', 101, 9, 'break_start', '2026-09-17 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (377, 1, '98698ce7-8f23-4861-af0e-d461acc1338b', 101, 9, 'break_end', '2026-09-17 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (378, 1, '5a0a721e-3573-40ae-87cf-d7c75215bc82', 101, 9, 'check_out', '2026-09-17 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (379, 1, '61fe7d88-d376-459e-87a3-c370908b3771', 102, 2, 'check_in', '2026-09-19 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (380, 1, '3494e165-ec07-43be-8304-ac627392ac9f', 102, 2, 'break_start', '2026-09-19 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (381, 1, '48f83e25-a76d-40d8-b0b4-605bd5622a93', 102, 2, 'break_end', '2026-09-19 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (382, 1, '14b77280-6e7a-435c-bf3b-98ca3369cb39', 102, 2, 'check_out', '2026-09-19 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (383, 1, '389012aa-abc3-4fb5-91a3-fdb8ad88fded', 103, 3, 'check_in', '2026-09-19 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (384, 1, '48bb6c55-e3b3-4273-9bdf-941bd4631b5c', 103, 3, 'break_start', '2026-09-19 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (385, 1, '00eafedd-2d1c-4e73-b02e-0bfcc16f645c', 103, 3, 'break_end', '2026-09-19 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (386, 1, '1e0830d5-d462-49e0-98a8-9b9e964db628', 103, 3, 'check_out', '2026-09-19 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (387, 1, '569dd2ea-c4cb-43d8-a608-2bb7d79db36f', 104, 4, 'check_in', '2026-09-19 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (388, 1, '71bcbac4-9762-4d2c-9f18-cd651f2f58d9', 104, 4, 'break_start', '2026-09-19 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (389, 1, 'c90ceda2-f6e2-4c13-8bf6-16d0c91d302d', 104, 4, 'break_end', '2026-09-19 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (390, 1, '81cd2b08-83ea-4647-bd19-d35d516d55c4', 104, 4, 'check_out', '2026-09-19 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (391, 1, 'f6d44664-ed32-4ecb-9eac-7ea4caadc2eb', 105, 5, 'check_in', '2026-09-19 05:58:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (392, 1, 'fdc2ed09-7fa4-4d00-b3b5-014e82a8f314', 105, 5, 'break_start', '2026-09-19 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (393, 1, '1ce9a8c7-52ff-49e2-99c7-9637a9398320', 105, 5, 'break_end', '2026-09-19 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (394, 1, 'f50fdc9d-f824-4fc1-bd01-486cb1bdda64', 105, 5, 'check_out', '2026-09-19 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (395, 1, '8e82e22a-8e13-4699-9cb9-8b39b37e058a', 106, 6, 'check_in', '2026-09-19 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (396, 1, '93626931-d25b-402e-87e2-b3b35f262c21', 106, 6, 'break_start', '2026-09-19 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (397, 1, '45cdafdb-9624-4bea-8447-ff75ccd3ca38', 106, 6, 'break_end', '2026-09-19 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (398, 1, '717492e8-303d-43a8-9d76-fa7dc2bdfa33', 106, 6, 'check_out', '2026-09-19 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (399, 1, 'a44d4f9e-ac79-4ef7-b966-850ad5cf38de', 107, 7, 'check_in', '2026-09-19 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (400, 1, '615beff6-1ffd-4e80-ad17-637fd5121c25', 107, 7, 'break_start', '2026-09-19 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30');
+    (361, 1, 'c3e6bf3c-4b66-466e-9d56-15493837b682', 96, 4, 'break_end', '2026-09-17 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (362, 1, '29457b5f-82f6-4924-ae0d-1ddc9c472264', 96, 4, 'check_out', '2026-09-17 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (363, 1, '0b61607a-074b-4bdc-a263-a1e979049fe5', 97, 5, 'check_in', '2026-09-17 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (364, 1, '909c7e88-5166-40fb-9645-e1d8443da3ab', 97, 5, 'break_start', '2026-09-17 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (365, 1, '3cf4a187-35d5-4039-a30d-e92a23ff79db', 97, 5, 'break_end', '2026-09-17 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (366, 1, 'e8fec31e-3462-4f02-bd2d-d17d70cde7d1', 97, 5, 'check_out', '2026-09-17 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (367, 1, '217e6d9e-deed-4c34-8fe4-cc6a5294dbc0', 98, 6, 'check_in', '2026-09-17 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (368, 1, 'ddbe39b8-8dea-475e-b9de-7c4d033afe29', 98, 6, 'break_start', '2026-09-17 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (369, 1, 'b19df343-33fd-41b9-a66e-83248eca85a8', 98, 6, 'break_end', '2026-09-17 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (370, 1, '818abd27-c2e3-4c06-926e-1fcae193b15e', 98, 6, 'check_out', '2026-09-17 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (371, 1, 'eb78d274-173c-45e6-a037-67cdd1eace51', 100, 8, 'check_in', '2026-09-17 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (372, 1, '513d6058-3594-4b49-a528-81850f7317af', 100, 8, 'break_start', '2026-09-17 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (373, 1, 'dae7414a-5cf7-4f9e-b8d6-e526a834fb71', 100, 8, 'break_end', '2026-09-17 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (374, 1, '18962581-cfbf-4e02-bf04-9c479ea2dd65', 100, 8, 'check_out', '2026-09-17 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (375, 1, '4201b592-9a0e-45f9-bbe3-39e75cf8f8fe', 101, 9, 'check_in', '2026-09-17 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (376, 1, 'c9314e73-75f9-47b3-af93-938488fa0f87', 101, 9, 'break_start', '2026-09-17 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (377, 1, '835966a8-de1e-4379-852e-d0265030bf30', 101, 9, 'break_end', '2026-09-17 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (378, 1, '29be3097-f747-4e65-83a1-72adaf78a79b', 101, 9, 'check_out', '2026-09-17 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (379, 1, '99172946-08a0-4a65-9f24-8d4fbaccc540', 102, 2, 'check_in', '2026-09-19 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (380, 1, 'c0efe12b-ce77-4c74-8112-56c01ae9d950', 102, 2, 'break_start', '2026-09-19 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (381, 1, '24aea12b-3018-4028-90ea-fe22e44421a8', 102, 2, 'break_end', '2026-09-19 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:49', '2026-09-25 21:32:49'),
+    (382, 1, 'a2259a22-b929-4db7-8269-390986eeaf85', 102, 2, 'check_out', '2026-09-19 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (383, 1, 'f418ccf1-7539-48f1-9ca0-b03d7ea2d172', 103, 3, 'check_in', '2026-09-19 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (384, 1, '1ec5a84f-6179-468e-9baa-60412c39ee93', 103, 3, 'break_start', '2026-09-19 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (385, 1, 'fae6ee42-5044-4230-b623-1e561d9459f8', 103, 3, 'break_end', '2026-09-19 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (386, 1, '56632291-7618-44d8-ac5d-fb8f196f070b', 103, 3, 'check_out', '2026-09-19 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (387, 1, 'efbe6bef-1f45-4637-a747-af081a8d5ac0', 104, 4, 'check_in', '2026-09-19 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (388, 1, 'f64f0d91-5ce8-45d4-9c3b-2c6b4e966743', 104, 4, 'break_start', '2026-09-19 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (389, 1, 'd98ca418-b5be-4f60-b423-488f65f95a8d', 104, 4, 'break_end', '2026-09-19 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (390, 1, '8a75a08b-6b6e-4ab6-9085-28fb19cce4ce', 104, 4, 'check_out', '2026-09-19 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (391, 1, 'f5b9d1ba-0665-49ae-9398-f4749582a809', 105, 5, 'check_in', '2026-09-19 05:58:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (392, 1, '31c7ca07-c727-435a-b489-517d0d1bed8f', 105, 5, 'break_start', '2026-09-19 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (393, 1, '5643777d-0a7e-44bd-ad12-5b8d598b6a7d', 105, 5, 'break_end', '2026-09-19 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (394, 1, '9031c0ad-fe5e-4dd6-8873-7a3f8139e05f', 105, 5, 'check_out', '2026-09-19 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (395, 1, '688bd272-67d4-4d54-bf2e-a75769bf0854', 106, 6, 'check_in', '2026-09-19 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (396, 1, '49ffbe13-789b-4066-bdd2-63c10ab56699', 106, 6, 'break_start', '2026-09-19 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (397, 1, '9aa1c4c5-87c2-4f6d-8506-10398cbf75aa', 106, 6, 'break_end', '2026-09-19 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (398, 1, '262bf1f0-f246-44b2-8d9f-19283b5f0a7e', 106, 6, 'check_out', '2026-09-19 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (399, 1, '45f1e69d-65d2-42c9-8a28-611aa30e9566', 107, 7, 'check_in', '2026-09-19 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (400, 1, '939f4eb8-8f7d-416c-bcaa-48dd59a9c3a7', 107, 7, 'break_start', '2026-09-19 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50');
 
 INSERT INTO `attendance_events` (`id`, `company_id`, `uuid`, `attendance_day_id`, `user_id`, `type`, `occurred_at`, `location`, `status`, `note`, `source`, `actor_id`, `ip`, `created_at`, `updated_at`) VALUES
-    (401, 1, '675c0b7d-3eee-43b8-a6ce-1edeffc5d9a3', 107, 7, 'break_end', '2026-09-19 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (402, 1, '204af6ce-5530-437d-9928-dfa382cb531b', 107, 7, 'check_out', '2026-09-19 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (403, 1, '778d8458-b9cc-4e45-832f-ebea2d642c3a', 108, 8, 'check_in', '2026-09-19 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (404, 1, '7c5461c8-7371-4482-b977-6ede926b1f6d', 108, 8, 'break_start', '2026-09-19 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (405, 1, 'f8d7a4cd-fcda-485d-ab45-c20c37ceadf2', 108, 8, 'break_end', '2026-09-19 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (406, 1, '0ed9b9b0-b5e5-4bd2-8143-ed2000a2b273', 108, 8, 'check_out', '2026-09-19 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (407, 1, '2f28f93a-3147-468a-bef1-05ef630adf94', 109, 9, 'check_in', '2026-09-19 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (408, 1, 'd7587ce6-1ea9-46b8-8818-cfedbcfcd76b', 109, 9, 'break_start', '2026-09-19 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (409, 1, '95c374e2-1225-43c1-af9b-b7b9ddfb72ff', 109, 9, 'break_end', '2026-09-19 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (410, 1, 'f923b114-06a6-40d8-857a-451701bf3b47', 109, 9, 'check_out', '2026-09-19 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (411, 1, '3519051a-e066-4aa0-9812-9a8902bec5d6', 110, 2, 'check_in', '2026-09-20 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (412, 1, '010011a9-a3db-4cdf-84bd-cc93670d04cf', 110, 2, 'break_start', '2026-09-20 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (413, 1, '0aeb2dc0-b179-4b45-a093-5c1dc89ffbdf', 110, 2, 'break_end', '2026-09-20 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (414, 1, 'c7c983a7-37d1-4cc4-893c-653ce2f745f4', 110, 2, 'check_out', '2026-09-20 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (415, 1, '305225b1-d55b-4899-8b1b-c991d0b3e260', 111, 3, 'check_in', '2026-09-20 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (416, 1, '3288e02b-ec48-432e-a011-8bdca0b05e2a', 111, 3, 'break_start', '2026-09-20 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (417, 1, '5cf06173-1901-40ea-9777-9b05f20dc714', 111, 3, 'break_end', '2026-09-20 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (418, 1, '1ad0ff94-a27b-47bb-a963-3b2ef711c2bb', 111, 3, 'check_out', '2026-09-20 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (419, 1, '145a94f9-ec59-4d9c-8646-2abc0f204385', 112, 4, 'check_in', '2026-09-20 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (420, 1, '32fb068b-1b63-46e3-a5fd-2c0d513c5283', 112, 4, 'break_start', '2026-09-20 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (421, 1, 'a698f113-9ec6-4edb-bfb7-6827f4fdaa95', 112, 4, 'break_end', '2026-09-20 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (422, 1, 'b9dde3ad-e230-43c1-a8db-4f05acf166a1', 112, 4, 'check_out', '2026-09-20 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (423, 1, 'c717519b-3818-4a51-838f-1457657bc461', 113, 5, 'check_in', '2026-09-20 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (424, 1, '10bba5de-84c8-4d83-90ad-11250d3817e6', 113, 5, 'break_start', '2026-09-20 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (425, 1, '588b9dfa-13fc-4fc3-bc4e-60a5e1fe2144', 113, 5, 'break_end', '2026-09-20 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (426, 1, '9a41e99c-1fcd-4ec5-9a49-7da0e2d7ab71', 113, 5, 'check_out', '2026-09-20 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (427, 1, '5119c276-7f5b-40aa-96ae-5d68c1a071cf', 114, 6, 'check_in', '2026-09-20 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (428, 1, '24b099fd-2c03-4767-8ac8-1fbab29a7730', 114, 6, 'break_start', '2026-09-20 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (429, 1, '8a059fcc-fffd-4bfa-ab23-967a1c613de3', 114, 6, 'break_end', '2026-09-20 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (430, 1, '316f7f63-cb77-46af-bd37-5a5ea6bfb6a3', 114, 6, 'check_out', '2026-09-20 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (431, 1, '580fe119-338f-4b01-9320-c0cea3587cd8', 115, 7, 'check_in', '2026-09-20 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (432, 1, '0e85b734-9409-48ce-bdbc-48d33cbec376', 115, 7, 'break_start', '2026-09-20 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (433, 1, 'cad8bc8a-3e53-483f-85c9-bd6c3c6ef541', 115, 7, 'break_end', '2026-09-20 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (434, 1, 'af9cd9bf-0bb4-4833-9e56-c9fc265ecf72', 115, 7, 'check_out', '2026-09-20 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (435, 1, '7ddcc010-d24d-4bb9-8491-ed4ac7334ed8', 116, 8, 'check_in', '2026-09-20 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (436, 1, 'ddc5979d-8b2f-404f-a0a1-6daf959ec0b0', 116, 8, 'break_start', '2026-09-20 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (437, 1, '70ee27cf-6feb-403e-868b-ae9f148625ce', 116, 8, 'break_end', '2026-09-20 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (438, 1, 'd61ea6c9-3f4f-4109-b33d-cf73cdadab75', 116, 8, 'check_out', '2026-09-20 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (439, 1, '68718af3-b4ac-40da-8dd3-8514ce316beb', 117, 9, 'check_in', '2026-09-20 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (440, 1, 'adfe4a86-8859-4f58-bdc2-d60307da73f6', 117, 9, 'break_start', '2026-09-20 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30');
+    (401, 1, 'db753e8a-5b9d-4f54-b1eb-1ac1cfea95e7', 107, 7, 'break_end', '2026-09-19 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (402, 1, 'ffdbad46-4ff8-4c71-8e0a-8fad74a794a6', 107, 7, 'check_out', '2026-09-19 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (403, 1, 'cedc3e1a-2935-4ce4-8607-970c62266e34', 108, 8, 'check_in', '2026-09-19 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (404, 1, 'b8191eb6-02cc-494c-a885-c1965c743744', 108, 8, 'break_start', '2026-09-19 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (405, 1, '7688ca5b-7a5c-4104-bb6d-5211d9cb26b9', 108, 8, 'break_end', '2026-09-19 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (406, 1, 'a8dbe2a0-789c-4325-9bea-fbda7dbaa645', 108, 8, 'check_out', '2026-09-19 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (407, 1, 'e453173b-5e5f-42f5-a8de-9ed5ec9bad02', 109, 9, 'check_in', '2026-09-19 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (408, 1, '96ca8a21-f3ae-4305-b665-eb1bc8100a94', 109, 9, 'break_start', '2026-09-19 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (409, 1, '2e604de1-4a2c-4439-8491-cce52d4bdb6f', 109, 9, 'break_end', '2026-09-19 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (410, 1, 'f0cc8b58-aabd-4df5-b490-e7bd4b689421', 109, 9, 'check_out', '2026-09-19 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (411, 1, '834da41a-4ce4-4c86-b283-cf09e7947617', 110, 2, 'check_in', '2026-09-20 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (412, 1, '0914edbe-f92b-4b19-bde7-e607cc5abc83', 110, 2, 'break_start', '2026-09-20 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (413, 1, '047b137f-cb2e-4abd-aeb8-3f9be9770717', 110, 2, 'break_end', '2026-09-20 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (414, 1, '6f8bb5c9-9eaf-407a-a83f-abb7eefb129c', 110, 2, 'check_out', '2026-09-20 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (415, 1, '6a9d54de-fae0-45a3-aad7-dcb2a93cb3a6', 111, 3, 'check_in', '2026-09-20 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (416, 1, '7bae9dff-1fdb-4bba-8da8-fbc5bf3d6e7b', 111, 3, 'break_start', '2026-09-20 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (417, 1, '16e9a713-ff49-447f-905c-9d039f802e34', 111, 3, 'break_end', '2026-09-20 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (418, 1, '473b781c-38f3-413b-ae83-508efa3d78e5', 111, 3, 'check_out', '2026-09-20 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (419, 1, '74ba2294-9ea1-439e-8ba5-f35354009371', 112, 4, 'check_in', '2026-09-20 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (420, 1, 'a1f4bebe-966f-47ff-be02-016584879e60', 112, 4, 'break_start', '2026-09-20 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (421, 1, 'd69fc672-e40d-4fc3-92a8-e1a57223818b', 112, 4, 'break_end', '2026-09-20 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (422, 1, 'c7fa16c0-6371-46b5-acdf-8dc38aca6861', 112, 4, 'check_out', '2026-09-20 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (423, 1, '8d3fdea0-8008-4680-bc0d-5a3c640c951a', 113, 5, 'check_in', '2026-09-20 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (424, 1, '8a668cb2-4d2c-4d32-ba2b-90264c4b2f9d', 113, 5, 'break_start', '2026-09-20 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (425, 1, '7d179f95-96b9-4c2d-9f84-b08392e91efd', 113, 5, 'break_end', '2026-09-20 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (426, 1, '1728a334-c83b-4729-999e-7c2b4ddd7003', 113, 5, 'check_out', '2026-09-20 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (427, 1, '6149387c-d9dc-4742-a10e-a62b06e31a57', 114, 6, 'check_in', '2026-09-20 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (428, 1, '553ce7a7-9613-4943-8df1-efe535b1c855', 114, 6, 'break_start', '2026-09-20 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (429, 1, '2129f7ed-1eb7-4dd4-a177-c4715eebadd7', 114, 6, 'break_end', '2026-09-20 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (430, 1, 'd77b6d08-a4ed-4beb-a796-9b5e211a5352', 114, 6, 'check_out', '2026-09-20 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (431, 1, '98259133-a342-4aa7-84ff-11886b50ab3e', 115, 7, 'check_in', '2026-09-20 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (432, 1, 'c4a7d21d-8b6f-4c47-882b-87808c61e0dc', 115, 7, 'break_start', '2026-09-20 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (433, 1, 'ee104c3e-2a63-4a6a-9294-29a535afaa82', 115, 7, 'break_end', '2026-09-20 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (434, 1, 'a575438e-11c4-4157-ab6d-74156ac13af9', 115, 7, 'check_out', '2026-09-20 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (435, 1, 'a658e159-e740-40a1-a1b9-97981c7a84c8', 116, 8, 'check_in', '2026-09-20 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (436, 1, 'ab194a2c-f957-4980-9592-74aafde4fa44', 116, 8, 'break_start', '2026-09-20 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (437, 1, 'dd82ae4f-a2ad-4233-9a2b-875464707de9', 116, 8, 'break_end', '2026-09-20 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (438, 1, '96a5424d-1570-4c2c-8653-8db717535b1b', 116, 8, 'check_out', '2026-09-20 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (439, 1, 'dea9ab2a-d8b0-4cf8-b612-112628eebebf', 117, 9, 'check_in', '2026-09-20 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (440, 1, 'e25f303f-6d2f-41ea-9c3c-e5af231b19cb', 117, 9, 'break_start', '2026-09-20 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50');
 
 INSERT INTO `attendance_events` (`id`, `company_id`, `uuid`, `attendance_day_id`, `user_id`, `type`, `occurred_at`, `location`, `status`, `note`, `source`, `actor_id`, `ip`, `created_at`, `updated_at`) VALUES
-    (441, 1, 'cb855858-d87a-4879-9eea-65d09cf71a2d', 117, 9, 'break_end', '2026-09-20 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (442, 1, 'e02043a6-7b9c-48d4-813b-be6a44ac7283', 117, 9, 'check_out', '2026-09-20 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (443, 1, '06873a12-a8d0-4329-910f-f36364149a6c', 118, 2, 'check_in', '2026-09-21 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (444, 1, 'a5ee4d29-a8e3-4853-9dcd-bbf5b841065c', 118, 2, 'break_start', '2026-09-21 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (445, 1, '7eb471b2-3c11-4fed-8d09-b455009d205b', 118, 2, 'break_end', '2026-09-21 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (446, 1, '3ead3ef2-52f8-40ec-bb54-55b85ee9e0b3', 118, 2, 'check_out', '2026-09-21 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (447, 1, '21ab3188-117d-4fc4-8621-05c99d515e5e', 119, 3, 'check_in', '2026-09-21 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (448, 1, 'a8fab6cc-4a22-411e-ba28-514b1efb1eb5', 119, 3, 'break_start', '2026-09-21 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (449, 1, '91bb3f62-8fd4-498a-b317-e62edb43f7d4', 119, 3, 'break_end', '2026-09-21 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (450, 1, 'dde2722c-11d1-4ef1-8f4a-aba97b72f815', 119, 3, 'check_out', '2026-09-21 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (451, 1, '5d2b2daa-3ba4-4e47-8dec-adc0b553003f', 120, 4, 'check_in', '2026-09-21 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (452, 1, 'b0fcb4d8-c07b-4e79-ad3f-77d3449ec57b', 120, 4, 'break_start', '2026-09-21 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (453, 1, '38d14b1a-6ad7-4bb0-83ae-2a7afc16a05b', 120, 4, 'break_end', '2026-09-21 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (454, 1, 'e0bb8699-8476-4596-a569-96e4cb06e828', 120, 4, 'check_out', '2026-09-21 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (455, 1, 'd645facf-66f0-4488-9ea8-f523b9c9c8db', 121, 5, 'check_in', '2026-09-21 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (456, 1, '9de3d19c-fde3-4c5c-84d3-b71775f842f4', 121, 5, 'break_start', '2026-09-21 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (457, 1, '076b6cfd-7126-4a10-9345-992b42dcd4e8', 121, 5, 'break_end', '2026-09-21 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (458, 1, '910476e8-a1fd-4fc9-b9e6-edc9de1874c2', 121, 5, 'check_out', '2026-09-21 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (459, 1, '2171b1f7-3055-4c88-a87a-d019f6ed9ad7', 122, 6, 'check_in', '2026-09-21 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (460, 1, 'c3562cf0-360b-49fa-82e5-be45a77dcc79', 122, 6, 'break_start', '2026-09-21 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (461, 1, '1ac7e21c-beec-410a-9e4e-f5dac1aa079a', 122, 6, 'break_end', '2026-09-21 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (462, 1, 'fd560026-696a-4831-a870-568bf283938b', 122, 6, 'check_out', '2026-09-21 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (463, 1, '66a983b9-b410-44ba-86c0-e3e3f258657b', 123, 7, 'check_in', '2026-09-21 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (464, 1, '4a79354e-9978-40d5-ac1c-435813477eb3', 123, 7, 'break_start', '2026-09-21 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (465, 1, 'e92d3dc0-1328-4caf-89a3-6c80049de099', 123, 7, 'break_end', '2026-09-21 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (466, 1, '22bcca28-e520-4ed9-81ee-27e48de649cc', 123, 7, 'check_out', '2026-09-21 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (467, 1, '354571fe-e089-4a15-84f9-fb763bfa82e9', 124, 8, 'check_in', '2026-09-21 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (468, 1, 'a01b3584-f5f0-4661-bdee-2596d55c54f1', 124, 8, 'break_start', '2026-09-21 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (469, 1, 'd69b713c-795e-448b-b3f8-7b9caf2364d3', 124, 8, 'break_end', '2026-09-21 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (470, 1, '2e6a4050-40f6-43b1-8e0f-6d6d1e2feaf5', 124, 8, 'check_out', '2026-09-21 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (471, 1, '271d6e0c-c58b-4355-910c-bb1d91910a8a', 125, 9, 'check_in', '2026-09-21 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (472, 1, 'e1acebdd-ac58-4ea0-b0d0-ec5b358f6675', 125, 9, 'break_start', '2026-09-21 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (473, 1, '7ab982a0-caec-4793-9258-c169272801a0', 125, 9, 'break_end', '2026-09-21 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (474, 1, '8d119852-6d92-4ad6-989e-1a87b306966d', 125, 9, 'check_out', '2026-09-21 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (475, 1, '8aa00ddc-f1ae-47bc-aa95-31dc2971cb37', 126, 2, 'check_in', '2026-09-22 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (476, 1, '2e77cb65-e7c1-4ba3-bd02-0353003f0983', 126, 2, 'break_start', '2026-09-22 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (477, 1, 'a879ab15-600f-43bb-9b89-722442baaaac', 126, 2, 'break_end', '2026-09-22 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (478, 1, 'a2292ad6-5a9b-47e5-bf40-b4aa207c1e47', 126, 2, 'check_out', '2026-09-22 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (479, 1, '2b82f35e-d3d7-479d-83b1-cd12cb97005f', 127, 3, 'check_in', '2026-09-22 05:58:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (480, 1, '4a91ab16-f04f-467d-805c-7b3adb7a4281', 127, 3, 'break_start', '2026-09-22 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31');
+    (441, 1, '0e25dfb4-1a11-45db-993b-8f6fc9f559e7', 117, 9, 'break_end', '2026-09-20 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (442, 1, 'b933edd0-31f3-4253-8b04-304db9df873c', 117, 9, 'check_out', '2026-09-20 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (443, 1, '55b7f425-e194-4c18-924c-5e899be71d42', 118, 2, 'check_in', '2026-09-21 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (444, 1, '35af4856-17d9-44a9-96ea-935d6d46c0be', 118, 2, 'break_start', '2026-09-21 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (445, 1, '1a29ed6f-2ef5-4358-a06a-bd138a516250', 118, 2, 'break_end', '2026-09-21 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (446, 1, '564e5e4f-9aaa-464c-8d3b-c5478157bc09', 118, 2, 'check_out', '2026-09-21 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (447, 1, '86f46c5f-0539-4f4f-b872-0db523497ee7', 119, 3, 'check_in', '2026-09-21 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (448, 1, '332fa5cb-3932-451c-a93c-aa2a931d3ab7', 119, 3, 'break_start', '2026-09-21 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (449, 1, 'ed1b5ba0-adeb-489a-9fa0-fec411eedec6', 119, 3, 'break_end', '2026-09-21 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (450, 1, '9346d123-4984-4ecb-bd29-4c4b1eff59b8', 119, 3, 'check_out', '2026-09-21 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (451, 1, '3e20ed68-95e3-4fb1-aa19-b980665c5ed2', 120, 4, 'check_in', '2026-09-21 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (452, 1, 'd09fa5d1-93b6-4fda-9485-5d1bd66389a1', 120, 4, 'break_start', '2026-09-21 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (453, 1, '85c89ba8-bcbb-4cf6-a53b-3a99873a805d', 120, 4, 'break_end', '2026-09-21 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (454, 1, '74b14d0a-c32c-4f7e-99ed-92fd31923cfe', 120, 4, 'check_out', '2026-09-21 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (455, 1, '8de521fc-a76c-498b-8167-fcf44422ff8c', 121, 5, 'check_in', '2026-09-21 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (456, 1, '286bcf6c-947f-49b8-8293-f67758b91b14', 121, 5, 'break_start', '2026-09-21 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (457, 1, '1135bdd3-9a36-405f-b362-be9745d1dd86', 121, 5, 'break_end', '2026-09-21 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (458, 1, '036450c2-7eb8-4f72-8c36-98e77f9630a4', 121, 5, 'check_out', '2026-09-21 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (459, 1, '159cf40c-497e-460a-a408-4201381c1de1', 122, 6, 'check_in', '2026-09-21 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (460, 1, 'edee9b18-f63f-4267-82b8-4d2fbbdbe044', 122, 6, 'break_start', '2026-09-21 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (461, 1, 'ec0e3a7c-5501-4f42-9227-d8b6da8449d7', 122, 6, 'break_end', '2026-09-21 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (462, 1, '9fbfb5b4-e4b0-4b42-b2c6-4c87851b2178', 122, 6, 'check_out', '2026-09-21 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (463, 1, '97455f92-c2a0-4497-a890-a7a97f94d904', 123, 7, 'check_in', '2026-09-21 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (464, 1, '447236f5-6437-4a1f-ae1a-9d5c880bd23e', 123, 7, 'break_start', '2026-09-21 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (465, 1, '0324e82e-d916-42c4-9302-05b698ec9e51', 123, 7, 'break_end', '2026-09-21 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (466, 1, 'c4da27fa-4d22-4cc3-8bf1-14adc017be40', 123, 7, 'check_out', '2026-09-21 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (467, 1, 'd5c1f190-a437-4f19-a510-9984ebd14284', 124, 8, 'check_in', '2026-09-21 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (468, 1, '0f6fc606-5724-48f7-bdf5-eb039d57b7f9', 124, 8, 'break_start', '2026-09-21 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (469, 1, '97bfad6a-1c39-4e90-a43b-7ab1c4169f17', 124, 8, 'break_end', '2026-09-21 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (470, 1, '34cf9ca8-242b-4b11-81b1-920b8d9c18c4', 124, 8, 'check_out', '2026-09-21 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (471, 1, '511a65fa-3539-44bd-94f7-84e8083e8e39', 125, 9, 'check_in', '2026-09-21 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (472, 1, 'b703c226-e8be-4140-8c31-80d56f6d2f3f', 125, 9, 'break_start', '2026-09-21 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (473, 1, '0af9c3f7-f9f0-42ae-8316-8b883c7df606', 125, 9, 'break_end', '2026-09-21 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (474, 1, 'c08b531b-b0ec-4770-9b7f-6572da5cdc4f', 125, 9, 'check_out', '2026-09-21 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (475, 1, 'fb74b466-129e-4d4e-add7-85de83985ec3', 126, 2, 'check_in', '2026-09-22 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (476, 1, '7cd783d8-044d-49b9-a8b5-291a4252cc64', 126, 2, 'break_start', '2026-09-22 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (477, 1, 'e5ed49cb-3308-41b6-a454-2d9190585ec0', 126, 2, 'break_end', '2026-09-22 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (478, 1, 'fc760593-72a5-4c61-a053-1581dcb663bf', 126, 2, 'check_out', '2026-09-22 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (479, 1, '96567fb3-9391-414f-ad9c-865f874c373b', 127, 3, 'check_in', '2026-09-22 05:58:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (480, 1, 'ffce5501-9f2e-456a-9881-4bb6ea5a3522', 127, 3, 'break_start', '2026-09-22 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50');
 
 INSERT INTO `attendance_events` (`id`, `company_id`, `uuid`, `attendance_day_id`, `user_id`, `type`, `occurred_at`, `location`, `status`, `note`, `source`, `actor_id`, `ip`, `created_at`, `updated_at`) VALUES
-    (481, 1, 'c7b55508-67c7-4f2f-b069-5c000f54ba0c', 127, 3, 'break_end', '2026-09-22 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (482, 1, 'f870c8b4-c549-4daf-aa52-a3a3a1b99cd1', 127, 3, 'check_out', '2026-09-22 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (483, 1, '3072478f-43b6-4e3e-b904-524c758741b5', 128, 4, 'check_in', '2026-09-22 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (484, 1, '0d16bb7a-a615-4846-b715-c3d03406ad96', 128, 4, 'break_start', '2026-09-22 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (485, 1, '35317925-6248-4284-bc1b-d331e3fbacef', 128, 4, 'break_end', '2026-09-22 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (486, 1, '6ad3b148-6b0b-4d3e-bc1f-c9cfdbd4a62a', 128, 4, 'check_out', '2026-09-22 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (487, 1, 'd9db0b90-b85a-4549-9bd8-1cb7b10295c4', 129, 5, 'check_in', '2026-09-22 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (488, 1, '2d67d770-f8a6-4775-acc2-949329bec678', 129, 5, 'break_start', '2026-09-22 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (489, 1, '9c52050f-7eb9-445f-82b6-de82d00fbf10', 129, 5, 'break_end', '2026-09-22 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (490, 1, '18f35aed-57ce-4a06-ad51-97c94a8bba2f', 129, 5, 'check_out', '2026-09-22 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (491, 1, 'fea40b9f-ebd8-458c-ba3c-c602f15064a4', 130, 6, 'check_in', '2026-09-22 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (492, 1, 'fd441725-0722-44c9-86b3-23b01c110e46', 130, 6, 'break_start', '2026-09-22 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (493, 1, 'c1e70a06-916e-47f6-ba6c-e53b44da6088', 130, 6, 'break_end', '2026-09-22 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (494, 1, 'c659a162-5055-4967-92f1-0abaaf0eae2d', 130, 6, 'check_out', '2026-09-22 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (495, 1, 'd364f1d0-1e17-4b78-9b6e-4d4c94a867bf', 131, 7, 'check_in', '2026-09-22 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (496, 1, '5b53703e-b405-4a52-9a8e-7407685b7c4e', 131, 7, 'break_start', '2026-09-22 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (497, 1, '1aa1b9db-1adf-4a48-bb27-3166845b9f6e', 131, 7, 'break_end', '2026-09-22 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (498, 1, 'd311fccb-9c6c-4942-be4e-6efd16a38223', 131, 7, 'check_out', '2026-09-22 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (499, 1, '5a51d44e-37a8-4f57-ba3f-6f78c37a2c64', 132, 8, 'check_in', '2026-09-22 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (500, 1, 'f5a63f58-3352-45f9-910f-1f479fe28a60', 132, 8, 'break_start', '2026-09-22 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (501, 1, 'db03c6d6-1b00-470b-a438-a92fb4fa8136', 132, 8, 'break_end', '2026-09-22 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (502, 1, 'e8c67436-b937-409e-a3ec-138739046673', 132, 8, 'check_out', '2026-09-22 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (503, 1, '337a0182-350e-4a6e-b65d-ce1727f75e58', 133, 9, 'check_in', '2026-09-22 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (504, 1, 'a120546f-89f5-47de-9090-1b95b4d04db0', 133, 9, 'break_start', '2026-09-22 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (505, 1, 'f37c57ef-cfc1-4d69-9d6a-6f5e25d95977', 133, 9, 'break_end', '2026-09-22 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (506, 1, 'b6e89f29-ffcb-468a-ab3c-c8e7f14fe302', 133, 9, 'check_out', '2026-09-22 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (507, 1, 'e7367e24-31f8-41b4-9cdc-3dc86b277bf3', 134, 2, 'check_in', '2026-09-23 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (508, 1, '5ec4fe6c-ad1d-4976-a70d-8fed8986dfb5', 134, 2, 'break_start', '2026-09-23 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (509, 1, '66aa8624-2042-4060-9d4e-bfc460bb73bd', 134, 2, 'break_end', '2026-09-23 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (510, 1, 'cb2b13d3-469c-40f6-82d5-5d82e250f6b7', 134, 2, 'check_out', '2026-09-23 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (511, 1, '7ee150fb-a125-4c38-86ba-ba4b90656e4c', 135, 3, 'check_in', '2026-09-23 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (512, 1, 'a8eaf036-6d73-459e-bdc8-60817f1bbb8c', 135, 3, 'break_start', '2026-09-23 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (513, 1, 'c8c9156e-4adc-4e9e-9047-1f21e073b22c', 135, 3, 'break_end', '2026-09-23 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (514, 1, '6a7d4289-cef0-4f4c-beb0-a8b51abd9a14', 135, 3, 'check_out', '2026-09-23 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (515, 1, '539998a8-4329-491d-992c-bf613e5d0fdd', 136, 4, 'check_in', '2026-09-23 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (516, 1, 'a9941456-d5df-44ae-903d-410a2f9855ad', 136, 4, 'break_start', '2026-09-23 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (517, 1, '6c3cfcac-0147-4e05-a08f-9b94f9215d24', 136, 4, 'break_end', '2026-09-23 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (518, 1, '4c36cc62-3299-4cf3-891d-423fd2b87473', 136, 4, 'check_out', '2026-09-23 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (519, 1, '4361bc4c-d22a-4316-9243-e1e5683c83f0', 137, 5, 'check_in', '2026-09-23 05:58:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (520, 1, 'bf00a1bd-e3f2-49e8-bc44-05e231e82254', 137, 5, 'break_start', '2026-09-23 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31');
+    (481, 1, 'c9422498-56f0-40ad-bce6-316b7636bad3', 127, 3, 'break_end', '2026-09-22 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (482, 1, 'be1e99ca-f283-4ed3-bdd1-486961098df7', 127, 3, 'check_out', '2026-09-22 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (483, 1, '383da774-d936-40cf-aeb5-4d26936fe575', 128, 4, 'check_in', '2026-09-22 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (484, 1, 'c839b0b1-afcc-4b93-b99a-fe495acd6b75', 128, 4, 'break_start', '2026-09-22 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (485, 1, '665115d4-cd3a-4ac1-aec0-51f5de4ba4d3', 128, 4, 'break_end', '2026-09-22 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (486, 1, 'cb763e40-fb12-4c72-b64a-40011c2e4f03', 128, 4, 'check_out', '2026-09-22 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (487, 1, 'c6a40872-01e5-4ebc-93db-6ad8c46a28c9', 129, 5, 'check_in', '2026-09-22 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (488, 1, '0dde008e-9dcc-4121-9217-a43ce15952f7', 129, 5, 'break_start', '2026-09-22 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (489, 1, '4eb5ac51-8422-49b9-86a9-f7db19cbf22e', 129, 5, 'break_end', '2026-09-22 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (490, 1, '934d581d-d4ba-4874-9954-bea27a7a9d3e', 129, 5, 'check_out', '2026-09-22 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (491, 1, '1a0f4735-7184-4a2a-998a-1073c91b6690', 130, 6, 'check_in', '2026-09-22 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (492, 1, '6ad9a825-c9d3-4717-92d0-149556e80262', 130, 6, 'break_start', '2026-09-22 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (493, 1, 'a876e3c2-c827-40bd-820f-4a3d1e9e1153', 130, 6, 'break_end', '2026-09-22 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (494, 1, 'da6deebc-1de2-4438-ac97-c3a19d0fc37d', 130, 6, 'check_out', '2026-09-22 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (495, 1, '25fb83c5-037f-4373-85f7-79865ea981f0', 131, 7, 'check_in', '2026-09-22 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (496, 1, 'bd162c4e-b23f-4750-a35b-629acdbbb14d', 131, 7, 'break_start', '2026-09-22 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (497, 1, '9701fe5e-7e7e-48ad-8feb-0c9464a3b41e', 131, 7, 'break_end', '2026-09-22 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (498, 1, 'e0ea5098-9800-4997-805c-069ca09e86be', 131, 7, 'check_out', '2026-09-22 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (499, 1, '87129520-f6c3-4f55-aa68-f0542d816f36', 132, 8, 'check_in', '2026-09-22 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (500, 1, 'fdf15973-40e4-41c5-945c-1591c5bd7bd0', 132, 8, 'break_start', '2026-09-22 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (501, 1, 'fc2c9e63-976c-4571-91f2-9a5e732bad5c', 132, 8, 'break_end', '2026-09-22 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (502, 1, 'c0d1e604-6d98-462f-a31b-24eba1f8e9e1', 132, 8, 'check_out', '2026-09-22 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (503, 1, '635f1589-84f9-4238-83eb-24b510480983', 133, 9, 'check_in', '2026-09-22 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (504, 1, '3ef9dd64-a7b5-4c11-9736-9dc34703a5b8', 133, 9, 'break_start', '2026-09-22 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (505, 1, 'a8d8f652-3de6-4fb5-8ab4-575ef220848f', 133, 9, 'break_end', '2026-09-22 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (506, 1, '9a9acfb8-1846-437f-84e9-c9abb492525e', 133, 9, 'check_out', '2026-09-22 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (507, 1, '55aef971-ff14-414f-9c78-671c10f7b901', 134, 2, 'check_in', '2026-09-23 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (508, 1, 'aa34ff20-103a-43ce-bea3-eace3198a509', 134, 2, 'break_start', '2026-09-23 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (509, 1, 'ce3be52b-95f5-4821-b53e-603835aa5dc2', 134, 2, 'break_end', '2026-09-23 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (510, 1, 'b89a1f0b-bec3-4f4d-9f4c-607cd8b23349', 134, 2, 'check_out', '2026-09-23 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (511, 1, 'd68b5b2d-a282-4fcc-a61e-2a444381ff51', 135, 3, 'check_in', '2026-09-23 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (512, 1, 'e5f4e284-dbad-40c6-8496-39edd132334f', 135, 3, 'break_start', '2026-09-23 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (513, 1, '3228c07b-5b49-4d2e-adff-0da47b0f9629', 135, 3, 'break_end', '2026-09-23 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (514, 1, '4ddc4c52-fee6-4d2b-883b-8a88f5542940', 135, 3, 'check_out', '2026-09-23 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (515, 1, '711d1bd7-efe7-43dc-a0b0-12e9d0a20879', 136, 4, 'check_in', '2026-09-23 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (516, 1, 'fe4393a8-e0c8-40a8-8511-5b72db810376', 136, 4, 'break_start', '2026-09-23 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (517, 1, 'b6d77568-f6c3-4a22-8312-d0ba74edaead', 136, 4, 'break_end', '2026-09-23 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (518, 1, '11efb746-c7cf-478d-9ece-6d400e6859e4', 136, 4, 'check_out', '2026-09-23 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (519, 1, '9d060a04-d10e-4ae0-a276-2d160169ce84', 137, 5, 'check_in', '2026-09-23 05:58:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (520, 1, 'f1e5cf42-d7bf-4356-8d73-73da1065b76e', 137, 5, 'break_start', '2026-09-23 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50');
 
 INSERT INTO `attendance_events` (`id`, `company_id`, `uuid`, `attendance_day_id`, `user_id`, `type`, `occurred_at`, `location`, `status`, `note`, `source`, `actor_id`, `ip`, `created_at`, `updated_at`) VALUES
-    (521, 1, 'cda4b5d0-2028-40bf-b974-ff7b64e866bf', 137, 5, 'break_end', '2026-09-23 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (522, 1, '6cdd2d61-12c6-472e-8df5-5ad17377a423', 137, 5, 'check_out', '2026-09-23 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (523, 1, '6d82f636-619d-4eec-8993-516abe4f8350', 138, 6, 'check_in', '2026-09-23 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (524, 1, 'a42bbb06-daf0-4105-9888-07a44cd32bd2', 138, 6, 'break_start', '2026-09-23 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (525, 1, 'd356d487-5a39-407f-a1eb-345f0156541c', 138, 6, 'break_end', '2026-09-23 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (526, 1, 'bd831a68-6f63-4cfa-8662-ee31b7a10844', 138, 6, 'check_out', '2026-09-23 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (527, 1, 'f4fa6e2a-51fa-445a-a313-baf38d4f0794', 139, 7, 'check_in', '2026-09-23 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (528, 1, 'b2a9f326-2107-4c48-aeae-ab5de9cfa652', 139, 7, 'break_start', '2026-09-23 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (529, 1, '85308ab4-8fd6-4bf3-a9af-eac96567a95e', 139, 7, 'break_end', '2026-09-23 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (530, 1, '3820d9b9-1d87-4ba9-9e89-0aa0285bbc0c', 139, 7, 'check_out', '2026-09-23 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (531, 1, 'ca85dc62-810b-4dfe-90fe-ee2dea59b40f', 140, 8, 'check_in', '2026-09-23 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (532, 1, 'ab0384e3-df49-4a95-831b-4490aa730b11', 140, 8, 'break_start', '2026-09-23 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (533, 1, 'dcbbf675-76f5-43ee-854b-54c3c5137a79', 140, 8, 'break_end', '2026-09-23 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (534, 1, 'c42acc60-e35d-49a1-b6e4-628ff77874bb', 140, 8, 'check_out', '2026-09-23 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (535, 1, 'e34a9cf5-4692-47db-8866-05bc0f279075', 141, 9, 'check_in', '2026-09-23 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (536, 1, '25e4cd1f-1c4c-467b-90a7-bccedb62fdae', 141, 9, 'break_start', '2026-09-23 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (537, 1, 'eaca7c1d-50a0-47a4-a0bf-2cbc73d7ca69', 141, 9, 'break_end', '2026-09-23 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (538, 1, 'e427bfb9-11d7-47fa-ad06-6a6dfb661a4f', 141, 9, 'check_out', '2026-09-23 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (539, 1, '4bbe3651-8d6d-4c8c-90ac-1c9a8918569b', 142, 2, 'check_in', '2026-09-24 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (540, 1, '87be0bdd-91f7-4a1c-a273-d6a078967a0d', 142, 2, 'break_start', '2026-09-24 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (541, 1, 'e9e87d4e-99ff-43e2-ad7e-f21e056525d8', 142, 2, 'break_end', '2026-09-24 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (542, 1, 'ed0d1079-e159-462b-ac26-65f35a555a7d', 142, 2, 'check_out', '2026-09-24 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (543, 1, 'fa57dbff-1520-45b4-888f-93dbeddabdc8', 143, 3, 'check_in', '2026-09-24 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (544, 1, '8f78f8e1-1749-47eb-818b-7b0648083f64', 143, 3, 'break_start', '2026-09-24 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (545, 1, '057e49f0-6ee8-45df-8732-043bfb50b964', 143, 3, 'break_end', '2026-09-24 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (546, 1, 'a0ffd839-2585-4556-a63c-e9f7d61bb929', 143, 3, 'check_out', '2026-09-24 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (547, 1, '6e6d24df-8e97-4caf-b0e1-8c32118b0370', 143, 3, 'correction', '2026-09-24 13:50:00', 'remote', NULL, 'اصلاح ساعت توسط مدیر', 'correction', 2, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (548, 1, '52a7df25-002c-453f-9326-0ddf5b93c728', 144, 4, 'check_in', '2026-09-24 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (549, 1, '5400bb0f-1d2f-4649-bdb7-4d115d4877a0', 144, 4, 'break_start', '2026-09-24 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (550, 1, '887bdb27-699c-4ffb-a4bd-6f46b0f033a4', 144, 4, 'break_end', '2026-09-24 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (551, 1, '384062aa-2072-4e5a-8846-36d96971c55c', 144, 4, 'check_out', '2026-09-24 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (552, 1, 'd98bc176-a9ef-43c3-8ed6-9b9d676cee2c', 145, 5, 'check_in', '2026-09-24 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (553, 1, '95820f86-869b-490e-b240-324a4b068acc', 145, 5, 'break_start', '2026-09-24 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (554, 1, '982e375e-3b78-4620-a09a-f0efb8a02601', 145, 5, 'break_end', '2026-09-24 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (555, 1, '92cc8118-2f37-46bf-8d5e-404de944501d', 145, 5, 'check_out', '2026-09-24 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (556, 1, '28959771-f5ae-4fbb-aa90-402e88f02e5b', 146, 6, 'check_in', '2026-09-24 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (557, 1, '07bd92d5-8705-4630-98af-963e1574d17a', 146, 6, 'break_start', '2026-09-24 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (558, 1, '1cb45bcf-4010-46f8-aea2-ef71b12be595', 146, 6, 'break_end', '2026-09-24 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (559, 1, 'ab1bf981-8286-4b00-aaec-f9fd2c208e78', 146, 6, 'check_out', '2026-09-24 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (560, 1, '4d263864-8b06-41f3-9d27-6dba50f69905', 147, 7, 'check_in', '2026-09-24 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31');
+    (521, 1, '56c2b082-0eb6-4838-8a4d-ed2ffaec1eba', 137, 5, 'break_end', '2026-09-23 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (522, 1, '74e21099-6235-45e2-8db7-7594b8b6d689', 137, 5, 'check_out', '2026-09-23 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (523, 1, '6ef5d27a-2374-4701-b310-9401e44b48a7', 138, 6, 'check_in', '2026-09-23 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (524, 1, '968aaefd-bd86-48fe-979c-4163c36dd50d', 138, 6, 'break_start', '2026-09-23 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (525, 1, 'fcb80aec-9882-4213-b704-2ce3fa0eff3a', 138, 6, 'break_end', '2026-09-23 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (526, 1, 'adc3f62d-04f2-4625-87fe-3e6d5da4b58f', 138, 6, 'check_out', '2026-09-23 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (527, 1, '12be3b1b-f655-4f4a-a72c-ea7753bcbc8a', 139, 7, 'check_in', '2026-09-23 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (528, 1, 'ad923f7f-1bd9-462a-b9fb-5ffbb9b19e2c', 139, 7, 'break_start', '2026-09-23 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (529, 1, 'd1c023fe-f83b-4390-ad59-51a795357a70', 139, 7, 'break_end', '2026-09-23 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (530, 1, '70db209e-1e68-4015-b79a-82cf459eef6e', 139, 7, 'check_out', '2026-09-23 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (531, 1, 'f0172093-86d7-47d0-9e2a-52a86a0b4d26', 140, 8, 'check_in', '2026-09-23 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (532, 1, '80b054aa-2918-453b-a605-fa13f3dd9f6e', 140, 8, 'break_start', '2026-09-23 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (533, 1, 'e2cdc466-a27d-4885-a72d-dfbd0951fe42', 140, 8, 'break_end', '2026-09-23 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (534, 1, '4219b4ab-b3c0-4492-9b9e-e56f243ad895', 140, 8, 'check_out', '2026-09-23 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (535, 1, 'a6303c59-64bd-4dd1-90e1-ca6299feb387', 141, 9, 'check_in', '2026-09-23 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (536, 1, '80099680-a039-4fd6-9114-aff1cb0e0a2b', 141, 9, 'break_start', '2026-09-23 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (537, 1, 'fd0ed1b5-c05a-42af-8985-9a4dec60d135', 141, 9, 'break_end', '2026-09-23 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (538, 1, 'c0e000c9-5bd9-42ec-bd01-ca020e7a5abc', 141, 9, 'check_out', '2026-09-23 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (539, 1, 'd9ecadc3-ac47-4898-b1f2-06ad93fbcc9c', 142, 2, 'check_in', '2026-09-24 05:20:00', 'office', NULL, NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (540, 1, '80019dda-c2de-47fa-b420-4187e585ddc0', 142, 2, 'break_start', '2026-09-24 09:30:00', 'office', 'break', NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (541, 1, '82345399-c789-4fe2-bca0-8905268cb7bc', 142, 2, 'break_end', '2026-09-24 10:30:00', 'office', 'office', NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (542, 1, '4085ca9c-a3ef-4331-a7a7-9f5455f95146', 142, 2, 'check_out', '2026-09-24 13:40:00', 'office', 'off', NULL, 'self', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (543, 1, '43cc5b68-2ba7-479e-b771-f3467f15d178', 143, 3, 'check_in', '2026-09-24 05:36:00', 'remote', NULL, NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (544, 1, '8c2c96b2-f178-4acc-b188-29d344c439c3', 143, 3, 'break_start', '2026-09-24 09:30:00', 'remote', 'break', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (545, 1, 'f18f8c4a-c54d-4ff5-b193-a576b2b8677b', 143, 3, 'break_end', '2026-09-24 10:25:00', 'remote', 'remote', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (546, 1, 'c2541b81-e794-4365-bac6-1d5cf46b1c1b', 143, 3, 'check_out', '2026-09-24 13:50:00', 'remote', 'off', NULL, 'self', 3, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (547, 1, '03122351-4574-4c4c-9422-7d11dd50d328', 143, 3, 'correction', '2026-09-24 13:50:00', 'remote', NULL, 'اصلاح ساعت توسط مدیر', 'correction', 2, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (548, 1, 'bb1387c4-4262-40e5-bc3e-343524aa1a20', 144, 4, 'check_in', '2026-09-24 05:34:00', 'office', NULL, NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (549, 1, '02c329e8-0cd3-4029-ba16-1e3ac14ec566', 144, 4, 'break_start', '2026-09-24 09:30:00', 'office', 'break', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (550, 1, 'f31467a5-a9ad-43d2-be21-cd3d3f6f2459', 144, 4, 'break_end', '2026-09-24 10:30:00', 'office', 'office', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (551, 1, '87efa664-e474-4c2b-98df-73f76c9545f8', 144, 4, 'check_out', '2026-09-24 13:30:00', 'office', 'off', NULL, 'self', 4, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (552, 1, '9f5c4a45-453a-4bc1-9eed-23c703f0b527', 145, 5, 'check_in', '2026-09-24 05:38:00', 'office', NULL, NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (553, 1, '569ef124-e510-4974-8b9f-8ad75dfa1a1a', 145, 5, 'break_start', '2026-09-24 09:30:00', 'office', 'break', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (554, 1, 'a89aab06-3229-4404-8016-35715e57246c', 145, 5, 'break_end', '2026-09-24 10:30:00', 'office', 'office', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (555, 1, 'a3872127-5fdb-44d5-b62f-5845215d7c0e', 145, 5, 'check_out', '2026-09-24 13:35:00', 'office', 'off', NULL, 'self', 5, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (556, 1, '28e4ce03-4284-4212-ace3-914d05ee97f4', 146, 6, 'check_in', '2026-09-24 05:30:00', 'office', NULL, NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (557, 1, '95a70043-c583-4215-b792-48503c302aea', 146, 6, 'break_start', '2026-09-24 09:30:00', 'office', 'break', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (558, 1, '022efbb4-a3c1-4039-908e-dfb35b87bc17', 146, 6, 'break_end', '2026-09-24 10:15:00', 'office', 'office', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (559, 1, '2a284716-921f-491e-a7ce-9f791cf72efb', 146, 6, 'check_out', '2026-09-24 13:10:00', 'office', 'off', NULL, 'self', 6, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (560, 1, 'cd6fcd8b-f24e-4385-8048-dfe12773b82b', 147, 7, 'check_in', '2026-09-24 05:42:00', 'office', NULL, NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50');
 
 INSERT INTO `attendance_events` (`id`, `company_id`, `uuid`, `attendance_day_id`, `user_id`, `type`, `occurred_at`, `location`, `status`, `note`, `source`, `actor_id`, `ip`, `created_at`, `updated_at`) VALUES
-    (561, 1, 'f388cbe8-068e-4974-ae9e-8a4593a81886', 147, 7, 'break_start', '2026-09-24 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (562, 1, 'a7d34772-8c8b-477f-ae76-a35316fba30c', 147, 7, 'break_end', '2026-09-24 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (563, 1, '40e965a4-82d1-401d-a4b4-a693d2b67814', 147, 7, 'check_out', '2026-09-24 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (564, 1, '16db23e2-8366-469d-9477-af27ef73e8a4', 148, 8, 'check_in', '2026-09-24 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (565, 1, 'b7325e08-b6cc-48f4-83a3-db2c49383a5c', 148, 8, 'break_start', '2026-09-24 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (566, 1, 'ddcf5172-9d12-42e2-8c85-7803cfb33125', 148, 8, 'break_end', '2026-09-24 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (567, 1, 'f2e6814f-68a9-4173-a778-e2488e3cbfde', 148, 8, 'check_out', '2026-09-24 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (568, 1, '7702b579-d423-44b4-a883-b4b28d7c4d3f', 149, 9, 'check_in', '2026-09-24 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (569, 1, '5e512193-2d62-469f-aab5-392ab2f62384', 149, 9, 'break_start', '2026-09-24 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (570, 1, '797d91de-0069-4378-82ba-0f51406f327c', 149, 9, 'break_end', '2026-09-24 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (571, 1, 'ea956ad1-4e7e-4558-bc03-9e07df37f967', 149, 9, 'check_out', '2026-09-24 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 14:37:31', '2026-09-25 14:37:31');
+    (561, 1, 'e92b4c6e-4c18-4ae4-9a23-24c7ebda5b54', 147, 7, 'break_start', '2026-09-24 09:30:00', 'office', 'break', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (562, 1, 'ca829ae7-8658-491d-8ef1-0870892babfd', 147, 7, 'break_end', '2026-09-24 10:30:00', 'office', 'office', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (563, 1, '7da3d2af-8514-4095-998d-84044c13da89', 147, 7, 'check_out', '2026-09-24 13:30:00', 'office', 'off', NULL, 'self', 7, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (564, 1, '61ff6eee-7eb9-4fd8-b84a-1c2da3e4bb9b', 148, 8, 'check_in', '2026-09-24 05:25:00', 'office', NULL, NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (565, 1, '2d7ad521-4ecf-4133-a1dc-5b4c7e70dab2', 148, 8, 'break_start', '2026-09-24 09:30:00', 'office', 'break', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (566, 1, '1b6ba609-0347-48cc-b6dc-bd3087e5e2e5', 148, 8, 'break_end', '2026-09-24 10:30:00', 'office', 'office', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (567, 1, '0c2211d0-8603-4d5c-a71d-ce8400314bef', 148, 8, 'check_out', '2026-09-24 13:45:00', 'office', 'off', NULL, 'self', 8, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (568, 1, 'dabbe029-221c-4f95-977a-897f70ad00cc', 149, 9, 'check_in', '2026-09-24 05:31:00', 'office', NULL, NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (569, 1, 'd34b01af-3c0e-4150-b40e-aba1d5cad527', 149, 9, 'break_start', '2026-09-24 09:30:00', 'office', 'break', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (570, 1, '9376801f-1d4f-43a9-9ecc-0ceb760bc1e4', 149, 9, 'break_end', '2026-09-24 10:30:00', 'office', 'office', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (571, 1, '930b58d2-b571-46ee-9619-9317d91e88a7', 149, 9, 'check_out', '2026-09-24 13:30:00', 'office', 'off', NULL, 'self', 9, NULL, '2026-09-25 21:32:50', '2026-09-25 21:32:50');
 
 ALTER TABLE `attendance_events` AUTO_INCREMENT = 572;
 
 -- work_presences (5)
 INSERT INTO `work_presences` (`id`, `company_id`, `user_id`, `status`, `resume_status`, `note`, `since`, `created_at`, `updated_at`) VALUES
-    (1, 1, 2, 'office', NULL, 'شروع روز در دفتر', '2026-09-25 14:37:29', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (2, 1, 3, 'remote', NULL, NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (3, 1, 4, 'break', 'office', NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (4, 1, 6, 'mission', 'office', 'جلسه با مشتری', '2026-09-25 14:37:29', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (5, 1, 9, 'leave', 'office', 'مرخصی ساعتی', '2026-09-25 14:37:29', '2026-09-25 14:37:29', '2026-09-25 14:37:29');
+    (1, 1, 2, 'office', NULL, 'شروع روز در دفتر', '2026-09-25 21:32:48', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (2, 1, 3, 'remote', NULL, NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (3, 1, 4, 'break', 'office', NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (4, 1, 6, 'mission', 'office', 'جلسه با مشتری', '2026-09-25 21:32:48', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (5, 1, 9, 'leave', 'office', 'مرخصی ساعتی', '2026-09-25 21:32:48', '2026-09-25 21:32:48', '2026-09-25 21:32:48');
 
 ALTER TABLE `work_presences` AUTO_INCREMENT = 6;
 
 -- daily_reports (33)
 INSERT INTO `daily_reports` (`id`, `company_id`, `uuid`, `user_id`, `work_date`, `kind`, `body`, `blockers`, `submitted_at`, `created_at`, `updated_at`) VALUES
-    (1, 1, '37bf69e9-0f1a-46af-aade-75d0925bd604', 3, '2026-09-25 00:00:00', 'morning', 'امروز روی هستهٔ حضور و گزارش روزانه کار می‌کنم.', NULL, '2026-09-25 14:37:29', '2026-09-25 14:37:29', '2026-09-25 14:37:29'),
-    (2, 1, 'b9177811-e5b4-4592-ae2b-f7b79d3f9543', 2, '2026-09-21 00:00:00', 'morning', 'سارا محمدی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-21 05:40:00', '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (3, 1, '27d818f8-be62-43d9-bc95-c1a5907bc2eb', 2, '2026-09-21 00:00:00', 'daily', 'سارا محمدی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-21 13:25:00', '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (4, 1, 'c0f1431d-3930-4958-a231-61f498b7aa53', 3, '2026-09-21 00:00:00', 'morning', 'آرمان کاظمی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-21 05:56:00', '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (5, 1, 'b654738e-87a2-48e5-a78e-b6fdc476233c', 3, '2026-09-21 00:00:00', 'daily', 'آرمان کاظمی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-21 13:35:00', '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (6, 1, '81ede585-c93e-49f6-aae4-37da38682ef2', 5, '2026-09-21 00:00:00', 'morning', 'حسین مرادی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-21 05:58:00', '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (7, 1, '230c5e8d-d6f0-4c1d-9460-d89fc35ecd69', 5, '2026-09-21 00:00:00', 'daily', 'حسین مرادی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-21 13:20:00', '2026-09-25 14:37:30', '2026-09-25 14:37:30'),
-    (8, 1, '11abb85d-c274-4df3-8e13-a8404c169a55', 9, '2026-09-21 00:00:00', 'morning', 'رضا شریفی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-21 05:51:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (9, 1, '2c438445-3cbc-47eb-a160-801a12c696f6', 9, '2026-09-21 00:00:00', 'daily', 'رضا شریفی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-21 13:15:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (10, 1, '57f24a61-a244-4eb6-bf18-8516c65c9221', 2, '2026-09-22 00:00:00', 'morning', 'سارا محمدی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-22 05:40:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (11, 1, 'e6786f32-4c9b-45de-8ffc-a28e31430572', 2, '2026-09-22 00:00:00', 'daily', 'سارا محمدی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-22 13:25:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (12, 1, '6d7eb09b-f159-4993-998e-4406d024b63f', 3, '2026-09-22 00:00:00', 'morning', 'آرمان کاظمی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-22 06:18:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (13, 1, 'ba886329-4928-4101-b4ca-9a404c3b46bb', 3, '2026-09-22 00:00:00', 'daily', 'آرمان کاظمی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-22 13:35:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (14, 1, '5bf1fa9f-cacd-491f-9c07-b62bfc41727e', 5, '2026-09-22 00:00:00', 'morning', 'حسین مرادی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-22 05:58:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (15, 1, 'b3e55c25-52e1-4cbb-ba4e-3318688e0e61', 5, '2026-09-22 00:00:00', 'daily', 'حسین مرادی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-22 13:20:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (16, 1, 'bcb456de-ebf0-47c8-b851-85e646277c4b', 9, '2026-09-22 00:00:00', 'morning', 'رضا شریفی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-22 05:51:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (17, 1, '874e0e92-5628-4276-81d9-ce4add21db5c', 9, '2026-09-22 00:00:00', 'daily', 'رضا شریفی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-22 13:15:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (18, 1, '38f431f9-d7e4-4404-b0ea-533ac3b95191', 2, '2026-09-23 00:00:00', 'morning', 'سارا محمدی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-23 05:40:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (19, 1, '6735ca2d-c198-458d-8ecc-0c456a5fbe62', 2, '2026-09-23 00:00:00', 'daily', 'سارا محمدی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-23 13:25:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (20, 1, '873af275-6f34-47e0-bda4-a1d80098dd14', 3, '2026-09-23 00:00:00', 'morning', 'آرمان کاظمی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-23 05:56:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (21, 1, '9581f3d1-53ab-4999-9ad4-6dd5e6b3511b', 3, '2026-09-23 00:00:00', 'daily', 'آرمان کاظمی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-23 13:35:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (22, 1, '1a0305b4-cf00-4ef5-9bc3-a4b27ea0c5bd', 5, '2026-09-23 00:00:00', 'morning', 'حسین مرادی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-23 06:18:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (23, 1, 'fcee568a-331a-48c2-ab32-4d7f852670aa', 5, '2026-09-23 00:00:00', 'daily', 'حسین مرادی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-23 13:20:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (24, 1, '5848abc4-139e-4fe0-b6cd-8e728858a6a1', 9, '2026-09-23 00:00:00', 'morning', 'رضا شریفی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-23 05:51:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (25, 1, '05f3f194-fc5b-4d00-bc94-dd8623951bfd', 9, '2026-09-23 00:00:00', 'daily', 'رضا شریفی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-23 13:15:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (26, 1, '2d0acc2c-f649-4a89-99cb-13ff111051be', 2, '2026-09-24 00:00:00', 'morning', 'سارا محمدی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-24 05:40:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (27, 1, '431c439d-3c23-4db8-88f6-beb93e973ef6', 2, '2026-09-24 00:00:00', 'daily', 'سارا محمدی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-24 13:25:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (28, 1, '90577c74-d4ea-481a-bc79-2f4680a545c4', 3, '2026-09-24 00:00:00', 'morning', 'آرمان کاظمی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-24 05:56:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (29, 1, '4972a233-6588-4844-a8c7-5c5845447e10', 3, '2026-09-24 00:00:00', 'daily', 'آرمان کاظمی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-24 13:35:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (30, 1, '8aa51552-269b-4b92-8a0e-40cbd810a389', 5, '2026-09-24 00:00:00', 'morning', 'حسین مرادی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-24 05:58:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (31, 1, '8758508d-bce8-4cca-a620-4d45085cbc8b', 5, '2026-09-24 00:00:00', 'daily', 'حسین مرادی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-24 13:20:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (32, 1, '1abdf743-19eb-4dfd-a3b0-129eae6bf29a', 9, '2026-09-24 00:00:00', 'morning', 'رضا شریفی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-24 05:51:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31'),
-    (33, 1, '8ede7871-ba89-49f4-a22c-d337d8cae618', 9, '2026-09-24 00:00:00', 'daily', 'رضا شریفی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-24 13:15:00', '2026-09-25 14:37:31', '2026-09-25 14:37:31');
+    (1, 1, '0e640a53-e769-419e-8664-3c69ab076db7', 3, '2026-09-26 00:00:00', 'morning', 'امروز روی هستهٔ حضور و گزارش روزانه کار می‌کنم.', NULL, '2026-09-25 21:32:48', '2026-09-25 21:32:48', '2026-09-25 21:32:48'),
+    (2, 1, 'efb6bfd4-ac76-48c5-9516-60c106eed8fa', 2, '2026-09-21 00:00:00', 'morning', 'سارا محمدی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-21 05:40:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (3, 1, '66a924d5-f88f-4cd4-ae61-23a3d9a81482', 2, '2026-09-21 00:00:00', 'daily', 'سارا محمدی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-21 13:25:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (4, 1, '7d9c0186-5a11-4780-9924-a9eb9939c4d3', 3, '2026-09-21 00:00:00', 'morning', 'آرمان کاظمی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-21 05:56:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (5, 1, '3584939a-105c-4a52-89c5-494bb2523809', 3, '2026-09-21 00:00:00', 'daily', 'آرمان کاظمی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-21 13:35:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (6, 1, 'd99ac3ad-b62d-46a8-87fb-084ea15ef04a', 5, '2026-09-21 00:00:00', 'morning', 'حسین مرادی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-21 05:58:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (7, 1, 'c5e838ce-3107-4462-841c-7672a875332e', 5, '2026-09-21 00:00:00', 'daily', 'حسین مرادی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-21 13:20:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (8, 1, 'd7fa1ac4-1a50-464c-8ab0-8332c3d8a7fd', 9, '2026-09-21 00:00:00', 'morning', 'رضا شریفی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-21 05:51:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (9, 1, '82420f58-287d-46c3-899d-83f159467f1f', 9, '2026-09-21 00:00:00', 'daily', 'رضا شریفی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-21 13:15:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (10, 1, '17fea181-2190-46b2-9534-d6f2882d68ba', 2, '2026-09-22 00:00:00', 'morning', 'سارا محمدی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-22 05:40:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (11, 1, '53845933-52ea-4a6f-92f3-bba23427f93d', 2, '2026-09-22 00:00:00', 'daily', 'سارا محمدی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-22 13:25:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (12, 1, 'aa0f7720-ba5f-4498-b166-9e3bcaf895af', 3, '2026-09-22 00:00:00', 'morning', 'آرمان کاظمی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-22 06:18:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (13, 1, 'fe88e2d9-eb51-4bdd-bcbb-91b1390cab2c', 3, '2026-09-22 00:00:00', 'daily', 'آرمان کاظمی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-22 13:35:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (14, 1, 'b191b4bc-4ac9-4a9f-9f98-a7e9a7639656', 5, '2026-09-22 00:00:00', 'morning', 'حسین مرادی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-22 05:58:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (15, 1, '9fcb3518-87eb-4db8-b7b5-80940cbb1cf5', 5, '2026-09-22 00:00:00', 'daily', 'حسین مرادی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-22 13:20:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (16, 1, '25e036e1-fd8d-4000-a06b-f31b1e1e4c1d', 9, '2026-09-22 00:00:00', 'morning', 'رضا شریفی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-22 05:51:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (17, 1, '8aa31569-0828-46e4-8f08-439341900c52', 9, '2026-09-22 00:00:00', 'daily', 'رضا شریفی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-22 13:15:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (18, 1, '3aa4063d-0b0c-4d6b-83b7-74cdae054152', 2, '2026-09-23 00:00:00', 'morning', 'سارا محمدی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-23 05:40:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (19, 1, '30dc73b5-c0db-4411-8487-5cf7af52d990', 2, '2026-09-23 00:00:00', 'daily', 'سارا محمدی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-23 13:25:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (20, 1, '6d6ff842-aa4c-4893-89f4-71ac8a2bcabc', 3, '2026-09-23 00:00:00', 'morning', 'آرمان کاظمی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-23 05:56:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (21, 1, 'b6cd6409-7768-411c-bf0a-138215e08e23', 3, '2026-09-23 00:00:00', 'daily', 'آرمان کاظمی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-23 13:35:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (22, 1, '3c04ef51-7dbf-47c1-aa6f-f9459b3e3b26', 5, '2026-09-23 00:00:00', 'morning', 'حسین مرادی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-23 06:18:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (23, 1, 'b1202bdc-11db-460b-88bd-0b5f004fdeb9', 5, '2026-09-23 00:00:00', 'daily', 'حسین مرادی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-23 13:20:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (24, 1, 'faf2f2b3-c34c-4188-8689-0fa379e25618', 9, '2026-09-23 00:00:00', 'morning', 'رضا شریفی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-23 05:51:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (25, 1, 'edfd0379-9f32-4610-b1d8-a24c4da3f5d6', 9, '2026-09-23 00:00:00', 'daily', 'رضا شریفی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-23 13:15:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (26, 1, '2e228312-83d5-4428-8b8d-95f1fafce4ba', 2, '2026-09-24 00:00:00', 'morning', 'سارا محمدی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-24 05:40:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (27, 1, 'b0e39e39-b3cd-4e3b-855d-052d95b70896', 2, '2026-09-24 00:00:00', 'daily', 'سارا محمدی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-24 13:25:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (28, 1, 'a46b9568-f006-4fc7-95b0-df2295f9b710', 3, '2026-09-24 00:00:00', 'morning', 'آرمان کاظمی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-24 05:56:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (29, 1, '5cd5103c-4081-4c13-ae4c-9d5d91610d87', 3, '2026-09-24 00:00:00', 'daily', 'آرمان کاظمی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-24 13:35:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (30, 1, '225ff7c9-4f5e-43e3-ba58-5634eac60223', 5, '2026-09-24 00:00:00', 'morning', 'حسین مرادی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-24 05:58:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (31, 1, '581cc474-090e-4250-a8a4-f015d08dbb59', 5, '2026-09-24 00:00:00', 'daily', 'حسین مرادی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-24 13:20:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (32, 1, '7845902d-d3da-4849-a7d1-e8c910fbb3d8', 9, '2026-09-24 00:00:00', 'morning', 'رضا شریفی — برنامهٔ امروز: وظایف باز، هماهنگی با تیم و ثبت گزارش پایان روز.', NULL, '2026-09-24 05:51:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50'),
+    (33, 1, 'b3b290b8-3ec9-4bc0-b494-54bc19e93ef6', 9, '2026-09-24 00:00:00', 'daily', 'رضا شریفی — کارهای امروز انجام شد. ساعت ورود و خروج در گزارش کار ثبت است.', NULL, '2026-09-24 13:15:00', '2026-09-25 21:32:50', '2026-09-25 21:32:50');
 
 ALTER TABLE `daily_reports` AUTO_INCREMENT = 34;
 
--- activity_logs (17)
+-- activity_logs (25)
 INSERT INTO `activity_logs` (`id`, `company_id`, `user_id`, `action`, `entity_type`, `entity_id`, `entity_uuid`, `description`, `old_values`, `new_values`, `ip`, `user_agent`, `created_at`) VALUES
-    (1, 1, 2, 'CREATE', 'company', 1, '41cd3a34-b26b-46e0-82be-9f29978ddce4', 'Company provisioned', NULL, '{"name":"\\u0634\\u0628\\u06a9\\u0647 \\u067e\\u0631\\u062f\\u0627\\u0632\\u0627\\u0646 \\u0627\\u06cc\\u062f\\u0647\\u200c\\u0628\\u0627\\u0646 \\u0627\\u0644\\u0645\\u0627\\u0633","slug":"ideban-almas"}', '127.0.0.1', 'Symfony', '2026-09-25 14:37:27'),
-    (2, 1, NULL, 'CREATE', 'user', 3, 'c80b8248-d9d2-4aab-9508-1ac90d7e57ff', 'Member added', NULL, '{"email":"developer@ideban.test","roles":["team-leader"]}', '127.0.0.1', 'Symfony', '2026-09-25 14:37:28'),
-    (3, 1, NULL, 'CREATE', 'user', 4, 'fc49c722-527d-4a95-8601-4ff5849867f3', 'Member added', NULL, '{"email":"devops@ideban.test","roles":["employee"]}', '127.0.0.1', 'Symfony', '2026-09-25 14:37:28'),
-    (4, 1, NULL, 'CREATE', 'user', 5, '417fdbbf-1bff-4946-b006-36f60ffbc0d2', 'Member added', NULL, '{"email":"support@ideban.test","roles":["employee"]}', '127.0.0.1', 'Symfony', '2026-09-25 14:37:28'),
-    (5, 1, NULL, 'CREATE', 'user', 6, 'f7765985-3eab-4ed7-b9ca-e43f99ed84b2', 'Member added', NULL, '{"email":"sales@ideban.test","roles":["sales","department-manager"]}', '127.0.0.1', 'Symfony', '2026-09-25 14:37:28'),
-    (6, 1, NULL, 'CREATE', 'user', 7, '2ca5e606-62d3-47ed-a6d9-8dd27960902a', 'Member added', NULL, '{"email":"marketing@ideban.test","roles":["marketing"]}', '127.0.0.1', 'Symfony', '2026-09-25 14:37:29'),
-    (7, 1, NULL, 'CREATE', 'user', 8, '820e5858-4af0-4fbd-9074-59a7a061146b', 'Member added', NULL, '{"email":"finance@ideban.test","roles":["finance","department-manager"]}', '127.0.0.1', 'Symfony', '2026-09-25 14:37:29'),
-    (8, 1, NULL, 'CREATE', 'user', 9, 'a54b1677-2a9e-4426-b280-91f3fb467565', 'Member added', NULL, '{"email":"hr@ideban.test","roles":["hr"]}', '127.0.0.1', 'Symfony', '2026-09-25 14:37:29'),
-    (9, 1, NULL, 'CLOCK_IN', 'attendance_day', 1, 'b2c119d6-c719-4b8c-94a9-517f90a08fb7', NULL, NULL, '{"location":"office","work_date":"2026-09-25"}', '127.0.0.1', 'Symfony', '2026-09-25 14:37:29'),
-    (10, 1, NULL, 'CLOCK_IN', 'attendance_day', 2, 'cb0acbb5-f616-47dd-8e72-72dae35c39f7', NULL, NULL, '{"location":"remote","work_date":"2026-09-25"}', '127.0.0.1', 'Symfony', '2026-09-25 14:37:29'),
-    (11, 1, NULL, 'REPORT', 'daily_report', 1, '37bf69e9-0f1a-46af-aade-75d0925bd604', NULL, NULL, '{"kind":"morning","work_date":"2026-09-25"}', '127.0.0.1', 'Symfony', '2026-09-25 14:37:29'),
-    (12, 1, NULL, 'CLOCK_IN', 'attendance_day', 3, '6d012c9d-da87-42be-8551-44a362ddd4e7', NULL, NULL, '{"location":"office","work_date":"2026-09-25"}', '127.0.0.1', 'Symfony', '2026-09-25 14:37:29'),
-    (13, 1, NULL, 'BREAK_START', 'attendance_day', 3, '6d012c9d-da87-42be-8551-44a362ddd4e7', NULL, NULL, '{"work_date":"2026-09-25"}', '127.0.0.1', 'Symfony', '2026-09-25 14:37:29'),
-    (14, 1, NULL, 'STATUS', 'attendance_day', 4, 'fa3f8b43-bf62-4668-b132-572d38be740e', NULL, NULL, '{"status":"mission"}', '127.0.0.1', 'Symfony', '2026-09-25 14:37:29'),
-    (15, 1, NULL, 'STATUS', 'attendance_day', 5, 'fb981fb7-43af-415a-bf7a-ed6ce0aeef8d', NULL, NULL, '{"status":"leave"}', '127.0.0.1', 'Symfony', '2026-09-25 14:37:29'),
-    (16, 1, NULL, 'CREATE', 'project', 1, 'faa62c90-633d-480d-96ce-9e9213aa0b66', NULL, NULL, '{"name":"\\u0641\\u0631\\u0648\\u0634\\u06af\\u0627\\u0647","visibility":"company"}', '127.0.0.1', 'Symfony', '2026-09-25 14:37:29'),
-    (17, 1, NULL, 'CREATE', 'project', 2, 'cfe60b17-c9a9-4643-9dd0-cf1b98c6b857', NULL, NULL, '{"name":"\\u062f\\u0641\\u062a\\u0631 \\u0645\\u062c\\u0627\\u0632\\u06cc","visibility":"company"}', '127.0.0.1', 'Symfony', '2026-09-25 14:37:29');
+    (1, 1, 2, 'CREATE', 'company', 1, '803a48ab-f04e-42a2-8ee9-c7b58a9eceb3', 'Company provisioned', NULL, '{"name":"\\u0634\\u0628\\u06a9\\u0647 \\u067e\\u0631\\u062f\\u0627\\u0632\\u0627\\u0646 \\u0627\\u06cc\\u062f\\u0647\\u200c\\u0628\\u0627\\u0646 \\u0627\\u0644\\u0645\\u0627\\u0633","slug":"ideban-almas"}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:46'),
+    (2, 1, NULL, 'CREATE', 'user', 3, '8a67473f-5894-459c-97b3-72a7401b716d', 'Member added', NULL, '{"email":"developer@ideban.test","roles":["team-leader"]}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:46'),
+    (3, 1, NULL, 'CREATE', 'user', 4, '6caba140-1e39-431a-be6a-b5febe15c777', 'Member added', NULL, '{"email":"devops@ideban.test","roles":["employee"]}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:46'),
+    (4, 1, NULL, 'CREATE', 'user', 5, '798df375-b455-4c43-89a8-7570f22c6da8', 'Member added', NULL, '{"email":"support@ideban.test","roles":["employee"]}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:47'),
+    (5, 1, NULL, 'CREATE', 'user', 6, '9af7b002-8ba4-4e2b-a615-2f330a8af3b5', 'Member added', NULL, '{"email":"sales@ideban.test","roles":["sales","department-manager"]}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:47'),
+    (6, 1, NULL, 'CREATE', 'user', 7, '9a3579b8-381f-4c81-b2b0-585e21c2ce59', 'Member added', NULL, '{"email":"marketing@ideban.test","roles":["marketing"]}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:47'),
+    (7, 1, NULL, 'CREATE', 'user', 8, '863262b3-1242-4ac2-a51f-2eb98d8088fa', 'Member added', NULL, '{"email":"finance@ideban.test","roles":["finance","department-manager"]}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:47'),
+    (8, 1, NULL, 'CREATE', 'user', 9, '8129e41e-e936-47e9-92f9-94edce593188', 'Member added', NULL, '{"email":"hr@ideban.test","roles":["hr"]}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:48'),
+    (9, 1, NULL, 'CLOCK_IN', 'attendance_day', 1, '7cdc115c-a967-4ac9-8835-b396d78bd836', NULL, NULL, '{"location":"office","work_date":"2026-09-26"}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:48'),
+    (10, 1, NULL, 'CLOCK_IN', 'attendance_day', 2, '973a593f-0aaf-4e47-a72f-86f604555f59', NULL, NULL, '{"location":"remote","work_date":"2026-09-26"}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:48'),
+    (11, 1, NULL, 'REPORT', 'daily_report', 1, '0e640a53-e769-419e-8664-3c69ab076db7', NULL, NULL, '{"kind":"morning","work_date":"2026-09-26"}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:48'),
+    (12, 1, NULL, 'CLOCK_IN', 'attendance_day', 3, '00c20ace-42d6-4a04-aa4e-95c48f468575', NULL, NULL, '{"location":"office","work_date":"2026-09-26"}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:48'),
+    (13, 1, NULL, 'BREAK_START', 'attendance_day', 3, '00c20ace-42d6-4a04-aa4e-95c48f468575', NULL, NULL, '{"work_date":"2026-09-26"}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:48'),
+    (14, 1, NULL, 'STATUS', 'attendance_day', 4, '4ba81535-0529-4119-a977-0215a2db1f7c', NULL, NULL, '{"status":"mission"}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:48'),
+    (15, 1, NULL, 'STATUS', 'attendance_day', 5, 'dd28586a-793c-4f9d-a833-68a440c59aa2', NULL, NULL, '{"status":"leave"}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:48'),
+    (16, 1, NULL, 'CREATE', 'project', 1, 'e3b8f2d8-b203-424b-a9fd-4d1b7bcac121', NULL, NULL, '{"name":"\\u0641\\u0631\\u0648\\u0634\\u06af\\u0627\\u0647","visibility":"company"}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:48'),
+    (17, 1, NULL, 'CREATE', 'project', 2, 'dc33ce45-bdfb-42f6-ba0a-4adb0c292347', NULL, NULL, '{"name":"\\u062f\\u0641\\u062a\\u0631 \\u0645\\u062c\\u0627\\u0632\\u06cc","visibility":"company"}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:48'),
+    (18, 1, NULL, 'CREATE', 'customer', 1, '209f6b8c-6905-439a-b0df-4c3c8248b175', 'Customer registered', NULL, '{"email":"customer@ideban.test","status":"pending"}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:51'),
+    (19, 1, NULL, 'CREATE', 'customer', 2, '6c5c00ab-d082-45a0-8378-8cd6cffcb7ba', 'Customer registered', NULL, '{"email":"pending@ideban.test","status":"pending"}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:51'),
+    (20, 1, NULL, 'UPDATE', 'customer', 1, '209f6b8c-6905-439a-b0df-4c3c8248b175', 'Customer approved', NULL, '{"status":"active"}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:51'),
+    (21, 1, NULL, 'CREATE', 'customer_order', 1, '7aa0fc4e-0b65-4189-80f8-0522f9899a11', 'Customer order placed', NULL, '{"number":"ORD-0001","total_amount":281000000}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:51'),
+    (22, 1, NULL, 'CREATE', 'customer_thread', 1, '75fc0b49-6de0-41fe-82f1-416585be0c1d', 'Customer message opened', NULL, '{"desk":"sales","subject":"\\u0647\\u0645\\u0627\\u0647\\u0646\\u06af\\u06cc \\u062a\\u062d\\u0648\\u06cc\\u0644 \\u0633\\u0641\\u0627\\u0631\\u0634"}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:51'),
+    (23, 1, NULL, 'CREATE', 'customer_thread', 2, '5dc2add9-293b-42ad-a6c4-7673d072f4ad', 'Customer message opened', NULL, '{"desk":"support","subject":"\\u0633\\u0624\\u0627\\u0644 \\u062f\\u0631\\u0628\\u0627\\u0631\\u0647 \\u067e\\u0634\\u062a\\u06cc\\u0628\\u0627\\u0646\\u06cc"}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:51'),
+    (24, 1, NULL, 'CREATE', 'customer_ticket', 1, '2e72c866-3abe-448d-80ee-a9b600e45520', 'Customer ticket opened', NULL, '{"desk":"support","number":"TKT-0001"}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:51'),
+    (25, 1, NULL, 'CREATE', 'customer_ticket', 2, '6bac438d-510e-44f2-a4af-69adee2b9ad5', 'Customer ticket opened', NULL, '{"desk":"management","number":"TKT-0002"}', '127.0.0.1', 'Symfony', '2026-09-25 21:32:51');
 
-ALTER TABLE `activity_logs` AUTO_INCREMENT = 18;
+ALTER TABLE `activity_logs` AUTO_INCREMENT = 26;
 
 -- indexes
 CREATE UNIQUE INDEX `users_uuid_unique` ON `users` (`uuid`);
@@ -2448,6 +2689,23 @@ CREATE UNIQUE INDEX `tickets_uuid_unique` ON `tickets` (`uuid`);
 CREATE UNIQUE INDEX `ticket_messages_uuid_unique` ON `ticket_messages` (`uuid`);
 CREATE UNIQUE INDEX `approvals_uuid_unique` ON `approvals` (`uuid`);
 CREATE UNIQUE INDEX `documents_uuid_unique` ON `documents` (`uuid`);
+CREATE UNIQUE INDEX `customers_company_id_user_id_unique` ON `customers` (`company_id`, `user_id`);
+CREATE INDEX `customers_company_id_status_index` ON `customers` (`company_id`, `status`);
+CREATE UNIQUE INDEX `customers_uuid_unique` ON `customers` (`uuid`);
+CREATE UNIQUE INDEX `products_company_id_sku_unique` ON `products` (`company_id`, `sku`);
+CREATE INDEX `products_company_id_is_active_index` ON `products` (`company_id`, `is_active`);
+CREATE UNIQUE INDEX `products_uuid_unique` ON `products` (`uuid`);
+CREATE UNIQUE INDEX `customer_orders_company_id_number_unique` ON `customer_orders` (`company_id`, `number`);
+CREATE INDEX `customer_orders_company_id_status_index` ON `customer_orders` (`company_id`, `status`);
+CREATE INDEX `customer_orders_customer_id_created_at_index` ON `customer_orders` (`customer_id`, `created_at`);
+CREATE UNIQUE INDEX `customer_orders_uuid_unique` ON `customer_orders` (`uuid`);
+CREATE INDEX `customer_threads_company_id_desk_status_index` ON `customer_threads` (`company_id`, `desk`, `status`);
+CREATE UNIQUE INDEX `customer_threads_uuid_unique` ON `customer_threads` (`uuid`);
+CREATE INDEX `customer_thread_messages_thread_id_id_index` ON `customer_thread_messages` (`thread_id`, `id`);
+CREATE UNIQUE INDEX `customer_tickets_company_id_number_unique` ON `customer_tickets` (`company_id`, `number`);
+CREATE INDEX `customer_tickets_company_id_desk_status_index` ON `customer_tickets` (`company_id`, `desk`, `status`);
+CREATE UNIQUE INDEX `customer_tickets_uuid_unique` ON `customer_tickets` (`uuid`);
+CREATE INDEX `customer_ticket_messages_ticket_id_id_index` ON `customer_ticket_messages` (`ticket_id`, `id`);
 
 -- foreign keys
 ALTER TABLE `activity_logs` ADD CONSTRAINT `activity_logs_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
@@ -2477,6 +2735,25 @@ ALTER TABLE `crm_contacts` ADD CONSTRAINT `crm_contacts_company_id_fk` FOREIGN K
 ALTER TABLE `crm_deals` ADD CONSTRAINT `crm_deals_owner_id_fk` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 ALTER TABLE `crm_deals` ADD CONSTRAINT `crm_deals_account_id_fk` FOREIGN KEY (`account_id`) REFERENCES `crm_accounts` (`id`) ON DELETE SET NULL;
 ALTER TABLE `crm_deals` ADD CONSTRAINT `crm_deals_company_id_fk` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE;
+ALTER TABLE `customer_order_items` ADD CONSTRAINT `customer_order_items_product_id_fk` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE SET NULL;
+ALTER TABLE `customer_order_items` ADD CONSTRAINT `customer_order_items_order_id_fk` FOREIGN KEY (`order_id`) REFERENCES `customer_orders` (`id`) ON DELETE CASCADE;
+ALTER TABLE `customer_order_items` ADD CONSTRAINT `customer_order_items_company_id_fk` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE;
+ALTER TABLE `customer_orders` ADD CONSTRAINT `customer_orders_reviewer_id_fk` FOREIGN KEY (`reviewer_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+ALTER TABLE `customer_orders` ADD CONSTRAINT `customer_orders_customer_id_fk` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE;
+ALTER TABLE `customer_orders` ADD CONSTRAINT `customer_orders_company_id_fk` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE;
+ALTER TABLE `customer_thread_messages` ADD CONSTRAINT `customer_thread_messages_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+ALTER TABLE `customer_thread_messages` ADD CONSTRAINT `customer_thread_messages_thread_id_fk` FOREIGN KEY (`thread_id`) REFERENCES `customer_threads` (`id`) ON DELETE CASCADE;
+ALTER TABLE `customer_thread_messages` ADD CONSTRAINT `customer_thread_messages_company_id_fk` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE;
+ALTER TABLE `customer_threads` ADD CONSTRAINT `customer_threads_customer_id_fk` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE;
+ALTER TABLE `customer_threads` ADD CONSTRAINT `customer_threads_company_id_fk` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE;
+ALTER TABLE `customer_ticket_messages` ADD CONSTRAINT `customer_ticket_messages_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+ALTER TABLE `customer_ticket_messages` ADD CONSTRAINT `customer_ticket_messages_ticket_id_fk` FOREIGN KEY (`ticket_id`) REFERENCES `customer_tickets` (`id`) ON DELETE CASCADE;
+ALTER TABLE `customer_ticket_messages` ADD CONSTRAINT `customer_ticket_messages_company_id_fk` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE;
+ALTER TABLE `customer_tickets` ADD CONSTRAINT `customer_tickets_customer_id_fk` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE;
+ALTER TABLE `customer_tickets` ADD CONSTRAINT `customer_tickets_company_id_fk` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE;
+ALTER TABLE `customers` ADD CONSTRAINT `customers_reviewer_id_fk` FOREIGN KEY (`reviewer_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+ALTER TABLE `customers` ADD CONSTRAINT `customers_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+ALTER TABLE `customers` ADD CONSTRAINT `customers_company_id_fk` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE;
 ALTER TABLE `daily_reports` ADD CONSTRAINT `daily_reports_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 ALTER TABLE `daily_reports` ADD CONSTRAINT `daily_reports_company_id_fk` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE;
 ALTER TABLE `departments` ADD CONSTRAINT `departments_parent_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `departments` (`id`) ON DELETE SET NULL;
@@ -2511,6 +2788,7 @@ ALTER TABLE `mission_requests` ADD CONSTRAINT `mission_requests_reviewer_id_fk` 
 ALTER TABLE `mission_requests` ADD CONSTRAINT `mission_requests_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 ALTER TABLE `mission_requests` ADD CONSTRAINT `mission_requests_company_id_fk` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE;
 ALTER TABLE `personal_access_tokens` ADD CONSTRAINT `personal_access_tokens_company_id_fk` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE SET NULL;
+ALTER TABLE `products` ADD CONSTRAINT `products_company_id_fk` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE;
 ALTER TABLE `project_members` ADD CONSTRAINT `project_members_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 ALTER TABLE `project_members` ADD CONSTRAINT `project_members_project_id_fk` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE;
 ALTER TABLE `project_members` ADD CONSTRAINT `project_members_company_id_fk` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE;

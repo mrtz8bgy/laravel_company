@@ -24,6 +24,11 @@ use App\Modules\Workflows\Models\Approval;
 use App\Modules\Hr\Models\HrProfile;
 use App\Modules\Hr\Models\LeaveRequest;
 use App\Modules\Hr\Models\MissionRequest;
+use App\Modules\Portal\Models\Customer;
+use App\Modules\Portal\Models\CustomerOrder;
+use App\Modules\Portal\Models\CustomerThread;
+use App\Modules\Portal\Models\CustomerTicket;
+use App\Modules\Portal\Models\Product;
 use App\Modules\Projects\Models\Project;
 use App\Modules\Projects\Models\Task;
 use App\Modules\Projects\Policies\ProjectPolicy;
@@ -93,6 +98,11 @@ class AppServiceProvider extends ServiceProvider
             'ticket' => Ticket::class,
             'approval' => Approval::class,
             'document' => Document::class,
+            'customer' => Customer::class,
+            'product' => Product::class,
+            'customer_order' => CustomerOrder::class,
+            'customer_thread' => CustomerThread::class,
+            'customer_ticket' => CustomerTicket::class,
         ]);
 
         Gate::policy(Department::class, DepartmentPolicy::class);

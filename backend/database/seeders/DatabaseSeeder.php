@@ -44,6 +44,7 @@ class DatabaseSeeder extends Seeder
             $this->call(DemoWorkSeeder::class);
             $this->call(SuiteSeeder::class);
             $this->call(DemoWorkHistorySeeder::class);
+            $this->call(DemoPortalSeeder::class);
 
             return;
         }
@@ -219,6 +220,7 @@ class DatabaseSeeder extends Seeder
         $this->call(DemoWorkSeeder::class);
         $this->call(SuiteSeeder::class);
         $this->call(DemoWorkHistorySeeder::class);
+        $this->call(DemoPortalSeeder::class);
     }
 
     private function seedDemoAttendance(Company $company): void

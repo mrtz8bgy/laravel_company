@@ -40,6 +40,7 @@ class UserResource extends JsonResource
                 fn () => [
                     'uuid' => $membership->department->uuid,
                     'name' => $membership->department->name,
+                    'slug' => $membership->department->slug,
                 ],
             ),
             'roles' => $this->whenLoaded('roles', fn () => $this->roles->map(fn ($role) => [

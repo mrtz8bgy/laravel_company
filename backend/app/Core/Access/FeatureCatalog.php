@@ -30,6 +30,7 @@ final class FeatureCatalog
             'workflows' => true,
             'documents' => true,
             'analytics' => true,
+            'portal' => true,
         ];
     }
 

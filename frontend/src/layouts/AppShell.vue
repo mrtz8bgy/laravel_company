@@ -38,6 +38,7 @@ const groups = computed(() => [
   {
     label: t('navBusiness'),
     items: [
+      { to: '/customers', label: t('customerDesk'), show: auth.feature('portal') && (auth.can('customers.view') || auth.can('customer_orders.view') || auth.can('customer_messages.view') || ['sales', 'operations', 'management'].includes(auth.user?.department?.slug || '')) },
       { to: '/crm', label: t('crm'), show: auth.feature('crm') && auth.can('crm.view') },
       { to: '/marketing', label: t('marketing'), show: auth.feature('marketing') && auth.can('marketing.view') },
       { to: '/finance', label: t('finance'), show: auth.feature('finance') && auth.can('finance.view') },

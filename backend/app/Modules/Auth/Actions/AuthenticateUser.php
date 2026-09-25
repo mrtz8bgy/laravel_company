@@ -9,6 +9,7 @@ use App\Modules\Organizations\Models\Company;
 use App\Modules\Organizations\Models\CompanyMembership;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class AuthenticateUser
@@ -32,10 +33,22 @@ class AuthenticateUser
 
         $memberships = CompanyMembership::query()
             ->where('user_id', $user->id)
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'pending', 'rejected'])
             ->with('company')
             ->get()
-            ->filter(fn (CompanyMembership $membership) => $membership->company?->isActive());
+            ->filter(function (CompanyMembership $membership) use ($user): bool {
+                if (! $membership->company?->isActive()) {
+                    return false;
+                }
+                if ($membership->status === 'active') {
+                    return true;
+                }
+
+                return DB::table('customers')
+                    ->where('company_id', $membership->company_id)
+                    ->where('user_id', $user->id)
+                    ->exists();
+            });
 
         if ($companyUuid) {
             $company = Company::query()->where('uuid', $companyUuid)->first();

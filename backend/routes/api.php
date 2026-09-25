@@ -22,6 +22,9 @@ use App\Modules\Workflows\Http\Controllers\ApprovalController;
 use App\Modules\Hr\Http\Controllers\MissionController;
 use App\Modules\Hr\Http\Controllers\ProfileController as HrProfileController;
 use App\Modules\Identity\Http\Controllers\UserController;
+use App\Modules\Portal\Http\Controllers\CustomerDeskController;
+use App\Modules\Portal\Http\Controllers\PortalController;
+use App\Modules\Portal\Http\Controllers\PortalRegistrationController;
 use App\Modules\Projects\Http\Controllers\ProjectController;
 use App\Modules\Projects\Http\Controllers\TaskController;
 use App\Modules\Organizations\Http\Controllers\CompanyController;
@@ -42,6 +45,11 @@ Route::prefix('auth')->group(function (): void {
 });
 
 Route::post('/onboarding/company', [OnboardingController::class, 'company'])->middleware('throttle:onboarding');
+
+Route::prefix('portal')->group(function (): void {
+    Route::get('/companies/{slug}', [PortalRegistrationController::class, 'company'])->middleware('throttle:60,1');
+    Route::post('/register', [PortalRegistrationController::class, 'register'])->middleware('throttle:login');
+});
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/auth/me', [AuthController::class, 'me']);
@@ -221,6 +229,40 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function (): void {
     });
 
     Route::get('/analytics/overview', OverviewController::class)->middleware(['feature:analytics', 'permission:analytics.view']);
+
+    Route::middleware('feature:portal')->prefix('portal/desk')->group(function (): void {
+        Route::get('/', [CustomerDeskController::class, 'home']);
+        Route::get('/customers', [CustomerDeskController::class, 'customers'])->middleware('permission:customers.view');
+        Route::post('/customers/{customer}/review', [CustomerDeskController::class, 'reviewCustomer'])->middleware('permission:customers.review');
+        Route::get('/products', [CustomerDeskController::class, 'products'])->middleware('permission:products.view');
+        Route::post('/products', [CustomerDeskController::class, 'storeProduct'])->middleware('permission:products.manage');
+        Route::patch('/products/{product}', [CustomerDeskController::class, 'updateProduct'])->middleware('permission:products.manage');
+        Route::get('/orders', [CustomerDeskController::class, 'orders'])->middleware('permission:customer_orders.view');
+        Route::patch('/orders/{order}', [CustomerDeskController::class, 'updateOrder'])->middleware('permission:customer_orders.manage');
+        Route::get('/threads', [CustomerDeskController::class, 'threads']);
+        Route::get('/threads/{thread}', [CustomerDeskController::class, 'showThread']);
+        Route::post('/threads/{thread}/replies', [CustomerDeskController::class, 'reply']);
+        Route::get('/tickets', [CustomerDeskController::class, 'tickets']);
+        Route::get('/tickets/{ticket}', [CustomerDeskController::class, 'showTicket']);
+        Route::post('/tickets/{ticket}/replies', [CustomerDeskController::class, 'replyTicket']);
+        Route::patch('/tickets/{ticket}', [CustomerDeskController::class, 'updateTicket']);
+    });
+});
+
+Route::middleware(['auth:sanctum', 'portal', 'feature:portal'])->prefix('portal')->group(function (): void {
+    Route::get('/me', [PortalController::class, 'me']);
+    Route::patch('/me', [PortalController::class, 'updateMe']);
+    Route::get('/products', [PortalController::class, 'products']);
+    Route::get('/orders', [PortalController::class, 'orders']);
+    Route::post('/orders', [PortalController::class, 'storeOrder']);
+    Route::get('/threads', [PortalController::class, 'threads']);
+    Route::post('/threads', [PortalController::class, 'storeThread']);
+    Route::get('/threads/{thread}', [PortalController::class, 'showThread']);
+    Route::post('/threads/{thread}/replies', [PortalController::class, 'reply']);
+    Route::get('/tickets', [PortalController::class, 'tickets']);
+    Route::post('/tickets', [PortalController::class, 'storeTicket']);
+    Route::get('/tickets/{ticket}', [PortalController::class, 'showTicket']);
+    Route::post('/tickets/{ticket}/replies', [PortalController::class, 'replyTicket']);
 });
 
 Route::middleware(['auth:sanctum', 'platform'])->prefix('platform')->group(function (): void {

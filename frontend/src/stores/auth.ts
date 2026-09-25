@@ -11,6 +11,7 @@ export type AuthUser = {
   job_title?: string | null
   is_owner?: boolean
   status: string
+  department?: { uuid: string; name: string; slug?: string } | null
 }
 
 export type Company = {
@@ -53,6 +54,7 @@ export const useAuthStore = defineStore('auth', {
     can: (state) => (permission: string) => state.permissions.includes(permission),
     feature: (state) => (key: string) => state.features?.[key] === true,
     onboarded: (state) => Boolean(state.onboarding?.completed || state.company?.onboarded_at),
+    isCustomer: (state) => state.roles.some((role) => role.slug === 'client') && !state.permissions.includes('company.view'),
   },
   actions: {
     apply(payload: SessionPayload) {

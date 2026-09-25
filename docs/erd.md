@@ -79,3 +79,11 @@ mission_requests
 - سند متنی. سند خصوصی برای غیرمالک ۴۰۴ است.
 
 آپلود فایل، صورتحساب SaaS و 2FA هنوز جدول عملیاتی ندارند.
+
+## پنل مشتریان
+
+- `customers`: حساب مشتری، وضعیت `pending|active|rejected`، سازمان، تلفن، یادداشت تأیید. به `users` وصل است و نقش `client` می‌گیرد. تا تأیید، عضویت شرکت `pending` است و مسیرهای کارمندی بسته می‌ماند.
+- `products`: کاتالوگ، قیمت به ریال، موجودی اختیاری.
+- `customer_orders` / `customer_order_items`: سفارش مشتری. مبلغ فقط برای خود مشتری و نقش دارای `customer_orders.view`.
+- `customer_threads` / `customer_thread_messages`: پیام به میز `sales|support|management`. هر میز فقط واحد مربوط یا نقش ممتاز را می‌بیند.
+- `customer_tickets` / `customer_ticket_messages`: تیکت شماره‌دار همان میزها. وضعیت `open|in_progress|answered|closed`. مشتری در انتظار و تیکت بسته نمی‌توانند پاسخ بدهند.

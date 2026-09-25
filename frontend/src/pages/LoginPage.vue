@@ -24,6 +24,11 @@ function fillDemo() {
   password.value = '123456'
 }
 
+function fillCustomer() {
+  email.value = 'customer@ideban.test'
+  password.value = '123456'
+}
+
 async function submit() {
   loading.value = true
   error.value = ''
@@ -33,7 +38,7 @@ async function submit() {
       companies.value = result.companies || []
       return
     }
-    router.push(auth.onboarded ? '/' : '/onboarding')
+    router.push(auth.isCustomer ? '/portal' : auth.onboarded ? '/' : '/onboarding')
   } catch (err) {
     error.value = err instanceof ApiError ? err.message : 'Error'
     ui.toast(error.value, 'bad')
@@ -71,7 +76,10 @@ async function submit() {
         <div class="mb-5 rounded-2xl border border-line bg-copper-soft/70 p-4 text-sm">
           <p class="font-semibold">{{ t('demoTitle') }}</p>
           <p class="mt-1 text-muted">{{ t('demoHint') }} · ceo@ideban.test</p>
-          <button type="button" class="btn btn-ghost mt-3" @click="fillDemo">{{ t('useDemo') }}</button>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button type="button" class="btn btn-ghost" @click="fillDemo">{{ t('useDemo') }}</button>
+            <button type="button" class="btn btn-ghost" @click="fillCustomer">{{ t('useCustomerDemo') }}</button>
+          </div>
         </div>
         <label class="field mb-3"><span>{{ t('email') }}</span><input v-model="email" type="email" required autocomplete="username" /></label>
         <label class="field mb-3"><span>{{ t('password') }}</span><input v-model="password" type="password" required autocomplete="current-password" /></label>
@@ -84,8 +92,9 @@ async function submit() {
         </label>
         <p v-if="error" class="mb-3 text-sm text-danger">{{ error }}</p>
         <button class="btn btn-primary mt-2 w-full" :disabled="loading">{{ loading ? t('signingIn') : t('login') }}</button>
-        <div class="mt-5 flex justify-between text-sm">
+        <div class="mt-5 flex flex-wrap justify-between gap-2 text-sm">
           <router-link class="text-muted" to="/forgot-password">{{ t('forgot') }}</router-link>
+          <router-link to="/portal/register">{{ t('customerRegister') }}</router-link>
           <router-link to="/onboarding">{{ t('createCompany') }}</router-link>
         </div>
       </form>

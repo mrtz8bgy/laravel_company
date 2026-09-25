@@ -150,6 +150,22 @@ final class PermissionCatalog
 
     public const PLATFORM_COMPANIES_MANAGE = 'platform.companies.manage';
 
+    public const CUSTOMERS_VIEW = 'customers.view';
+
+    public const CUSTOMERS_REVIEW = 'customers.review';
+
+    public const PRODUCTS_VIEW = 'products.view';
+
+    public const PRODUCTS_MANAGE = 'products.manage';
+
+    public const CUSTOMER_ORDERS_VIEW = 'customer_orders.view';
+
+    public const CUSTOMER_ORDERS_MANAGE = 'customer_orders.manage';
+
+    public const CUSTOMER_MESSAGES_VIEW = 'customer_messages.view';
+
+    public const CUSTOMER_MESSAGES_REPLY = 'customer_messages.reply';
+
     /**
      * @return array<string, array{module: string, description: string}>
      */
@@ -226,6 +242,14 @@ final class PermissionCatalog
             self::ANALYTICS_VIEW => ['module' => 'analytics', 'description' => 'View permitted company metrics'],
             self::PLATFORM_COMPANIES_VIEW => ['module' => 'platform', 'description' => 'View companies on the platform'],
             self::PLATFORM_COMPANIES_MANAGE => ['module' => 'platform', 'description' => 'Suspend or activate companies'],
+            self::CUSTOMERS_VIEW => ['module' => 'portal', 'description' => 'View customer accounts'],
+            self::CUSTOMERS_REVIEW => ['module' => 'portal', 'description' => 'Approve or reject customer registration'],
+            self::PRODUCTS_VIEW => ['module' => 'portal', 'description' => 'View the product catalog'],
+            self::PRODUCTS_MANAGE => ['module' => 'portal', 'description' => 'Create and update products'],
+            self::CUSTOMER_ORDERS_VIEW => ['module' => 'portal', 'description' => 'View customer orders'],
+            self::CUSTOMER_ORDERS_MANAGE => ['module' => 'portal', 'description' => 'Update customer order status'],
+            self::CUSTOMER_MESSAGES_VIEW => ['module' => 'portal', 'description' => 'Read customer messages for a permitted desk'],
+            self::CUSTOMER_MESSAGES_REPLY => ['module' => 'portal', 'description' => 'Reply to customer messages on a permitted desk'],
         ];
     }
 
@@ -319,6 +343,14 @@ final class PermissionCatalog
                     self::WORKFLOWS_REVIEW,
                     self::DOCUMENTS_MANAGE,
                     self::ANALYTICS_VIEW,
+                    self::CUSTOMERS_VIEW,
+                    self::CUSTOMERS_REVIEW,
+                    self::PRODUCTS_VIEW,
+                    self::PRODUCTS_MANAGE,
+                    self::CUSTOMER_ORDERS_VIEW,
+                    self::CUSTOMER_ORDERS_MANAGE,
+                    self::CUSTOMER_MESSAGES_VIEW,
+                    self::CUSTOMER_MESSAGES_REPLY,
                 ],
             ],
             'team-leader' => [
@@ -363,6 +395,8 @@ final class PermissionCatalog
                     self::USERS_UPDATE,
                     self::USERS_INVITE,
                     self::ACTIVITY_LOGS_VIEW,
+                    self::CUSTOMERS_VIEW,
+                    self::CUSTOMERS_REVIEW,
                     ...$desk,
                     self::DOCUMENTS_MANAGE,
                 ],
@@ -377,6 +411,12 @@ final class PermissionCatalog
                     ...$desk,
                     self::CRM_VIEW,
                     self::CRM_MANAGE,
+                    self::CUSTOMERS_VIEW,
+                    self::PRODUCTS_VIEW,
+                    self::CUSTOMER_ORDERS_VIEW,
+                    self::CUSTOMER_ORDERS_MANAGE,
+                    self::CUSTOMER_MESSAGES_VIEW,
+                    self::CUSTOMER_MESSAGES_REPLY,
                 ],
             ],
             'marketing' => [
@@ -408,9 +448,8 @@ final class PermissionCatalog
             ],
             'client' => [
                 'name' => 'مشتری',
-                'description' => 'دسترسی محدود به فضای شخصی',
+                'description' => 'صفحه شخصی، سفارش و پیام پس از تأیید مدیر',
                 'permissions' => [
-                    self::DASHBOARD_VIEW,
                     self::PROFILE_VIEW,
                     self::PROFILE_UPDATE,
                 ],

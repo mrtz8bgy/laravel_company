@@ -19,6 +19,7 @@ Platform
   Workflows            Approval
   Documents            Text document
   Analytics            Permission-gated overview
+  Portal               Customer registration, catalog, orders, messages, tickets, profile
 ```
 
 هر ماژول feature flag خودش را دارد:
@@ -37,5 +38,6 @@ Platform
 | 11 | Workflow, Approval | workflows |
 | 12 | Documents, Wiki | documents |
 | 13 | KPI, Reports | analytics |
+| — | Customer portal | portal |
 
 فاز ۲ تا ۱۳ جدول، API و صفحه دارند. در شرکت نمونه همهٔ این flagها روشن‌اند و از تنظیمات شرکت خاموش می‌شوند. آپلود فایل و صورتحساب SaaS هنوز نیستند.

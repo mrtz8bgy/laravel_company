@@ -166,3 +166,31 @@ middleware: `auth:sanctum` + `tenant` + permission همان مسیر.
 - تبدیل در کلاینت انجام می‌شود (`frontend/src/lib/jalali.ts` و `frontend/src/lib/date.ts`). تبدیل شمسی با تقویم رسمی ایران و چرخهٔ ۳۳ساله است و با `Intl` روی ۱۲ سال تطبیق داده شده است.
 - ورودی تاریخ در فرم‌ها شمسی است (`1405/07/03`، با ارقام فارسی یا لاتین) و هنگام ارسال به میلادی تبدیل می‌شود.
 - اصلاح ساعت حضور باید با آفست شرکت ارسال شود، در غیر این صورت سرور آن را رد می‌کند.
+
+## پنل مشتریان
+
+ثبت‌نام عمومی است و به شرکت با `company_slug` وصل می‌شود. تا تأیید مدیر، عضویت `pending` است و سفارش و پیام ۴۲۲ می‌شود. ایمیل مشتری بعد از ساخت عوض نمی‌شود.
+
+| روش | مسیر | دسترسی |
+| --- | --- | --- |
+| GET | `/portal/companies/{slug}` | عمومی؛ فقط نام شرکت |
+| POST | `/portal/register` | عمومی؛ رمز قوی لازم است |
+| GET/PATCH | `/portal/me` | خود مشتری، حتی در انتظار تأیید |
+| GET | `/portal/products` | مشتری تأییدشده برای سفارش؛ فهرست فقط کالاهای فعال |
+| GET/POST | `/portal/orders` | فقط سفارش خود مشتری |
+| GET/POST | `/portal/threads` | پیام به `sales`، `support` یا `management` |
+| POST | `/portal/threads/{uuid}/replies` | ادامهٔ گفتگوی خود |
+| GET/POST | `/portal/tickets` | تیکت به فروش، پشتیبانی یا مدیریت؛ مشتری در انتظار نمی‌تواند بسازد |
+| GET | `/portal/tickets/{uuid}` | فقط تیکت خود |
+| POST | `/portal/tickets/{uuid}/replies` | پاسخ مشتری؛ تیکت بسته رد می‌شود |
+| GET | `/portal/desk` | میزهای مجاز کارمند |
+| GET | `/portal/desk/customers` | `customers.view` |
+| POST | `/portal/desk/customers/{uuid}/review` | `customers.review` با `approve` یا `reject` |
+| GET/POST/PATCH | `/portal/desk/products` | `products.view` / `products.manage` |
+| GET/PATCH | `/portal/desk/orders` | `customer_orders.view` / `customer_orders.manage` |
+| GET | `/portal/desk/threads?desk=` | فقط میز واحد خود؛ فروش، پشتیبانی (`operations`) یا مدیریت |
+| GET | `/portal/desk/tickets?desk=` | همان مرز میز |
+| POST | `/portal/desk/tickets/{uuid}/replies` | پاسخ کارمند؛ `status` اختیاری |
+| PATCH | `/portal/desk/tickets/{uuid}` | تغییر وضعیت تیکت |
+
+مشتری شرکت دیگر و سفارش دیگران ۴۰۴ است. کارمند بدون میز مربوط ۴۰۳ می‌گیرد. مبلغ سفارش برای نقش بدون `customer_orders.view` در میز کارمند برنمی‌گردد.

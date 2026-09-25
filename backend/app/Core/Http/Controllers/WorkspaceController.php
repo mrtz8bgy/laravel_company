@@ -93,7 +93,13 @@ class WorkspaceController extends Controller
 
         if ($this->authorization->allows($user, PermissionCatalog::USERS_VIEW)) {
             $results['users'] = User::query()
-                ->whereHas('memberships', fn ($query) => $query->where('company_id', tenantId()))
+                ->whereHas('memberships', fn ($query) => $query->where('company_id', tenantId())->where('status', 'active'))
+                ->whereNotExists(function ($query): void {
+                    $query->selectRaw('1')
+                        ->from('customers')
+                        ->whereColumn('customers.user_id', 'users.id')
+                        ->where('customers.company_id', tenantId());
+                })
                 ->where(fn ($query) => $query->where('name', 'like', $term)->orWhere('email', 'like', $term))
                 ->orderBy('name')
                 ->limit(8)

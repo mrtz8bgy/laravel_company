@@ -5,6 +5,7 @@ use App\Core\Http\Middleware\EnsurePermission;
 use App\Core\Http\Middleware\EnsurePlatformAdmin;
 use App\Core\Http\Middleware\ResetTenant;
 use App\Core\Http\Middleware\SecurityHeaders;
+use App\Core\Http\Middleware\SetPortalTenant;
 use App\Core\Http\Middleware\SetTenant;
 use App\Core\Support\ApiResponse;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -31,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'tenant' => SetTenant::class,
+            'portal' => SetPortalTenant::class,
             'permission' => EnsurePermission::class,
             'feature' => EnsureFeature::class,
             'platform' => EnsurePlatformAdmin::class,
@@ -44,6 +46,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->prependToPriorityList(
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             SetTenant::class,
+        );
+        $middleware->prependToPriorityList(
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            SetPortalTenant::class,
         );
     })
     ->withExceptions(function (Exceptions $exceptions): void {

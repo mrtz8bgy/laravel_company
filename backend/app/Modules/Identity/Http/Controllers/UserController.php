@@ -177,7 +177,13 @@ class UserController extends Controller
     private function directoryQuery()
     {
         return User::query()
-            ->whereHas('memberships', fn ($query) => $query->where('company_id', tenantId()))
+            ->whereHas('memberships', fn ($query) => $query->where('company_id', tenantId())->where('status', 'active'))
+            ->whereNotExists(function ($query): void {
+                $query->selectRaw('1')
+                    ->from('customers')
+                    ->whereColumn('customers.user_id', 'users.id')
+                    ->where('customers.company_id', tenantId());
+            })
             ->with($this->relations());
     }
 
