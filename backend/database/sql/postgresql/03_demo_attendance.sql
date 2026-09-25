@@ -1,5 +1,5 @@
--- Sample attendance for today in Asia/Tehran.
--- Safe to skip if you only need the accounts in 02_seed.sql.
+-- Today's live clock in Asia/Tehran. Historical work-report rows are already in 02_seed.sql.
+-- Safe to skip. ON CONFLICT keeps an existing day, presence, or report.
 BEGIN;
 
 INSERT INTO attendance_days (

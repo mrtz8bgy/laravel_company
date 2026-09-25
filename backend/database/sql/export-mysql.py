@@ -230,7 +230,7 @@ def main() -> None:
     lines.append("SET FOREIGN_KEY_CHECKS = 1;")
     lines.append("SET UNIQUE_CHECKS = 1;")
     lines.append("")
-    lines.append("-- Login check. Password for every row is ChangeMe!2026")
+    lines.append("-- Login check. Password for every row is 123456")
     lines.append("SELECT `email`, `name`, `is_platform_admin` FROM `users` ORDER BY `id`;")
     lines.append("")
 
@@ -271,7 +271,7 @@ def header(db: sqlite3.Connection) -> list[str]:
         "-- MySQL 5.7+ or MariaDB 10.2+. Not for PostgreSQL.",
         "--",
         f"-- Company: {company['name']}  |  slug: {company['slug']}",
-        "-- Password for every account: ChangeMe!2026",
+        "-- Password for every account: 123456",
         "-- Change that password before any shared or production use.",
         "--",
         "-- Accounts:",

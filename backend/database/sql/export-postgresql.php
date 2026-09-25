@@ -26,10 +26,6 @@ $skipData = [
     'activity_logs',
     'login_sessions',
     'password_reset_tokens',
-    'attendance_days',
-    'attendance_events',
-    'work_presences',
-    'daily_reports',
 ];
 
 $jsonColumns = [
@@ -158,6 +154,10 @@ $seedOrder = [
     'ticket_messages',
     'approvals',
     'documents',
+    'attendance_days',
+    'attendance_events',
+    'work_presences',
+    'daily_reports',
 ];
 
 foreach ($seedOrder as $table) {
@@ -196,8 +196,8 @@ $seed[] = '';
 file_put_contents($outDir.'/02_seed.sql', implode("\n", $seed));
 
 $attendance = <<<'SQL'
--- Sample attendance for today in Asia/Tehran.
--- Safe to skip if you only need the accounts in 02_seed.sql.
+-- Today's live clock in Asia/Tehran. Historical work-report rows are already in 02_seed.sql.
+-- Safe to skip. ON CONFLICT keeps an existing day, presence, or report.
 BEGIN;
 
 INSERT INTO attendance_days (

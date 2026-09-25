@@ -43,6 +43,7 @@ class DatabaseSeeder extends Seeder
             $this->seedDemoAttendance($company);
             $this->call(DemoWorkSeeder::class);
             $this->call(SuiteSeeder::class);
+            $this->call(DemoWorkHistorySeeder::class);
 
             return;
         }
@@ -211,11 +212,13 @@ class DatabaseSeeder extends Seeder
             'schedule' => true,
             'completed' => true,
         ];
+        $settings['calendar'] = $settings['calendar'] ?? 'jalali';
         $company->settings = $settings;
         $company->save();
         $this->seedDemoAttendance($company);
         $this->call(DemoWorkSeeder::class);
         $this->call(SuiteSeeder::class);
+        $this->call(DemoWorkHistorySeeder::class);
     }
 
     private function seedDemoAttendance(Company $company): void

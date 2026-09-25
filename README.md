@@ -22,7 +22,7 @@
 | منابع انسانی | `hr@ideban.test` | `123456` |
 | ادمین پلتفرم | `platform@virtual-company.test` | `123456` |
 
-شرکت نمونه: **شبکه پردازان ایده‌بان الماس**، منطقهٔ زمانی `Asia/Tehran`.
+شرکت نمونه: **شبکه پردازان ایده‌بان الماس**، منطقهٔ زمانی `Asia/Tehran`، نمایش تاریخ شمسی. گزارش کار افراد حدود سه هفته حضور نمونه دارد.
 
 رمز نمونه فقط برای محیط توسعه است. در production عوض شود.
 
@@ -96,6 +96,7 @@ docker compose exec app php artisan migrate --seed
 - [معماری](docs/architecture.md)
 - [نقشه ماژول](docs/module-map.md)
 - [ERD](docs/erd.md)
+- [پایگاه داده](docs/database.md)
 - [ماتریس دسترسی](docs/permission-matrix.md)
 - [API](docs/api.md)
 - [ساختار پوشه](docs/folder-structure.md)
