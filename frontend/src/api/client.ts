@@ -26,6 +26,17 @@ export class ApiError extends Error {
 
 const TOKEN_KEY = 'vcos.token'
 
+/** XAMPP serves Laravel from htdocs, not from Vite's port. */
+export function apiOrigin(): string {
+  const configured = String(import.meta.env.VITE_API_BASE ?? '').trim()
+  if (configured) return configured.replace(/\/$/, '')
+  if (typeof window !== 'undefined' && ['5173', '4173'].includes(window.location.port)) {
+    const host = window.location.hostname || '127.0.0.1'
+    return `${window.location.protocol}//${host}/laravel_company/backend/public`
+  }
+  return ''
+}
+
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY)
 }
@@ -44,13 +55,24 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<E
   const token = getToken()
   if (token) headers.set('Authorization', `Bearer ${token}`)
 
-  const response = await fetch(`/api/v1${path}`, { ...options, headers })
-  const payload = await response.json().catch(() => ({
-    success: false,
-    data: null,
-    message: 'Unexpected response',
-    errors: [],
-  }))
+  const url = `${apiOrigin()}/api/v1${path}`
+  let response: Response
+  try {
+    response = await fetch(url, { ...options, headers })
+  } catch {
+    throw new ApiError('اتصال به سرور برقرار نشد. Apache و آدرس backend/public را بررسی کنید.', 0)
+  }
+
+  const text = await response.text()
+  let payload: Envelope<T>
+  try {
+    payload = JSON.parse(text) as Envelope<T>
+  } catch {
+    throw new ApiError(
+      `پاسخ سرور JSON نیست (${response.status}). فرانت به ${url} وصل نشد.`,
+      response.status,
+    )
+  }
 
   if (response.status === 401 && !path.startsWith('/auth/login') && !path.startsWith('/onboarding/company')) {
     setToken(null)

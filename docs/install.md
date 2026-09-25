@@ -26,6 +26,17 @@
 
 ## XAMPP با PHP 8.2
 
+اگر صفحهٔ ورود باز می‌شود ولی پیام `Unexpected response` می‌دهد، فرانت به پورت ۵۱۷۳ وصل است و API را اشتباهی از همان پورت می‌خواهد. در XAMPP بک‌اند این آدرس است:
+
+`http://127.0.0.1/laravel_company/backend/public/api/v1`
+
+بعد از گرفتن آخرین نسخه، سرور فرانت را یک بار ببندید و دوباره `npm run dev` بزنید. در `backend\.env` هم این را بگذارید تا مرورگر اجازهٔ اتصال داشته باشد:
+
+```env
+APP_URL=http://127.0.0.1/laravel_company/backend/public
+CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+```
+
 اگر این خطا را دیدید:
 
 `Unknown database 'virtual-company-os-mysql.sql'`
