@@ -6,6 +6,7 @@ import { useAuthStore } from '../stores/auth'
 import { useUiStore } from '../stores/ui'
 import { applyLocale } from '../i18n'
 import { ApiError } from '../api/client'
+import brandLogo from '../assets/brand-logo.png'
 
 const auth = useAuthStore()
 const ui = useUiStore()
@@ -46,25 +47,20 @@ async function submit() {
   <div class="grid min-h-screen lg:grid-cols-[1.1fr_.9fr]">
     <section class="relative hidden overflow-hidden bg-ink text-white lg:flex lg:flex-col lg:justify-between lg:p-14">
       <div class="absolute inset-0 opacity-30" style="background-image: linear-gradient(120deg, transparent 40%, rgba(198,163,106,.28) 41%, transparent 42%); background-size: 28px 28px;" />
-      <div class="relative flex items-center gap-3">
-        <span class="mark"><span /></span>
-        <span class="text-xs tracking-[0.18em] text-brass">{{ t('brandEn') }}</span>
-      </div>
+      <img class="relative mx-auto w-full max-w-lg" :src="brandLogo" alt="شبکه پردازان ایده‌بان الماس" />
       <div class="relative max-w-lg">
         <p class="kicker !text-brass">VIRTUAL COMPANY OS</p>
-        <h1 class="mt-4 text-5xl font-semibold leading-tight">{{ t('brand') }}</h1>
+        <h1 class="mt-4 text-4xl font-semibold leading-tight">{{ t('brand') }}</h1>
         <hr class="rule max-w-40" />
         <p class="mt-6 text-lg text-white/70">{{ t('tagline') }}</p>
-        <ul class="mt-8 space-y-3 text-sm text-white/60">
-          <li>{{ t('principle1') }}</li>
-          <li>{{ t('principle2') }}</li>
-          <li>{{ t('principle3') }}</li>
-        </ul>
       </div>
       <p class="relative text-xs text-white/35">Asia/Tehran</p>
     </section>
     <section class="flex items-center justify-center bg-paper px-5 py-10">
       <form class="panel w-full max-w-md p-8" @submit.prevent="submit">
+        <div class="mb-6 overflow-hidden rounded-3xl bg-ink px-4 py-5 lg:hidden">
+          <img class="mx-auto w-full" :src="brandLogo" alt="شبکه پردازان ایده‌بان الماس" />
+        </div>
         <div class="mb-6 flex items-start justify-between gap-3">
           <div>
             <p class="kicker">{{ t('brandEn') }}</p>
