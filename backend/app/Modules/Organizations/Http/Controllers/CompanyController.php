@@ -39,9 +39,17 @@ class CompanyController extends Controller
             'legal_name' => ['sometimes', 'nullable', 'string', 'max:200'],
             'timezone' => ['sometimes', 'timezone'],
             'locale' => ['sometimes', 'in:fa,en'],
+            'calendar' => ['sometimes', 'in:jalali,gregorian'],
         ]);
 
+        $calendar = $data['calendar'] ?? null;
+        unset($data['calendar']);
+
         $old = $company->only(array_keys($data));
+        if ($calendar !== null) {
+            $old['calendar'] = $company->calendarSystem();
+            $company->settings = [...($company->settings ?? []), 'calendar' => $calendar];
+        }
         $company->update($data);
         $this->activity->log('UPDATE', $company, $old, $data);
 

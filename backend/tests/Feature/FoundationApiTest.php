@@ -17,7 +17,7 @@ class FoundationApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    private const PASSWORD = '123456';
+    private const PASSWORD = 'Secret@123';
 
     public function test_health_endpoint(): void
     {

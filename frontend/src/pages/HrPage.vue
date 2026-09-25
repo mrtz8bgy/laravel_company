@@ -2,12 +2,15 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { api, ApiError } from '../api/client'
+import JalaliDateInput from '../components/JalaliDateInput.vue'
+import { useDate } from '../lib/date'
 import { useAuthStore } from '../stores/auth'
 import { useUiStore } from '../stores/ui'
 
 const auth = useAuthStore()
 const ui = useUiStore()
 const { t } = useI18n()
+const { shortDate } = useDate()
 const me = ref<any>(null)
 const leaves = ref<any[]>([])
 const missions = ref<any[]>([])
@@ -116,7 +119,7 @@ onMounted(load)
     <section v-if="me" class="panel mt-5 p-5">
       <h2 class="font-semibold">{{ me.user?.name }}</h2>
       <p class="mt-1 text-sm text-muted">{{ me.job_title || t('none') }} · {{ me.employee_code || '—' }}</p>
-      <p class="mt-1 text-sm">{{ me.employment_type ? t(`employment_${me.employment_type}`) : '' }} {{ me.hire_date || '' }}</p>
+      <p class="mt-1 text-sm">{{ me.employment_type ? t(`employment_${me.employment_type}`) : '' }} {{ me.hire_date ? shortDate(me.hire_date) : '' }}</p>
     </section>
 
     <div class="mt-4 grid gap-4 lg:grid-cols-2">
@@ -132,8 +135,8 @@ onMounted(load)
           </select>
         </label>
         <div class="mt-3 grid grid-cols-2 gap-3">
-          <label class="field"><span>{{ t('startsOn') }}</span><input v-model="leave.starts_on" type="date" required /></label>
-          <label class="field"><span>{{ t('endsOn') }}</span><input v-model="leave.ends_on" type="date" required /></label>
+          <label class="field"><span>{{ t('startsOn') }}</span><JalaliDateInput v-model="leave.starts_on" required /></label>
+          <label class="field"><span>{{ t('endsOn') }}</span><JalaliDateInput v-model="leave.ends_on" required /></label>
         </div>
         <label class="field mt-3"><span>{{ t('reason') }}</span><textarea v-model="leave.reason" rows="3" required minlength="3" /></label>
         <button class="btn btn-primary mt-3">{{ t('submit') }}</button>
@@ -142,7 +145,7 @@ onMounted(load)
             <span>{{ item.user?.name }} · {{ t(`leave_${item.type}`) }}</span>
             <span class="badge">{{ t(`request_${item.status}`) }}</span>
           </div>
-          <p class="mt-1 text-muted">{{ item.starts_on }} → {{ item.ends_on }}</p>
+          <p class="mt-1 text-muted">{{ shortDate(item.starts_on) }} → {{ shortDate(item.ends_on) }}</p>
           <div v-if="canReviewLeave && item.status === 'pending' && item.user?.uuid !== auth.user?.uuid" class="mt-2 flex gap-2">
             <button type="button" class="btn btn-primary" @click="review('leave', item.uuid, 'approved')">{{ t('approve') }}</button>
             <button type="button" class="btn btn-ghost" @click="review('leave', item.uuid, 'rejected')">{{ t('reject') }}</button>
@@ -154,8 +157,8 @@ onMounted(load)
         <h2 class="font-semibold">{{ t('mission') }}</h2>
         <label class="field mt-3"><span>{{ t('destination') }}</span><input v-model="mission.destination" required maxlength="160" /></label>
         <div class="mt-3 grid grid-cols-2 gap-3">
-          <label class="field"><span>{{ t('startsOn') }}</span><input v-model="mission.starts_on" type="date" required /></label>
-          <label class="field"><span>{{ t('endsOn') }}</span><input v-model="mission.ends_on" type="date" required /></label>
+          <label class="field"><span>{{ t('startsOn') }}</span><JalaliDateInput v-model="mission.starts_on" required /></label>
+          <label class="field"><span>{{ t('endsOn') }}</span><JalaliDateInput v-model="mission.ends_on" required /></label>
         </div>
         <label class="field mt-3"><span>{{ t('purpose') }}</span><textarea v-model="mission.purpose" rows="3" required minlength="3" /></label>
         <button class="btn btn-primary mt-3">{{ t('submit') }}</button>
@@ -191,7 +194,7 @@ onMounted(load)
             <option value="intern">{{ t('employment_intern') }}</option>
           </select>
         </label>
-        <label class="field"><span>{{ t('hireDate') }}</span><input v-model="profile.hire_date" type="date" /></label>
+        <label class="field"><span>{{ t('hireDate') }}</span><JalaliDateInput v-model="profile.hire_date" /></label>
         <label class="field"><span>{{ t('emergency') }}</span><input v-model="profile.emergency_name" /></label>
         <label class="field"><span>{{ t('phone') }}</span><input v-model="profile.emergency_phone" /></label>
         <label v-if="canSeeSalary" class="field"><span>{{ t('nationalId') }}</span><input v-model="profile.national_id" /></label>

@@ -6,6 +6,7 @@ use App\Modules\Access\Http\Controllers\RoleController;
 use App\Modules\Attendance\Http\Controllers\BoardController;
 use App\Modules\Attendance\Http\Controllers\ClockController;
 use App\Modules\Attendance\Http\Controllers\DailyReportController;
+use App\Modules\Attendance\Http\Controllers\WorkLogController;
 use App\Modules\Auth\Http\Controllers\AuthController;
 use App\Modules\Analytics\Http\Controllers\OverviewController;
 use App\Modules\Calendar\Http\Controllers\EventController;
@@ -122,6 +123,7 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function (): void {
 
         Route::get('/attendance/board', [BoardController::class, 'index'])->middleware('permission:attendance.view');
         Route::patch('/attendance/days/{day}', [BoardController::class, 'correct'])->middleware('permission:attendance.correct');
+        Route::get('/attendance/people/{user}', [WorkLogController::class, 'show'])->middleware('permission:attendance.view');
         Route::get('/attendance/reports', [DailyReportController::class, 'index'])->middleware('permission:attendance.reports.view');
         Route::post('/attendance/reports', [DailyReportController::class, 'store'])->middleware('permission:attendance.reports.submit');
     });
@@ -139,6 +141,7 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function (): void {
         Route::delete('/projects/{project}/members/{user}', [ProjectController::class, 'removeMember'])->middleware('permission:projects.update');
 
         Route::get('/tasks/mine', [TaskController::class, 'mine'])->middleware('permission:tasks.view');
+        Route::get('/tasks/people/{user}', [TaskController::class, 'forPerson'])->middleware('permission:tasks.view');
         Route::post('/tasks', [TaskController::class, 'store'])->middleware('permission:tasks.create');
         Route::match(['put', 'patch'], '/tasks/{task}', [TaskController::class, 'update'])->middleware('permission:tasks.update');
         Route::post('/tasks/{task}/move', [TaskController::class, 'move'])->middleware('permission:tasks.update');

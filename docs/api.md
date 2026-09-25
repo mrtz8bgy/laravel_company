@@ -36,7 +36,7 @@ middleware: `auth:sanctum` + `tenant` + permission همان مسیر.
 - `GET /dashboard`
 - `GET /search?q=`
 - `GET /activity-logs`
-- `GET/PATCH /company`
+- `GET/PATCH /company` — فیلد `calendar` (`jalali`|`gregorian`) سیستم نمایش تاریخ شرکت است و در `settings` ذخیره می‌شود
 - `GET/PUT /work-schedules`
 - `GET /features` و `PATCH /features/{key}`
 - `GET/PUT /settings` و `PUT /settings/{key}`
@@ -64,10 +64,23 @@ middleware: `auth:sanctum` + `tenant` + permission همان مسیر.
 | PATCH | `/attendance/days/{uuid}` | attendance.correct |
 | POST | `/attendance/reports` | attendance.reports.submit |
 | GET | `/attendance/reports?date` | attendance.reports.view |
+| GET | `/attendance/people/{uuid}?from&to` | attendance.view |
 
 ورود دوباره در همان روز، یا خروج بدون ورود، خطای ۴۲۲ است. اصلاح ساعت باید در همان تاریخ کاری و منطقهٔ زمانی شرکت باشد. تابلوی حضور برای منابع انسانی کل شرکت است و برای مدیر واحد یا سرپرست فقط افراد زیرمجموعه.
 
 اگر feature پروژه روشن باشد و کاربر `tasks.view` داشته باشد، `tasks` در پاسخ `/attendance/today` پر می‌شود. در غیر این صورت `tasks_available` برابر false است.
+
+### گزارش کار یک فرد
+
+`GET /attendance/people/{uuid}?from&to` گزارش یک نفر را برای مدیر برمی‌گرداند: خلاصه (روزها، کارکرد، انتظار، تراز، تأخیر، تعداد گزارش)، ردیف‌های حضور و گزارش‌های صبح/پایان‌روز.
+
+- بازه پیش‌فرض ۳۰ روز تا امروزِ شرکت و سقف آن ۹۲ روز است؛ `from` و `to` تاریخ میلادی `YYYY-MM-DD` می‌گیرند.
+- دامنهٔ دید همان `AttendanceAccess` است: منابع انسانی و دارندهٔ `attendance.correct` کل شرکت، مدیر واحد و سرپرست تیم فقط افراد زیرمجموعه. همکار ساده ۴۰۳ می‌گیرد و uuid شرکت دیگر ۴۰۴.
+- پاسخ شامل `timezone` و `calendar` شرکت است تا کلاینت تاریخ را با همان تنظیم نمایش دهد. وظیفه‌ها در این پاسخ نیستند (مرز ماژول).
+
+### اصلاح ساعت یک روز
+
+`PATCH /attendance/days/{uuid}` با `check_in_at` و `check_out_at` نیازمند مجوز `attendance.correct` است. زمان باید همان تاریخ کاری و با آفست منطقهٔ زمانی شرکت فرستاده شود، در غیر این صورت ۴۲۲ برمی‌گردد.
 
 ## پروژه و کانبان — فاز ۳
 
@@ -84,11 +97,16 @@ middleware: `auth:sanctum` + `tenant` + permission همان مسیر.
 | POST | `/projects/{uuid}/members` | projects.update |
 | DELETE | `/projects/{uuid}/members/{user}` | projects.update |
 | GET | `/tasks/mine` | tasks.view |
+| GET | `/tasks/people/{uuid}?open=1` | tasks.view |
 | POST | `/tasks` | tasks.create |
 | PATCH | `/tasks/{uuid}` | tasks.update |
 | POST | `/tasks/{uuid}/move` | tasks.update |
 | POST | `/tasks/{uuid}/comments` | tasks.update |
 | DELETE | `/tasks/{uuid}` | tasks.delete |
+
+`GET /tasks/people/{uuid}` وظیفه‌های ارسال‌شده به یک نفر را از میان پروژه‌هایی که بیننده می‌بیند برمی‌گرداند و خلاصهٔ `total|open|done|overdue` دارد.
+
+ارسال وظیفه همان `POST /tasks` است با `assignee_uuid`. انتساب به شخص دیگر نیازمند `tasks.assign` یا نقش مدیر پروژه است؛ انتساب به خود همیشه مجاز است. این قاعده هم در ساخت و هم در ویرایش اعمال می‌شود.
 
 پروژهٔ `private` فقط برای اعضا و مالک/مدیرعامل دیده می‌شود. حدس uuid برای غیرعضو ۴۰۴ است، نه ۴۰۳. کارمند فقط وظیفهٔ خودش یا وظیفه‌ای که گزارش کرده را ویرایش می‌کند. تغییر مسئول نیاز به `tasks.assign` یا نقش مدیر پروژه دارد. حذف پروژه در عمل بایگانی است.
 
@@ -139,3 +157,12 @@ middleware: `auth:sanctum` + `tenant` + permission همان مسیر.
 - `PATCH /platform/companies/{uuid}` با `status=active|suspended`
 
 ادمین پلتفرم برای دادهٔ داخل شرکت باید `X-Company-Id` بفرستد یا هنگام ورود شرکت را انتخاب کند.
+
+## تاریخ، زمان و تقویم شمسی
+
+- همهٔ تاریخ‌ها در پایگاه داده میلادی و UTC ذخیره می‌شوند. این قانون تغییر نمی‌کند.
+- منطقهٔ زمانی هر شرکت در ستون `companies.timezone` است و پیش‌فرض آن `Asia/Tehran` است. حضور، مهلت وظیفه و گزارش‌ها با همین منطقه محاسبه و نمایش داده می‌شوند.
+- سیستم نمایش تاریخ هر شرکت در `settings.calendar` است: `jalali` (پیش‌فرض) یا `gregorian`. مقدار آن در پاسخ `/company` و `/auth/me` به کلاینت داده می‌شود.
+- تبدیل در کلاینت انجام می‌شود (`frontend/src/lib/jalali.ts` و `frontend/src/lib/date.ts`). تبدیل شمسی با تقویم رسمی ایران و چرخهٔ ۳۳ساله است و با `Intl` روی ۱۲ سال تطبیق داده شده است.
+- ورودی تاریخ در فرم‌ها شمسی است (`1405/07/03`، با ارقام فارسی یا لاتین) و هنگام ارسال به میلادی تبدیل می‌شود.
+- اصلاح ساعت حضور باید با آفست شرکت ارسال شود، در غیر این صورت سرور آن را رد می‌کند.

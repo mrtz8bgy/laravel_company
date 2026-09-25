@@ -31,6 +31,7 @@ const router = createRouter({
     { path: '/teams', component: () => import('../pages/TeamsPage.vue'), meta: { auth: true } },
     { path: '/people', component: () => import('../pages/PeoplePage.vue'), meta: { auth: true } },
     { path: '/people/:uuid', component: () => import('../pages/PersonPage.vue'), meta: { auth: true } },
+    { path: '/people/:uuid/work', component: () => import('../pages/PersonWorkPage.vue'), meta: { auth: true } },
     { path: '/roles', component: () => import('../pages/RolesPage.vue'), meta: { auth: true } },
     { path: '/activity', component: () => import('../pages/ActivityPage.vue'), meta: { auth: true } },
     { path: '/settings', component: () => import('../pages/SettingsPage.vue'), meta: { auth: true } },

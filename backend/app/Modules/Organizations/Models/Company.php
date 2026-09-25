@@ -72,6 +72,24 @@ class Company extends Model
     }
 
     /**
+     * Company display timezone. Tehran is the product default for this market.
+     */
+    public function displayTimezone(): string
+    {
+        return $this->timezone ?: 'Asia/Tehran';
+    }
+
+    /**
+     * Calendar system used to render dates: jalali (default) or gregorian.
+     */
+    public function calendarSystem(): string
+    {
+        $calendar = $this->settings['calendar'] ?? null;
+
+        return in_array($calendar, ['jalali', 'gregorian'], true) ? $calendar : 'jalali';
+    }
+
+    /**
      * @return array<string, bool>
      */
     public function onboardingState(): array

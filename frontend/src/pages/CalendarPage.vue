@@ -2,6 +2,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { api, ApiError } from '../api/client'
+import { useDate } from '../lib/date'
 import { useAuthStore } from '../stores/auth'
 import { useUiStore } from '../stores/ui'
 
@@ -26,8 +27,10 @@ async function save() {
   }
 }
 
+const { formatDateTime } = useDate()
+
 function when(value?: string) {
-  return value ? value.slice(0, 16).replace('T', ' ') : '—'
+  return value ? formatDateTime(value) : '—'
 }
 
 onMounted(load)

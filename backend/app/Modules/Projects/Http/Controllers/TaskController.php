@@ -10,7 +10,9 @@ use App\Core\Services\AuthorizationService;
 use App\Core\Support\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Modules\Identity\Models\User;
+use App\Modules\Identity\Services\MemberLookup;
 use App\Modules\Projects\Actions\MoveTask;
+use App\Modules\Projects\Actions\TasksForPerson;
 use App\Modules\Projects\Actions\TodayTasks;
 use App\Modules\Projects\Http\Resources\TaskResource;
 use App\Modules\Projects\Models\KanbanColumn;
@@ -31,12 +33,32 @@ class TaskController extends Controller
         private readonly AuthorizationService $authorization,
         private readonly MoveTask $moveTask,
         private readonly TodayTasks $todayTasks,
+        private readonly TasksForPerson $tasksForPerson,
+        private readonly MemberLookup $members,
         private readonly ActivityLogger $activity,
     ) {}
 
     public function mine(Request $request): JsonResponse
     {
         return ApiResponse::success($this->todayTasks->for($this->user($request)));
+    }
+
+    /**
+     * Tasks assigned to one person, limited to projects the viewer may open.
+     */
+    public function forPerson(Request $request, string $user): JsonResponse
+    {
+        $viewer = $this->user($request);
+        $person = $this->members->activeMember($user);
+
+        return ApiResponse::success(
+            $this->tasksForPerson->for(
+                $viewer,
+                $person,
+                tenant()->displayTimezone(),
+                $request->boolean('open'),
+            ) + ['user' => ['uuid' => $person->uuid, 'name' => $person->name]],
+        );
     }
 
     public function store(Request $request): JsonResponse
@@ -64,6 +86,9 @@ class TaskController extends Controller
         }
 
         $assigneeId = $this->assigneeId($data['assignee_uuid'] ?? null);
+        if ($assigneeId !== null && $assigneeId !== $request->user()->id && ! $this->canAssign($this->user($request), $project)) {
+            throw new AuthorizationException(__('auth.forbidden'));
+        }
         $task = Task::query()->create([
             'project_id' => $project->id,
             'column_id' => $column->id,
@@ -94,8 +119,7 @@ class TaskController extends Controller
             'due_date' => ['sometimes', 'nullable', 'date'],
             'assignee_uuid' => ['sometimes', 'nullable', 'uuid'],
         ]);
-        $canAssign = $this->authorization->allows($this->user($request), PermissionCatalog::TASKS_ASSIGN)
-            || $this->access->memberRole($this->user($request), $task->project) === 'manager';
+        $canAssign = $this->canAssign($this->user($request), $task->project);
         if (array_key_exists('assignee_uuid', $data) && ! $canAssign) {
             throw new AuthorizationException(__('auth.forbidden'));
         }
@@ -149,6 +173,15 @@ class TaskController extends Controller
             'body' => $comment->body,
             'user' => ['uuid' => $request->user()->uuid, 'name' => $request->user()->name],
         ], __('messages.created'), 201);
+    }
+
+    /**
+     * Handing a task to somebody else needs the assign permission or project management.
+     */
+    private function canAssign(User $user, Project $project): bool
+    {
+        return $this->authorization->allows($user, PermissionCatalog::TASKS_ASSIGN)
+            || $this->access->memberRole($user, $project) === 'manager';
     }
 
     private function assigneeId(?string $uuid): ?int

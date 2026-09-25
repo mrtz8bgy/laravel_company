@@ -2,11 +2,13 @@
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { api } from '../api/client'
+import { useDate } from '../lib/date'
 import { useAuthStore } from '../stores/auth'
 
 const auth = useAuthStore()
 const { t } = useI18n()
 const data = ref<any>(null)
+const { shortDate, weekdayName, today, formatDateTime } = useDate()
 
 const greeting = computed(() => {
   const zone = auth.company?.timezone || 'Asia/Tehran'
@@ -36,6 +38,7 @@ onMounted(async () => {
   <div>
     <p class="text-sm text-copper">{{ auth.company?.name }}</p>
     <h1 class="mt-1 text-3xl font-semibold">{{ greeting }}، {{ auth.user?.name }}</h1>
+    <p class="mt-1 text-sm text-muted">{{ weekdayName(today()) }} · {{ shortDate(today()) }}</p>
     <p class="mt-2 max-w-2xl text-muted">{{ t('principle2') }}</p>
     <div v-if="!data" class="mt-8 text-muted">{{ t('loading') }}</div>
     <div v-else class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -51,7 +54,7 @@ onMounted(async () => {
         <div v-for="item in data?.recent_activity || []" :key="item.id" class="table-row grid-cols-[auto_1fr_auto]">
           <span class="badge">{{ item.action }}</span>
           <span class="text-sm">{{ item.user?.name || '—' }} <span class="text-muted">{{ item.entity_type }}</span></span>
-          <span class="text-xs text-muted">{{ item.created_at?.slice(0, 16).replace('T', ' ') }}</span>
+          <span class="text-xs text-muted">{{ formatDateTime(item.created_at) }}</span>
         </div>
       </section>
       <section class="panel p-5">

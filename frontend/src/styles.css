@@ -287,3 +287,47 @@ h1 {
   background: linear-gradient(90deg, var(--color-brass), transparent 80%);
   margin: 0.8rem 0 0;
 }
+
+.badge-open {
+  background: var(--color-mint);
+  color: var(--color-emerald-deep);
+  border-color: rgba(27, 79, 67, 0.22);
+}
+
+.badge-danger {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  border-color: rgba(141, 46, 46, 0.22);
+}
+
+.date-input {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.date-input input {
+  min-width: 0;
+  flex: 1;
+}
+
+.date-input .is-invalid {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 4px rgba(141, 46, 46, 0.1);
+}
+
+.date-input-today {
+  flex: none;
+  border: 1px solid var(--color-line-strong);
+  background: var(--color-copper-soft);
+  color: #6d5224;
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.date-input-today:hover {
+  border-color: var(--color-brass);
+}

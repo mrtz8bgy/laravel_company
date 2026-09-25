@@ -20,6 +20,7 @@ export type Company = {
   slug: string
   timezone: string
   locale: string
+  calendar?: string
   status: string
   onboarded_at?: string | null
   onboarding?: Record<string, boolean>

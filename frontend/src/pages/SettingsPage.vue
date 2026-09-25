@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { api, ApiError } from '../api/client'
+import { useDate } from '../lib/date'
 import { useAuthStore } from '../stores/auth'
 import { useUiStore } from '../stores/ui'
 
@@ -9,9 +10,23 @@ const auth = useAuthStore()
 const ui = useUiStore()
 const { t } = useI18n()
 const company = reactive({ name: '', legal_name: '', timezone: 'Asia/Tehran', locale: 'fa' })
+const calendar = ref('jalali')
 const days = ref<any[]>([])
 const features = ref<any[]>([])
-const week = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه', 'شنبه']
+const { shortDate, weekdayName, today, clockTime } = useDate()
+const now = ref(new Date().toISOString())
+
+/** Iran starts the week on Saturday, so rows follow that order. */
+const orderedDays = computed(() =>
+  [...days.value].sort((a, b) => ((a.weekday + 1) % 7) - ((b.weekday + 1) % 7)),
+)
+
+const companyDate = computed(() => shortDate(today()))
+const companyClock = computed(() => clockTime(now.value))
+
+function weekdayLabel(weekday: number) {
+  return `weekday_${(weekday + 1) % 7}`
+}
 
 async function load() {
   const current = (await api<any>('/company')).data
@@ -21,13 +36,15 @@ async function load() {
     timezone: current.timezone,
     locale: current.locale,
   })
+  calendar.value = current.calendar === 'gregorian' ? 'gregorian' : 'jalali'
   days.value = (await api<any[]>('/work-schedules')).data
   if (auth.can('features.view')) features.value = (await api<any[]>('/features')).data
 }
 
 async function saveCompany() {
   try {
-    await api('/company', { method: 'PATCH', body: JSON.stringify(company) })
+    await api('/company', { method: 'PATCH', body: JSON.stringify({ ...company, calendar: calendar.value }) })
+    auth.company = auth.company ? { ...auth.company, calendar: calendar.value } : auth.company
     ui.toast(t('save'))
   } catch (error) {
     ui.toast(error instanceof ApiError ? error.message : 'Error', 'bad')
@@ -55,7 +72,13 @@ async function saveSchedule() {
   }
 }
 
+let timer: ReturnType<typeof setInterval>
+
 onMounted(load)
+onUnmounted(() => clearInterval(timer))
+timer = setInterval(() => {
+  now.value = new Date().toISOString()
+}, 30000)
 </script>
 
 <template>
@@ -76,14 +99,25 @@ onMounted(load)
             <option value="en">English</option>
           </select>
         </label>
+        <label class="field">
+          <span>{{ t('calendarSystem') }}</span>
+          <select v-model="calendar" :disabled="!auth.can('company.update')">
+            <option value="jalali">{{ t('calendar_jalali') }}</option>
+            <option value="gregorian">{{ t('calendar_gregorian') }}</option>
+          </select>
+        </label>
+        <p class="text-xs text-muted md:col-span-2">{{ t('calendarHint') }}</p>
       </div>
+      <p class="mt-3 text-sm text-muted">
+        {{ t('companyClock') }}: {{ companyDate }} · {{ companyClock }} · {{ weekdayName(today()) }}
+      </p>
       <button v-if="auth.can('company.update')" class="btn btn-primary mt-4">{{ t('save') }}</button>
     </form>
     <form class="panel p-5" @submit.prevent="saveSchedule">
       <h2 class="mb-4 font-semibold">{{ t('workingHours') }}</h2>
       <div class="space-y-3">
-        <div v-for="day in days" :key="day.weekday" class="grid items-center gap-2 rounded-2xl border border-line p-3 md:grid-cols-[8rem_auto_1fr_1fr_1fr_1fr]">
-          <strong>{{ week[day.weekday] }}</strong>
+        <div v-for="day in orderedDays" :key="day.weekday" class="grid items-center gap-2 rounded-2xl border border-line p-3 md:grid-cols-[8rem_auto_1fr_1fr_1fr_1fr]">
+          <strong>{{ t(weekdayLabel(day.weekday)) }}</strong>
           <label class="flex items-center gap-2 text-sm"><input v-model="day.is_working_day" type="checkbox" /> {{ t('workingDay') }}</label>
           <label class="field"><span>{{ t('start') }}</span><input v-model="day.start_time" type="time" /></label>
           <label class="field"><span>{{ t('end') }}</span><input v-model="day.end_time" type="time" /></label>

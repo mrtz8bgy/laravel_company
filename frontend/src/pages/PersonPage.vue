@@ -118,6 +118,13 @@ onMounted(load)
           <span class="badge">{{ form.status === 'suspended' ? t('suspended') : t('active') }}</span>
           <span v-for="role in person.roles || []" :key="role.uuid" class="badge">{{ role.name }}</span>
         </div>
+        <router-link
+          v-if="auth.feature('attendance') && auth.can('attendance.view')"
+          class="btn btn-primary mt-4"
+          :to="`/people/${route.params.uuid}/work`"
+        >
+          {{ t('workReport') }}
+        </router-link>
       </header>
 
       <form v-if="auth.can('users.update')" class="panel mb-4 p-6" @submit.prevent="save">

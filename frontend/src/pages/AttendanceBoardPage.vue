@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { api } from '../api/client'
+import JalaliDateInput from '../components/JalaliDateInput.vue'
 
 const { t } = useI18n()
 const board = ref<any>(null)
@@ -23,9 +24,9 @@ onMounted(load)
         <p class="text-sm text-copper">{{ t('virtualOffice') }}</p>
         <h1 class="text-3xl font-semibold">{{ t('attendanceBoard') }}</h1>
       </div>
-      <label class="field w-44">
+      <label class="field w-52">
         <span>{{ t('workingToday') }}</span>
-        <input v-model="date" type="date" @change="load" />
+        <JalaliDateInput v-model="date" @update:model-value="load" />
       </label>
     </div>
     <div v-if="board" class="mb-4 grid gap-3 sm:grid-cols-4">

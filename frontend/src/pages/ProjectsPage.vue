@@ -2,12 +2,15 @@
 import { onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { api, ApiError } from '../api/client'
+import JalaliDateInput from '../components/JalaliDateInput.vue'
+import { useDate } from '../lib/date'
 import { useAuthStore } from '../stores/auth'
 import { useUiStore } from '../stores/ui'
 
 const auth = useAuthStore()
 const ui = useUiStore()
 const { t } = useI18n()
+const { shortDate } = useDate()
 const rows = ref<any[]>([])
 const departments = ref<any[]>([])
 const open = ref(false)
@@ -61,7 +64,7 @@ onMounted(load)
           <span class="badge">{{ t(`visibility_${row.visibility}`) }}</span>
         </div>
         <p v-if="row.description" class="mt-3 line-clamp-2 text-sm">{{ row.description }}</p>
-        <p class="mt-4 text-xs text-muted">{{ row.tasks_count ?? 0 }} · {{ row.due_date || '—' }}</p>
+        <p class="mt-4 text-xs text-muted">{{ row.tasks_count ?? 0 }} · {{ row.due_date ? shortDate(row.due_date) : '—' }}</p>
       </router-link>
     </div>
 
@@ -84,7 +87,7 @@ onMounted(load)
             <option v-for="department in departments" :key="department.uuid" :value="department.uuid">{{ department.name }}</option>
           </select>
         </label>
-        <label class="field mt-3"><span>{{ t('due') }}</span><input v-model="form.due_date" type="date" /></label>
+        <label class="field mt-3"><span>{{ t('due') }}</span><JalaliDateInput v-model="form.due_date" /></label>
         <div class="mt-4 flex gap-2">
           <button class="btn btn-primary">{{ t('save') }}</button>
           <button type="button" class="btn btn-ghost" @click="open = false">{{ t('cancel') }}</button>

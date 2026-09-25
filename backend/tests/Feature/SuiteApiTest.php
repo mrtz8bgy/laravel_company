@@ -11,7 +11,7 @@ class SuiteApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    private const PASSWORD = '123456';
+    private const PASSWORD = 'Secret@123';
 
     public function test_finance_and_crm_stay_inside_their_roles_and_company(): void
     {

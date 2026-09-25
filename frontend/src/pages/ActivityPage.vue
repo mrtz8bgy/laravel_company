@@ -2,8 +2,10 @@
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { api } from '../api/client'
+import { useDate } from '../lib/date'
 
 const { t } = useI18n()
+const { formatDateTime } = useDate()
 const rows = ref<any[]>([])
 
 onMounted(async () => {

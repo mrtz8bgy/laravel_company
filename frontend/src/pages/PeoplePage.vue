@@ -89,6 +89,7 @@ onMounted(load)
             <td>{{ row.job_title || '—' }}</td>
             <td class="text-muted">{{ row.roles?.map((role: any) => role.name).join('، ') }}</td>
             <td class="flex justify-end gap-2">
+              <RouterLink v-if="auth.feature('attendance') && auth.can('attendance.view')" class="btn btn-ghost" :to="`/people/${row.uuid}/work`">{{ t('workReport') }}</RouterLink>
               <RouterLink class="btn btn-ghost" :to="`/people/${row.uuid}`">{{ auth.can('users.update') ? t('edit') : t('view') }}</RouterLink>
               <button v-if="auth.can('users.delete') && !row.is_owner" class="btn btn-danger" @click="remove(row.uuid)">{{ t('delete') }}</button>
             </td>

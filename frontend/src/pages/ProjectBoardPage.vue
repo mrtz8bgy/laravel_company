@@ -3,6 +3,8 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { api, ApiError } from '../api/client'
+import JalaliDateInput from '../components/JalaliDateInput.vue'
+import { useDate } from '../lib/date'
 import { useAuthStore } from '../stores/auth'
 import { useUiStore } from '../stores/ui'
 
@@ -16,6 +18,8 @@ const form = reactive({ title: '', priority: 'normal', assignee_uuid: '', due_da
 const memberUuid = ref('')
 
 const columns = computed(() => board.value?.columns || [])
+const { shortDate } = useDate()
+
 const canAssign = computed(() => auth.can('tasks.assign') || auth.can('projects.update'))
 
 async function load() {
@@ -100,7 +104,7 @@ onMounted(load)
           <option v-for="column in columns" :key="column.uuid" :value="column.uuid">{{ column.name }}</option>
         </select>
       </label>
-      <label class="field"><span>{{ t('due') }}</span><input v-model="form.due_date" type="date" /></label>
+      <label class="field"><span>{{ t('due') }}</span><JalaliDateInput v-model="form.due_date" /></label>
       <button class="btn btn-primary self-end">{{ t('create') }}</button>
     </form>
 
@@ -112,7 +116,7 @@ onMounted(load)
         </div>
         <article v-for="task in column.tasks" :key="task.uuid" class="mb-2 rounded-xl border border-line bg-paper p-3">
           <p class="font-medium">{{ task.title }}</p>
-          <p class="mt-1 text-xs text-muted">{{ task.assignee?.name || t('none') }} · {{ task.due_date || '—' }}</p>
+          <p class="mt-1 text-xs text-muted">{{ task.assignee?.name || t('none') }} · {{ task.due_date ? shortDate(task.due_date) : '—' }}</p>
           <p class="mt-1 text-xs text-copper">{{ t(`priority_${task.priority}`) }}</p>
           <label v-if="auth.can('tasks.update')" class="field mt-2">
             <span>{{ t('move') }}</span>
