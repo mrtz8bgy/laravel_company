@@ -28,6 +28,23 @@
 
 اگر این خطا را دیدید:
 
+`Unknown database 'virtual-company-os-mysql.sql'`
+
+نام دیتابیس را برابر نام فایل گذاشته‌اید. فایل SQL دیتابیس نیست. در `backend\.env` این مقدارها را بگذارید:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=virtual_company
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+در محیط محلی، اگر نام دیتابیس به `.sql` ختم شود، برنامه خودش دیتابیس `virtual_company` را می‌سازد و فایل `backend/database/sql/mysql/virtual-company-os.sql` را داخل آن وارد می‌کند. صفحه را یک بار تازه کنید.
+
+اگر این خطا را دیدید:
+
 `No application encryption key has been specified.`
 
 یعنی `APP_KEY` در `backend\.env` خالی است. نسخهٔ جدید با اولین باز شدن سایت آن را می‌سازد و در همان فایل ذخیره می‌کند. صفحه را یک بار تازه کنید. اگر هنوز ماند، این را بزنید:
